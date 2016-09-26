@@ -8,11 +8,15 @@ A walking simulator in a snowy location where the player can walk around and cat
 
 ####What is the effect?
 The first effect will be particle effects to make the snow. 
+
 ####How will the effect contribute to the aesthetic?
+Just watching snow fall tends to be relaxing so having snow in my walking simulator will add to the relaxing feel. Also snow will be the main focus of the game 
 
 ####What is the effect?
-The second effect will be collision detection on the snow particles to allow the player to catch them
-####How will the effect contribute to the aesthetic?
+The second effect will be collision detection on the snow particles to allow the player to catch them.
 
+####How will the effect contribute to the aesthetic?
+This should make the game feel more immersive as allow the player to do something. 
 
 ##Is the scope appropriate for the product development time-frame?
+???
