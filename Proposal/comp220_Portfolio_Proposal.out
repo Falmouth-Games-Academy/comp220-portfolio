@@ -3,6 +3,4 @@
 \BOOKMARK [1][-]{section.3}{What Graphical or Simulation effects will the demo include?}{}% 3
 \BOOKMARK [2][-]{subsection.3.1}{Procedural Generation of terrain}{section.3}% 4
 \BOOKMARK [2][-]{subsection.3.2}{Ground Bump Mapping}{section.3}% 5
-\BOOKMARK [1][-]{section.4}{Additional graphics techniques that may be implemented}{}% 6
-\BOOKMARK [2][-]{subsection.4.1}{Ray-Casting}{section.4}% 7
-\BOOKMARK [2][-]{subsection.4.2}{Loading of meshes from a standard 3D object file format}{section.4}% 8
+\BOOKMARK [1][-]{section.4}{Additional content that may be implemented as stretch goals}{}% 6
