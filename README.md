@@ -1,22 +1,13 @@
 # comp220-portfolio
 Base repository for the COMP220 assignment #1 (Portfolio of Game Engine Components)
 
-##What is the title and high concept of the demo?
-A walking simulator in a snowy location where the player can walk around and catch snow in there hands. The controls will have WASD for movement controls and left mouse click to catch snow. 
+# Proposal: 
+The high concept is  walking simulator in a forest. The player can move around the forest using WASD and the goal is for the player to collect wood. Once they have enough wood they can start a fire.
 
-##What is the intended aesthetic?
+# Effects:
+####What is the effect?
+The first effect will be collision detection, this will be used to stop the player from walking through trees and to allow them to collect logs. This will contribute to the aesthetic as it allows the player to collect logs which is the goal and stops them from being able to move through objects 
 
 ####What is the effect?
-The first effect will be particle effects to make the snow. 
+The second effect will be a particle effect to create the fire. The fire will be in the middle of the game area, once the player has collected enough logs they can start a fire. 
 
-####How will the effect contribute to the aesthetic?
-Just watching snow fall tends to be relaxing so having snow in my walking simulator will add to the relaxing feel. Also snow will be the main focus of the game 
-
-####What is the effect?
-The second effect will be collision detection on the snow particles to allow the player to catch them.
-
-####How will the effect contribute to the aesthetic?
-This should make the game feel more immersive as allow the player to do something. 
-
-##Is the scope appropriate for the product development time-frame?
-???
