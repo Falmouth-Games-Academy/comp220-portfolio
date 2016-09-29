@@ -10,3 +10,5 @@ The player will be a light source that will move around the procedural world, li
 The player can fire lots of light sources that will light up the path in head.
 
 The player can suck up all the light sources back into the player and then the player will illuminate more.
+
+Cubeworld meets alan wake
