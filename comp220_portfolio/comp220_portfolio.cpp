@@ -4,51 +4,46 @@
 #include "stdafx.h"
 #include "comp220_portfolio.h"
 
-// NOTE: this code is intended to illustrate usage of OpenGL.
-// It is NOT intended to illustrate good coding style or naming conventions!
-// Code has been copied and pasted from tutorials which use different conventions.
-// In your own projects, make sure you rename identifiers to follow a consistent style.
-
 void showErrorMessage(const char* message, const char* title)
 {
 	// Note: this is specific to Windows, and would need redefining to work on Mac or Linux
 	MessageBoxA(nullptr, message, title, MB_OK | MB_ICONERROR);
 }
 
-bool compileShader(GLuint shaderId, const std::string& shaderFileName)
+bool compileShader(GLuint shader_id, const std::string& shader_file_name)
 {
 	// Read the source code from the file
-	std::string shaderSource;
-	std::ifstream sourceStream(shaderFileName, std::ios::in);
-	if (sourceStream.is_open())
+	std::string shader_location;
+	std::ifstream source_stream(shader_file_name, std::ios::in);
+	if (source_stream.is_open())
 	{
 		std::stringstream buffer;
-		buffer << sourceStream.rdbuf();
-		shaderSource = buffer.str();
-		sourceStream.close();
+		buffer << source_stream.rdbuf();
+		shader_location = buffer.str();
+		source_stream.close();
 	}
 	else
 	{
-		showErrorMessage(shaderFileName.c_str(), "File not found");
+		showErrorMessage(shader_file_name.c_str(), "File not found");
 		return false;
 	}
 
 	// Compile the shader
-	const char* sourcePointer = shaderSource.c_str();
-	glShaderSource(shaderId, 1, &sourcePointer, NULL);
-	glCompileShader(shaderId);
+	const char* source_pointer = shader_location.c_str();
+	glShaderSource(shader_id, 1, &source_pointer, NULL);
+	glCompileShader(shader_id);
 
 	// Check the results of compilation
 	GLint result = GL_FALSE;
-	int infoLogLength = 0;
-	glGetShaderiv(shaderId, GL_COMPILE_STATUS, &result);
-	glGetShaderiv(shaderId, GL_INFO_LOG_LENGTH, &infoLogLength);
-	if (infoLogLength > 1)
+	int info_log_length = 0;
+	glGetShaderiv(shader_id, GL_COMPILE_STATUS, &result);
+	glGetShaderiv(shader_id, GL_INFO_LOG_LENGTH, &info_log_length);
+	if (info_log_length > 1)
 	{
 		// Display the compilation log
-		std::vector<char> errorMessage(infoLogLength + 1);
-		glGetShaderInfoLog(shaderId, infoLogLength, NULL, errorMessage.data());
-		showErrorMessage(errorMessage.data(), shaderFileName.c_str());
+		std::vector<char> error_message(info_log_length + 1);
+		glGetShaderInfoLog(shader_id, info_log_length, NULL, error_message.data());
+		showErrorMessage(error_message.data(), shader_file_name.c_str());
 	}
 
 	return (result != GL_FALSE);
@@ -57,36 +52,36 @@ bool compileShader(GLuint shaderId, const std::string& shaderFileName)
 GLuint loadShaders(const std::string& vertex_file_path, const std::string& fragment_file_path) {
 
 	// Create the shaders
-	GLuint vertexShaderId = glCreateShader(GL_VERTEX_SHADER);
-	compileShader(vertexShaderId, vertex_file_path);
+	GLuint vertex_shader_id = glCreateShader(GL_VERTEX_SHADER);
+	compileShader(vertex_shader_id, vertex_file_path);
 
-	GLuint fragmentShaderId = glCreateShader(GL_FRAGMENT_SHADER);
-	compileShader(fragmentShaderId, fragment_file_path);
+	GLuint fragment_shader_id = glCreateShader(GL_FRAGMENT_SHADER);
+	compileShader(fragment_shader_id, fragment_file_path);
 
 	// Link the program
-	GLuint programId = glCreateProgram();
-	glAttachShader(programId, vertexShaderId);
-	glAttachShader(programId, fragmentShaderId);
-	glLinkProgram(programId);
+	GLuint program_id = glCreateProgram();
+	glAttachShader(program_id, vertex_shader_id);
+	glAttachShader(program_id, fragment_shader_id);
+	glLinkProgram(program_id);
 
 	// Check the program
 	GLint result = GL_FALSE;
-	int infoLogLength = 0;
-	glGetProgramiv(programId, GL_LINK_STATUS, &result);
-	glGetProgramiv(programId, GL_INFO_LOG_LENGTH, &infoLogLength);
-	if (infoLogLength > 1) {
-		std::vector<char> errorMessage(infoLogLength + 1);
-		glGetProgramInfoLog(programId, infoLogLength, NULL, errorMessage.data());
-		showErrorMessage(errorMessage.data(), "glLinkProgram error");
+	int info_log_length = 0;
+	glGetProgramiv(program_id, GL_LINK_STATUS, &result);
+	glGetProgramiv(program_id, GL_INFO_LOG_LENGTH, &info_log_length);
+	if (info_log_length > 1) {
+		std::vector<char> error_message(info_log_length + 1);
+		glGetProgramInfoLog(program_id, info_log_length, NULL, error_message.data());
+		showErrorMessage(error_message.data(), "glLinkProgram error");
 	}
 
-	glDetachShader(programId, vertexShaderId);
-	glDetachShader(programId, fragmentShaderId);
+	glDetachShader(program_id, vertex_shader_id);
+	glDetachShader(program_id, fragment_shader_id);
 
-	glDeleteShader(vertexShaderId);
-	glDeleteShader(fragmentShaderId);
+	glDeleteShader(vertex_shader_id);
+	glDeleteShader(fragment_shader_id);
 
-	return programId;
+	return program_id;
 }
 
 int main(int argc, char* args[])
@@ -110,9 +105,9 @@ int main(int argc, char* args[])
 		return 1;
 	}
 
-	SDL_GLContext glContext = SDL_GL_CreateContext(window);
+	SDL_GLContext gl_context = SDL_GL_CreateContext(window);
 
-	if (glContext == nullptr)
+	if (gl_context == nullptr)
 	{
 		showErrorMessage("SDL_GL_CreateContext failed", SDL_GetError());
 		return 1;
@@ -123,9 +118,9 @@ int main(int argc, char* args[])
 		showErrorMessage("glewInit failed", ":(");
 	}
 
-	GLuint VertexArrayID;
-	glGenVertexArrays(1, &VertexArrayID);
-	glBindVertexArray(VertexArrayID);
+	GLuint vertex_array_id;
+	glGenVertexArrays(1, &vertex_array_id);
+	glBindVertexArray(vertex_array_id);
 
 	// An array of 3 vectors which represents 3 vertices
 	static const GLfloat g_vertex_buffer_data[] = {
@@ -141,22 +136,22 @@ int main(int argc, char* args[])
 	};
 
 	// This will identify our vertex buffer
-	GLuint vertexbuffer;
+	GLuint vertex_buffer;
 	// Generate 1 buffer, put the resulting identifier in vertexbuffer
-	glGenBuffers(1, &vertexbuffer);
+	glGenBuffers(1, &vertex_buffer);
 	// The following commands will talk about our 'vertexbuffer' buffer
-	glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
+	glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer);
 	// Give our vertices to OpenGL.
 	glBufferData(GL_ARRAY_BUFFER, sizeof(g_vertex_buffer_data), g_vertex_buffer_data, GL_STATIC_DRAW);
 
-	GLuint colorbuffer;
-	glGenBuffers(1, &colorbuffer);
-	glBindBuffer(GL_ARRAY_BUFFER, colorbuffer);
+	GLuint color_buffer;
+	glGenBuffers(1, &color_buffer);
+	glBindBuffer(GL_ARRAY_BUFFER, color_buffer);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(g_colour_buffer_data), g_colour_buffer_data, GL_STATIC_DRAW);
 
-	GLuint programID = loadShaders("vertex.glsl", "fragment.glsl");
+	GLuint program_id = loadShaders("vertex.glsl", "fragment.glsl");
 
-	GLuint mvpLocation = glGetUniformLocation(programID, "mvp");
+	GLuint mvp_location = glGetUniformLocation(program_id, "mvp");
 
 	bool running = true;
 	while (running)
@@ -183,11 +178,11 @@ int main(int argc, char* args[])
 		glClearColor(0.0f, 0.5f, 1.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		glUseProgram(programID);
+		glUseProgram(program_id);
 
 		// 1rst attribute buffer : vertices
 		glEnableVertexAttribArray(0);
-		glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
+		glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer);
 		glVertexAttribPointer(
 			0,                  // attribute 0. No particular reason for 0, but must match the layout in the shader.
 			3,                  // size
@@ -199,7 +194,7 @@ int main(int argc, char* args[])
 
 		// 2nd attribute buffer : colors
 		glEnableVertexAttribArray(1);
-		glBindBuffer(GL_ARRAY_BUFFER, colorbuffer);
+		glBindBuffer(GL_ARRAY_BUFFER, color_buffer);
 		glVertexAttribPointer(
 			1,                                // attribute. No particular reason for 1, but must match the layout in the shader.
 			3,                                // size
@@ -226,7 +221,7 @@ int main(int argc, char* args[])
 			//transform = glm::scale(transform, glm::vec3(1.2f, sin(SDL_GetTicks() / 1000.0f), 1.0f));
 			//transform = glm::translate(transform, glm::vec3(1.2f, i*100, 1.0f));
 			mvp = projection * view * transform;
-			glUniformMatrix4fv(mvpLocation, 1, GL_FALSE, glm::value_ptr(mvp));
+			glUniformMatrix4fv(mvp_location, 1, GL_FALSE, glm::value_ptr(mvp));
 			glDrawArrays(GL_TRIANGLES, 0, 3); // Starting from vertex 0; 3 vertices total -> 1 triangle
 		}
 		
@@ -237,7 +232,7 @@ int main(int argc, char* args[])
 		SDL_GL_SwapWindow(window);
 	}
 
-	SDL_GL_DeleteContext(glContext);
+	SDL_GL_DeleteContext(gl_context);
 	SDL_DestroyWindow(window);
 
 	SDL_Quit();
