@@ -211,21 +211,10 @@ int main(int argc, char* args[])
 		// Draw the triangle !
 		glm::mat4 transform;
 		glm::mat4 mvp(projection * view * transform);
-		/*
-		glUniformMatrix4fv(mvpLocation, 1, GL_FALSE, glm::value_ptr(mvp));
-		glDrawArrays(GL_TRIANGLES, 0, 3); // Starting from vertex 0; 3 vertices total -> 1 triangle
-		*/
-		for (int i = 0; i < 25; i++)
-		{
-			transform = glm::rotate(transform, SDL_GetTicks() / 100.0f, glm::vec3(i/10, 0, 1));
-			//transform = glm::scale(transform, glm::vec3(1.2f, sin(SDL_GetTicks() / 1000.0f), 1.0f));
-			//transform = glm::translate(transform, glm::vec3(1.2f, i*100, 1.0f));
-			mvp = projection * view * transform;
-			glUniformMatrix4fv(mvp_location, 1, GL_FALSE, glm::value_ptr(mvp));
-			glDrawArrays(GL_TRIANGLES, 0, 3); // Starting from vertex 0; 3 vertices total -> 1 triangle
-		}
 		
-
+		glUniformMatrix4fv(mvp_location, 1, GL_FALSE, glm::value_ptr(mvp));
+		glDrawArrays(GL_TRIANGLES, 0, 3); // Starting from vertex 0; 3 vertices total -> 1 triangle
+		
 		glDisableVertexAttribArray(0);
 		glDisableVertexAttribArray(1);
 
