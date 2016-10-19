@@ -1,17 +1,63 @@
-// 01_FirstOpenGL.cpp : Defines the entry point for the application.
-//
-
 #include "stdafx.h"
-#include "COMP220Portfolio.h"
-#include "Mesh.h"
+#include "ForestScene.h"
 
-void showErrorMessage(const char* message, const char* title)
+
+ForestScene::ForestScene()
+{
+	if (SDL_Init(SDL_INIT_VIDEO) < 0)
+	{
+		showErrorMessage(SDL_GetError(), "SDL_Init failed");
+	}
+
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
+	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+
+	window = SDL_CreateWindow("My first OpenGL program", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 600, 600, SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL);
+
+	if (window == nullptr)
+	{
+		showErrorMessage(SDL_GetError(), "SDL_CreateWindow failed");
+	}
+
+	glContext = SDL_GL_CreateContext(window);
+
+	if (glContext == nullptr)
+	{
+		showErrorMessage(SDL_GetError(), "SDL_GL_CreateContext failed");
+	}
+
+	if (glewInit() != GLEW_OK)
+	{
+		showErrorMessage("glewInit failed", ":(");
+	}
+
+	GLuint diceTexture = loadTexture("dice_texture_2.png");
+
+	if (diceTexture == 0)
+	{
+		showErrorMessage("loadTexture failed", ":(");
+	}
+}
+
+
+ForestScene::~ForestScene()
+{
+
+	SDL_GL_DeleteContext(glContext);
+	SDL_DestroyWindow(window);
+
+	SDL_Quit();
+}
+
+void ForestScene::showErrorMessage(const char* message, const char* title)
 {
 	// Note: this is specific to Windows, and would need redefining to work on Mac or Linux
 	MessageBoxA(nullptr, message, title, MB_OK | MB_ICONERROR);
 }
 
-bool compileShader(GLuint shaderId, const std::string& shaderFileName)
+bool ForestScene::compileShader(GLuint shaderId, const std::string& shaderFileName)
 {
 	// Read the source code from the file
 	std::string shaderSource;
@@ -50,7 +96,8 @@ bool compileShader(GLuint shaderId, const std::string& shaderFileName)
 	return (result != GL_FALSE);
 }
 
-GLuint loadShaders(const std::string& vertex_file_path, const std::string& fragment_file_path) {
+GLuint ForestScene::loadShaders(const std::string& vertex_file_path, const std::string& fragment_file_path)
+{
 
 	// Create the shaders
 	GLuint vertexShaderId = glCreateShader(GL_VERTEX_SHADER);
@@ -85,39 +132,47 @@ GLuint loadShaders(const std::string& vertex_file_path, const std::string& fragm
 	return programId;
 }
 
-int main(int argc, char* args[])
+GLuint ForestScene::loadTexture(const std::string& fileName)
 {
-	if (SDL_Init(SDL_INIT_VIDEO) < 0)
+	SDL_Surface* textureSurface = IMG_Load(fileName.c_str());
+
+	if (textureSurface == nullptr)
 	{
-		showErrorMessage("SDL_Init failed", SDL_GetError());
-		return 1;
+		showErrorMessage(SDL_GetError(), "IMG_Load failed");
+		return 0;
 	}
 
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
-	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+	GLuint textureId;
+	glGenTextures(1, &textureId);
+	glBindTexture(GL_TEXTURE_2D, textureId);
 
-	SDL_Window* window = SDL_CreateWindow("My first OpenGL program", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 600, 600, SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL);
-
-	if (window == nullptr)
+	int format;
+	if (textureSurface->format->BytesPerPixel == 3)
 	{
-		showErrorMessage("SDL_CreateWindow failed", SDL_GetError());
-		return 1;
+		format = GL_RGB;
+	}
+	else if (textureSurface->format->BytesPerPixel == 4)
+	{
+		format = GL_RGBA;
+	}
+	else
+	{
+		showErrorMessage("Invalid pixel format", ":(");
+		return 0;
 	}
 
-	SDL_GLContext glContext = SDL_GL_CreateContext(window);
+	glTexImage2D(GL_TEXTURE_2D, 0, format, textureSurface->w, textureSurface->h, 0, format, GL_UNSIGNED_BYTE, textureSurface->pixels);
 
-	if (glContext == nullptr)
-	{
-		showErrorMessage("SDL_GL_CreateContext failed", SDL_GetError());
-		return 1;
-	}
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
-	if (glewInit() != GLEW_OK)
-	{
-		showErrorMessage("glewInit failed", ":(");
-	}
+	SDL_FreeSurface(textureSurface);
+	return textureId;
+}
+
+void ForestScene::run()
+{
+	
 
 	GLuint VertexArrayID;
 	glGenVertexArrays(1, &VertexArrayID);
@@ -133,12 +188,15 @@ int main(int argc, char* args[])
 	glm::vec3 g(+1, -1, -1);
 	glm::vec3 h(+1, -1, +1);
 
-	mesh.addSquare(a, b, c, d, glm::vec3(1, 0, 0));
-	mesh.addSquare(b, h, g, c, glm::vec3(1, 1, 0));
-	mesh.addSquare(a, e, h, b, glm::vec3(0, 1, 0));
-	mesh.addSquare(d, f, e, a, glm::vec3(0, 0, 1));
-	mesh.addSquare(e, f, g, h, glm::vec3(1, 0.5f, 0));
-	mesh.addSquare(d, c, g, f, glm::vec3(1, 0, 1));
+	/*mesh.addSquare(a, b, c, d, glm::vec3(1, 0, 0), 0.25f, 0.5f, 0.0f, 0.25f);
+	mesh.addSquare(b, h, g, c, glm::vec3(1, 1, 0), 0.5f, 0.75f, 0.25f, 0.5f);
+	mesh.addSquare(a, e, h, b, glm::vec3(0, 1, 0), 0.25f, 0.5f, 0.25f, 0.5f);
+	mesh.addSquare(d, f, e, a, glm::vec3(0, 0, 1), 0.75f, 1.0f, 0.25f, 0.5f);
+	mesh.addSquare(e, f, g, h, glm::vec3(1, 0.5f, 0), 0.0f, 0.25f, 0.25f, 0.5f);
+	mesh.addSquare(d, c, g, f, glm::vec3(1, 0, 1), 0.25f, 0.5f, 0.5f, 0.75f);*/
+
+	//mesh.addCircle(glm::vec3(0, -2, 0), 1, 500, glm::vec3(1, 1, 0));
+	mesh.addCircle(glm::vec3(0, -5, 0), 1, 4, glm::vec3(0, 0, 0));
 	mesh.createBuffers();
 
 	GLuint programID = loadShaders("vertex.glsl", "fragment.glsl");
@@ -147,6 +205,9 @@ int main(int argc, char* args[])
 
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
+
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	//glEnable(GL_CULL_FACE);
 
@@ -181,8 +242,8 @@ int main(int argc, char* args[])
 
 		int mouseX, mouseY;
 		SDL_GetRelativeMouseState(&mouseX, &mouseY);
-		playerYaw -= mouseX * 0.005f;
-		playerPitch -= mouseY * 0.005f;
+		playerYaw -= mouseX * mouseSensitivity;
+		playerPitch -= mouseY * mouseSensitivity;
 		const float maxPitch = glm::radians(89.0f);
 		if (playerPitch > maxPitch)
 			playerPitch = maxPitch;
@@ -199,15 +260,16 @@ int main(int argc, char* args[])
 		glm::mat4 playerForwardRotation;
 		playerForwardRotation = glm::rotate(playerForwardRotation, playerYaw, glm::vec3(0, 1, 0));
 		playerForward = playerForwardRotation * playerForward;
+		playerForward = playerLook;
 
 		const Uint8* keyboardState = SDL_GetKeyboardState(nullptr);
 		if (keyboardState[SDL_SCANCODE_W])
 		{
-			playerPosition += playerForward * 0.001f;
+			playerPosition += playerForward * movementMultipler;
 		}
 		if (keyboardState[SDL_SCANCODE_S])
 		{
-			playerPosition -= playerForward * 0.001f;
+			playerPosition -= playerForward * movementMultipler;
 		}
 
 		glm::vec4 playerRight(0, 0, -1, 0);
@@ -217,11 +279,11 @@ int main(int argc, char* args[])
 
 		if (keyboardState[SDL_SCANCODE_A])
 		{
-			playerPosition -= playerRight * 0.001f;
+			playerPosition -= playerRight * movementMultipler;
 		}
 		if (keyboardState[SDL_SCANCODE_D])
 		{
-			playerPosition += playerRight * 0.001f;
+			playerPosition += playerRight * movementMultipler;
 		}
 
 		glClearColor(0.0f, 0.5f, 1.0f, 1.0f);
@@ -242,10 +304,5 @@ int main(int argc, char* args[])
 		SDL_GL_SwapWindow(window);
 	}
 
-	SDL_GL_DeleteContext(glContext);
-	SDL_DestroyWindow(window);
 
-	SDL_Quit();
-
-	return 0;
 }

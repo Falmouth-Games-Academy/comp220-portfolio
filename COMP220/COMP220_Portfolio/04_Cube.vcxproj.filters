@@ -30,7 +30,10 @@
     <ClInclude Include="Mesh.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="COMP220Portfolio.h">
+    <ClInclude Include="COMP220_Portfolio.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ForestScene.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -41,7 +44,10 @@
     <ClCompile Include="Mesh.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="COMP220Portfolio.cpp">
+    <ClCompile Include="COMP220_Portfolio.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ForestScene.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
