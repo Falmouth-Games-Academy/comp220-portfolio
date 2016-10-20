@@ -1,6 +1,6 @@
 #include "mesh.h"
 
-
+//Sends data to the GPU.
 
 Mesh::Mesh(Vertex* vertices, unsigned int numVertices)
 {
