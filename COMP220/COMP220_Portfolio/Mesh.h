@@ -16,10 +16,20 @@ public:
 	void addCircle(const glm::vec3& centre, float radius, int numPoints,
 		const glm::vec3& colour);
 
-	void createBuffers();
+	bool loadOBJ(const char * path, const glm::vec3& colour,
+		std::vector < glm::vec3 > & outVertices, std::vector < glm::vec2 > & outUvs, std::vector < glm::vec3 > & outNormals);
+
+
+
+	void createBuffers(std::vector< glm::vec3 >vertices);
 	void draw();
 
 private:
+	std::vector< unsigned int > vertexIndices, uvIndices, normalIndices;
+	std::vector< glm::vec3 > tempVertices;
+	std::vector< glm::vec2 > tempUvs;
+	std::vector< glm::vec3 > tempNormals;
+
 	std::vector<glm::vec3> m_vertexPositions, m_vertexColours;
 	std::vector<glm::vec2> m_vertexUVs;
 	GLuint m_positionBuffer = 0, m_colourBuffer = 0, m_uvBuffer = 0;

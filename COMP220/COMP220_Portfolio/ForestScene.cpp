@@ -196,8 +196,17 @@ void ForestScene::run()
 	mesh.addSquare(d, c, g, f, glm::vec3(1, 0, 1), 0.25f, 0.5f, 0.5f, 0.75f);*/
 
 	//mesh.addCircle(glm::vec3(0, -2, 0), 1, 500, glm::vec3(1, 1, 0));
-	mesh.addCircle(glm::vec3(0, -5, 0), 1, 4, glm::vec3(0, 0, 0));
-	mesh.createBuffers();
+	//mesh.addCircle(glm::vec3(0, -5, 0), 1, 4, glm::vec3(0, 0, 0));
+
+	// Read .obj file
+	std::vector< glm::vec3 > vertices;
+	std::vector< glm::vec2 > uvs;
+	std::vector< glm::vec3 > normals;
+	const glm::vec3 colour = glm::vec3(1, 0, 0);
+	bool res = mesh.loadOBJ("cube.obj", colour, vertices, uvs, normals);
+	
+	
+	mesh.createBuffers(vertices);
 
 	GLuint programID = loadShaders("vertex.glsl", "fragment.glsl");
 
