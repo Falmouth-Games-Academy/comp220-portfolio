@@ -154,6 +154,7 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Perlin_Noise.h" />
     <ClInclude Include="Portfolio_Main.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="Resource.h" />
@@ -161,6 +162,7 @@
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Perlin_Noise.cpp" />
     <ClCompile Include="Portfolio_Main.cpp" />
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="stdafx.cpp">
