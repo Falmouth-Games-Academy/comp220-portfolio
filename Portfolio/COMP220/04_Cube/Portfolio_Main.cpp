@@ -185,12 +185,14 @@ int main(int argc, char* args[])
 	glm::vec3 g(+1, -1, -1);
 	glm::vec3 h(+1, -1, +1);
 
-	/*mesh.addSquare(a, b, c, d, glm::vec3(1, 0, 0), 0.25f, 0.5f, 0.0f, 0.25f);
+	/*
+	mesh.addSquare(a, b, c, d, glm::vec3(1, 0, 0), 0.25f, 0.5f, 0.0f, 0.25f);
 	mesh.addSquare(b, h, g, c, glm::vec3(1, 1, 0), 0.5f, 0.75f, 0.25f, 0.5f);
 	mesh.addSquare(a, e, h, b, glm::vec3(0, 1, 0), 0.25f, 0.5f, 0.25f, 0.5f);
 	mesh.addSquare(d, f, e, a, glm::vec3(0, 0, 1), 0.75f, 1.0f, 0.25f, 0.5f);
 	mesh.addSquare(e, f, g, h, glm::vec3(1, 0.5f, 0), 0.0f, 0.25f, 0.25f, 0.5f);
-	mesh.addSquare(d, c, g, f, glm::vec3(1, 0, 1), 0.25f, 0.5f, 0.5f, 0.75f);*/
+	mesh.addSquare(d, c, g, f, glm::vec3(1, 0, 1), 0.25f, 0.5f, 0.5f, 0.75f);
+	*/
 
 	//mesh.addCircle(glm::vec3(0, -2, 0), 1, 500, glm::vec3(1, 1, 0));
 
@@ -294,7 +296,7 @@ int main(int argc, char* args[])
 		glm::mat4 projection = glm::perspective(glm::radians(45.0f), 1.0f, 0.1f, 100.0f);
 
 		glm::mat4 transform;
-		transform = glm::rotate(transform, sin(SDL_GetTicks() / 10000.0f), glm::vec3(0, 1, 0));
+		//transform = glm::rotate(transform, sin(SDL_GetTicks() / 10000.0f), glm::vec3(0, 1, 0));
 		glm::mat4 mvp = projection * view * transform;
 		glUniformMatrix4fv(mvpLocation, 1, GL_FALSE, glm::value_ptr(mvp));
 
