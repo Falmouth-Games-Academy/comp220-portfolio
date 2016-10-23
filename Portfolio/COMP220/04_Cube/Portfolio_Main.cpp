@@ -2,7 +2,8 @@
 //
 
 #include "stdafx.h"
-#include "03_Transformations.h"
+#include "Portfolio_Main.h"
+#include "Mesh.h"
 
 // NOTE: this code is intended to illustrate usage of OpenGL.
 // It is NOT intended to illustrate good coding style or naming conventions!
@@ -89,11 +90,49 @@ GLuint loadShaders(const std::string& vertex_file_path, const std::string& fragm
 	return programId;
 }
 
+GLuint loadTexture(const std::string& fileName)
+{
+	SDL_Surface* textureSurface = IMG_Load(fileName.c_str());
+
+	if (textureSurface == nullptr)
+	{
+		showErrorMessage(SDL_GetError(), "IMG_Load failed");
+		return 0;
+	}
+
+	GLuint textureId;
+	glGenTextures(1, &textureId);
+	glBindTexture(GL_TEXTURE_2D, textureId);
+
+	int format;
+	if (textureSurface->format->BytesPerPixel == 3)
+	{
+		format = GL_RGB;
+	}
+	else if (textureSurface->format->BytesPerPixel == 4)
+	{
+		format = GL_RGBA;
+	}
+	else
+	{
+		showErrorMessage("Invalid pixel format", ":(");
+		return 0;
+	}
+
+	glTexImage2D(GL_TEXTURE_2D, 0, format, textureSurface->w, textureSurface->h, 0, format, GL_UNSIGNED_BYTE, textureSurface->pixels);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+	SDL_FreeSurface(textureSurface);
+	return textureId;
+}
+
 int main(int argc, char* args[])
 {
 	if (SDL_Init(SDL_INIT_VIDEO) < 0)
 	{
-		showErrorMessage("SDL_Init failed", SDL_GetError());
+		showErrorMessage(SDL_GetError(), "SDL_Init failed");
 		return 1;
 	}
 
@@ -106,7 +145,7 @@ int main(int argc, char* args[])
 
 	if (window == nullptr)
 	{
-		showErrorMessage("SDL_CreateWindow failed", SDL_GetError());
+		showErrorMessage(SDL_GetError(), "SDL_CreateWindow failed");
 		return 1;
 	}
 
@@ -114,45 +153,49 @@ int main(int argc, char* args[])
 
 	if (glContext == nullptr)
 	{
-		showErrorMessage("SDL_GL_CreateContext failed", SDL_GetError());
+		showErrorMessage(SDL_GetError(), "SDL_GL_CreateContext failed");
 		return 1;
 	}
 
 	if (glewInit() != GLEW_OK)
 	{
 		showErrorMessage("glewInit failed", ":(");
+		return 1;
+	}
+
+	GLuint diceTexture = loadTexture("dice_texture_2.png");
+
+	if (diceTexture == 0)
+	{
+		showErrorMessage("loadTexture failed", ":(");
+		return 1;
 	}
 
 	GLuint VertexArrayID;
 	glGenVertexArrays(1, &VertexArrayID);
 	glBindVertexArray(VertexArrayID);
 
-	// An array of 3 vectors which represents 3 vertices
-	static const GLfloat g_vertex_buffer_data[] = {
-		-0.5f, -0.5f, 0.0f,
-		0.5f, -0.5f, 0.0f,
-		0.0f,  0.5f, 0.0f,
-	};
+	Mesh mesh;
+	glm::vec3 a(-1, +1, +1);
+	glm::vec3 b(+1, +1, +1);
+	glm::vec3 c(+1, +1, -1);
+	glm::vec3 d(-1, +1, -1);
+	glm::vec3 e(-1, -1, +1);
+	glm::vec3 f(-1, -1, -1);
+	glm::vec3 g(+1, -1, -1);
+	glm::vec3 h(+1, -1, +1);
 
-	static const GLfloat g_colour_buffer_data[] = {
-		0.8f, 0.2f, 0.2f,
-		0.2f, 0.8f, 0.2f,
-		0.2f, 0.2f, 0.8f,
-	};
+	/*mesh.addSquare(a, b, c, d, glm::vec3(1, 0, 0), 0.25f, 0.5f, 0.0f, 0.25f);
+	mesh.addSquare(b, h, g, c, glm::vec3(1, 1, 0), 0.5f, 0.75f, 0.25f, 0.5f);
+	mesh.addSquare(a, e, h, b, glm::vec3(0, 1, 0), 0.25f, 0.5f, 0.25f, 0.5f);
+	mesh.addSquare(d, f, e, a, glm::vec3(0, 0, 1), 0.75f, 1.0f, 0.25f, 0.5f);
+	mesh.addSquare(e, f, g, h, glm::vec3(1, 0.5f, 0), 0.0f, 0.25f, 0.25f, 0.5f);
+	mesh.addSquare(d, c, g, f, glm::vec3(1, 0, 1), 0.25f, 0.5f, 0.5f, 0.75f);*/
 
-	// This will identify our vertex buffer
-	GLuint vertexbuffer;
-	// Generate 1 buffer, put the resulting identifier in vertexbuffer
-	glGenBuffers(1, &vertexbuffer);
-	// The following commands will talk about our 'vertexbuffer' buffer
-	glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
-	// Give our vertices to OpenGL.
-	glBufferData(GL_ARRAY_BUFFER, sizeof(g_vertex_buffer_data), g_vertex_buffer_data, GL_STATIC_DRAW);
+	//mesh.addCircle(glm::vec3(0, -2, 0), 1, 500, glm::vec3(1, 1, 0));
 
-	GLuint colorbuffer;
-	glGenBuffers(1, &colorbuffer);
-	glBindBuffer(GL_ARRAY_BUFFER, colorbuffer);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(g_colour_buffer_data), g_colour_buffer_data, GL_STATIC_DRAW);
+	mesh.addCylinder(glm::vec3(0, -2, 0), 1, 24, -2, glm::vec3(1, 0, 0));
+	mesh.createBuffers();
 
 	GLuint programID = loadShaders("vertex.glsl", "fragment.glsl");
 
@@ -161,7 +204,17 @@ int main(int argc, char* args[])
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
 
-	glm::vec3 eyePosition(0, 0, 10);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	//glEnable(GL_CULL_FACE);
+
+	glm::vec4 playerPosition(0, 0, 5, 1);
+	float playerPitch = 0;
+	float playerYaw = 0;
+
+	SDL_SetRelativeMouseMode(SDL_TRUE);
+	SDL_GetRelativeMouseState(nullptr, nullptr);
 
 	bool running = true;
 	while (running)
@@ -181,84 +234,71 @@ int main(int argc, char* args[])
 				case SDLK_ESCAPE:
 					running = false;
 					break;
-
-				case SDLK_LEFT:
-					eyePosition.x -= 1;
-					break;
-
-				case SDLK_RIGHT:
-					eyePosition.x += 1;
-					break;
-
-				case SDLK_UP:
-					eyePosition.z -= 1;
-					break;
-
-				case SDLK_DOWN:
-					eyePosition.z += 1;
-					break;
 				}
 			}
 		}
 
 		int mouseX, mouseY;
-		SDL_GetMouseState(&mouseX, &mouseY);
+		SDL_GetRelativeMouseState(&mouseX, &mouseY);
+		playerYaw -= mouseX * 0.005f;
+		playerPitch -= mouseY * 0.005f;
+		const float maxPitch = glm::radians(89.0f);
+		if (playerPitch > maxPitch)
+			playerPitch = maxPitch;
+		if (playerPitch < -maxPitch)
+			playerPitch = -maxPitch;
 
-		glClearColor(0.0f, 0.5f, 1.0f, 1.0f);
+		glm::vec4 playerLook(0, 0, -1, 0);
+		glm::mat4 playerRotation;
+		playerRotation = glm::rotate(playerRotation, playerYaw, glm::vec3(0, 1, 0));
+		playerRotation = glm::rotate(playerRotation, playerPitch, glm::vec3(1, 0, 0));
+		playerLook = playerRotation * playerLook;
+
+		/*glm::vec4 playerForward(0, 0, -1, 0);
+		glm::mat4 playerForwardRotation;
+		playerForwardRotation = glm::rotate(playerForwardRotation, playerYaw, glm::vec3(0, 1, 0));
+		playerForward = playerForwardRotation * playerForward;*/
+		glm::vec4 playerForward = playerLook;
+
+		const Uint8* keyboardState = SDL_GetKeyboardState(nullptr);
+		if (keyboardState[SDL_SCANCODE_W])
+		{
+			playerPosition += playerForward * 0.001f;
+		}
+		if (keyboardState[SDL_SCANCODE_S])
+		{
+			playerPosition -= playerForward * 0.001f;
+		}
+
+		glm::vec4 playerRight(0, 0, -1, 0);
+		glm::mat4 playerRightRotation;
+		playerRightRotation = glm::rotate(playerRightRotation, playerYaw - glm::radians(90.0f), glm::vec3(0, 1, 0));
+		playerRight = playerRightRotation * playerRight;
+
+		if (keyboardState[SDL_SCANCODE_A])
+		{
+			playerPosition -= playerRight * 0.001f;
+		}
+		if (keyboardState[SDL_SCANCODE_D])
+		{
+			playerPosition += playerRight * 0.001f;
+		}
+
+
+		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		glUseProgram(programID);
 
-		// 1rst attribute buffer : vertices
-		glEnableVertexAttribArray(0);
-		glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
-		glVertexAttribPointer(
-			0,                  // attribute 0. No particular reason for 0, but must match the layout in the shader.
-			3,                  // size
-			GL_FLOAT,           // type
-			GL_FALSE,           // normalized?
-			0,                  // stride
-			(void*)0            // array buffer offset
-			);
-
-		// 2nd attribute buffer : colors
-		glEnableVertexAttribArray(1);
-		glBindBuffer(GL_ARRAY_BUFFER, colorbuffer);
-		glVertexAttribPointer(
-			1,                                // attribute. No particular reason for 1, but must match the layout in the shader.
-			3,                                // size
-			GL_FLOAT,                         // type
-			GL_FALSE,                         // normalized?
-			0,                                // stride
-			(void*)0                          // array buffer offset
-			);
-
-		glm::mat4 view = glm::lookAt(eyePosition, eyePosition + glm::vec3(0, 0, -1), glm::vec3(0, 1, 0));
+		glm::mat4 view = glm::lookAt(glm::vec3(playerPosition), glm::vec3(playerPosition + playerLook), glm::vec3(0, 1, 0));
 		glm::mat4 projection = glm::perspective(glm::radians(45.0f), 1.0f, 0.1f, 100.0f);
 
-		// Draw the triangle !
 		glm::mat4 transform;
+		transform = glm::rotate(transform, sin(SDL_GetTicks() / 10000.0f), glm::vec3(0, 1, 0));
 		glm::mat4 mvp = projection * view * transform;
 		glUniformMatrix4fv(mvpLocation, 1, GL_FALSE, glm::value_ptr(mvp));
-		glDrawArrays(GL_TRIANGLES, 0, 3); // Starting from vertex 0; 3 vertices total -> 1 triangle
 
-		//transform = glm::translate(transform, glm::vec3(0.5f, 0.5f, 0));
-		transform = glm::rotate(transform, SDL_GetTicks() / 1000.0f, glm::vec3(0, 1, 0));
-		//transform = glm::scale(transform, glm::vec3(0.5f));
-		//transform = glm::translate(transform, glm::vec3(0, -0.5f, 0));
-
-		for (int i = 1; i < 1000; i++)
-		{
-			transform = glm::mat4();
-			transform = glm::translate(transform, glm::vec3(-i * 0.02f * mouseX * 0.01f, -mouseY * 0.01f + 1, 0));
-			transform = glm::rotate(transform, SDL_GetTicks() / 100000.0f * i, glm::vec3(0, 1, 0));
-			mvp = projection * view * transform;
-			glUniformMatrix4fv(mvpLocation, 1, GL_FALSE, glm::value_ptr(mvp));
-			glDrawArrays(GL_TRIANGLES, 0, 3); // Starting from vertex 0; 3 vertices total -> 1 triangle
-		}
-
-		glDisableVertexAttribArray(0);
-		glDisableVertexAttribArray(1);
+		mesh.draw();
 
 		SDL_GL_SwapWindow(window);
 	}
