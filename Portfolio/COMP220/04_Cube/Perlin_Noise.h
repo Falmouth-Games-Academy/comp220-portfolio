@@ -10,7 +10,7 @@ public:
 
 	std::vector<int> p;
 	
-	double noise(double x, double y, double z);
+	double noise(double x, double y, double z, unsigned int seed);
 
 	// For fade function
 	double fade(double t);

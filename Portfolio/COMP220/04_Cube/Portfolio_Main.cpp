@@ -176,6 +176,8 @@ int main(int argc, char* args[])
 	glBindVertexArray(VertexArrayID);
 
 	Mesh mesh;
+
+	/* CUBE
 	glm::vec3 a(-1, +1, +1);
 	glm::vec3 b(+1, +1, +1);
 	glm::vec3 c(+1, +1, -1);
@@ -185,18 +187,27 @@ int main(int argc, char* args[])
 	glm::vec3 g(+1, -1, -1);
 	glm::vec3 h(+1, -1, +1);
 
-	/*
+	
 	mesh.addSquare(a, b, c, d, glm::vec3(1, 0, 0), 0.25f, 0.5f, 0.0f, 0.25f);
 	mesh.addSquare(b, h, g, c, glm::vec3(1, 1, 0), 0.5f, 0.75f, 0.25f, 0.5f);
 	mesh.addSquare(a, e, h, b, glm::vec3(0, 1, 0), 0.25f, 0.5f, 0.25f, 0.5f);
 	mesh.addSquare(d, f, e, a, glm::vec3(0, 0, 1), 0.75f, 1.0f, 0.25f, 0.5f);
 	mesh.addSquare(e, f, g, h, glm::vec3(1, 0.5f, 0), 0.0f, 0.25f, 0.25f, 0.5f);
 	mesh.addSquare(d, c, g, f, glm::vec3(1, 0, 1), 0.25f, 0.5f, 0.5f, 0.75f);
-	*/
 
 	//mesh.addCircle(glm::vec3(0, -2, 0), 1, 500, glm::vec3(1, 1, 0));
 
-	mesh.addCylinder(glm::vec3(0, -2, 0), 1, 24, -2, glm::vec3(1, 0, 0));
+	//mesh.addCylinder(glm::vec3(0, -2, 0), 1, 24, -2, glm::vec3(1, 0, 0));
+	*/
+
+	PerlinNoise perlinNoise;
+
+	//returns double
+	perlinNoise.noise(1, 1, 1, 10);
+
+	mesh.addSquare(glm::vec3(0, 0, 0), glm::vec3(1 , 0 , 0), glm::vec3(1, 1, 0), glm::vec3(0 , 1 , 0), glm::vec3(1, 0.5, 0), 0, 0, 0, 0);
+
+	
 	mesh.createBuffers();
 
 	GLuint programID = loadShaders("vertex.glsl", "fragment.glsl");
@@ -256,10 +267,6 @@ int main(int argc, char* args[])
 		playerRotation = glm::rotate(playerRotation, playerPitch, glm::vec3(1, 0, 0));
 		playerLook = playerRotation * playerLook;
 
-		/*glm::vec4 playerForward(0, 0, -1, 0);
-		glm::mat4 playerForwardRotation;
-		playerForwardRotation = glm::rotate(playerForwardRotation, playerYaw, glm::vec3(0, 1, 0));
-		playerForward = playerForwardRotation * playerForward;*/
 		glm::vec4 playerForward = playerLook;
 
 		const Uint8* keyboardState = SDL_GetKeyboardState(nullptr);

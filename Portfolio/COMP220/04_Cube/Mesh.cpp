@@ -33,7 +33,7 @@ void Mesh::addTriangle(const glm::vec3& p1, const glm::vec3& p2, const glm::vec3
 	
 	// Make all three vertices the same colour
 	for (int i = 0; i < 3; i++)
-		m_vertexColours.push_back(glm::vec3(1, 1, (float)rand() / (float)RAND_MAX));
+		m_vertexColours.push_back(colour);
 
 	// Add the texture coordinates
 	m_vertexUVs.push_back(t1);
