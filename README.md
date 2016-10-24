@@ -11,4 +11,5 @@ The player can fire lots of light sources that will light up the path in head.
 
 The player can suck up all the light sources back into the player and then the player will illuminate more.
 
-Cubeworld meets alan wake
+A library that will generate perlin noise in C++
+http://libnoise.sourceforge.net/

@@ -38,3 +38,9 @@
 #include <glm/mat4x4.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+
+// Additional libraries for making perlin noise
+#include <cmath>
+#include <random>
+#include <algorithm>
+#include <numeric>

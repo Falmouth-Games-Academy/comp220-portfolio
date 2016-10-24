@@ -1,10 +1,24 @@
 #pragma once
-class Perlin_Noise
+class PerlinNoise
 {
 public:
-	Perlin_Noise();
-	~Perlin_Noise();
+	PerlinNoise();
+	~PerlinNoise();
 
+	void GenerateNoise(unsigned int seed);
 	int seed;
+
+	std::vector<int> p;
+	
+	double noise(double x, double y, double z);
+
+	// For fade function
+	double fade(double t);
+
+	// For linear interpolation
+	double lerp(double t, double a, double b);
+
+	// For gradient function
+	double grad(int hash, double x, double y, double z);
 };
 
