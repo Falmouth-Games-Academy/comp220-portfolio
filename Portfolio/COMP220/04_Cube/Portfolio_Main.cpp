@@ -130,6 +130,11 @@ GLuint loadTexture(const std::string& fileName)
 
 int main(int argc, char* args[])
 {
+
+	int windowWidth = 600;
+	int windowHeight = 600;
+
+
 	if (SDL_Init(SDL_INIT_VIDEO) < 0)
 	{
 		showErrorMessage(SDL_GetError(), "SDL_Init failed");
@@ -141,7 +146,7 @@ int main(int argc, char* args[])
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 
-	SDL_Window* window = SDL_CreateWindow("My first OpenGL program", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 600, 600, SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL);
+	SDL_Window* window = SDL_CreateWindow("My first OpenGL program", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, windowWidth, windowHeight, SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL);
 
 	if (window == nullptr)
 	{
@@ -202,11 +207,23 @@ int main(int argc, char* args[])
 
 	PerlinNoise perlinNoise;
 
-	//returns double
-	perlinNoise.noise(1, 1, 1, 10);
+	//used for third dimension of perlin noise
+	int z = 0;
+	double seed = 10;
+	
 
-	mesh.addSquare(glm::vec3(0, 0, 0), glm::vec3(1 , 0 , 0), glm::vec3(1, 1, 0), glm::vec3(0 , 1 , 0), glm::vec3(1, 0.5, 0), 0, 0, 0, 0);
+	for (int x = 0; x < 10; x++)
+	{
+		for (int y = 0; y < 10; y++)
+		{
+			double perlinResult = perlinNoise.noise(x, y, z, seed) / 10;
+			mesh.addSquare(glm::vec3(x, y, perlinResult), glm::vec3(x + 1, y, perlinResult), glm::vec3(x + 1, y + 1, perlinResult), glm::vec3(x, y + 1, perlinResult), glm::vec3(1, 0.5, 0), 0, 0, 0, 0);
+		}
+	}
 
+
+	
+	
 	
 	mesh.createBuffers();
 
@@ -293,6 +310,7 @@ int main(int argc, char* args[])
 			playerPosition += playerRight * 0.001f;
 		}
 
+		
 
 		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

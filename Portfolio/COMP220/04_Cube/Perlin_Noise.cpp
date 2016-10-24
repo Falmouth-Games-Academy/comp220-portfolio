@@ -37,7 +37,8 @@ void PerlinNoise::GenerateNoise(unsigned int seed)
 	// Duplicate the permutation vector
 	p.insert(p.end(), p.begin(), p.end());
 
-	p.resize(256);
+	
+	//p.resize(256);
 
 	// Fill p with values from 0 to 255
 	std::iota(p.begin(), p.end(), 0);
@@ -47,11 +48,12 @@ void PerlinNoise::GenerateNoise(unsigned int seed)
 
 	// Suffle  using the above random engine
 	std::shuffle(p.begin(), p.end(), engine);
-}
+	
+	}
 
 double PerlinNoise::noise(double x, double y, double z , unsigned int seed)
 {
-	GenerateNoise(10);
+	GenerateNoise(seed);
 	// Find the unit cube that contains the point
 	int X = (int)floor(x) & 255;
 	int Y = (int)floor(y) & 255;
