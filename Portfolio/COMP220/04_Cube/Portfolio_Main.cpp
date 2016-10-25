@@ -207,17 +207,26 @@ int main(int argc, char* args[])
 
 	PerlinNoise perlinNoise;
 
-	//used for third dimension of perlin noise
+	// Used for third dimension of perlin noise
 	int z = 0;
 	double seed = 10;
-	
 
-	for (int x = 0; x < 10; x++)
+	int noiseMax = 100;
+	int noiseMin = 0;
+
+	for (int x = 0; x < 12; x++)
 	{
-		for (int y = 0; y < 10; y++)
+		for (int y = 0; y < 12; y++)
 		{
-			double perlinResult = perlinNoise.noise(x, y, z, seed) / 10;
+			double perlinResult = perlinNoise.noise(x, y, z, seed);
+
+			//Normalize values
+			perlinResult = (unsigned char)((perlinResult - noiseMin)*(255 / (noiseMax - noiseMin)));;
+
+
 			mesh.addSquare(glm::vec3(x, y, perlinResult), glm::vec3(x + 1, y, perlinResult), glm::vec3(x + 1, y + 1, perlinResult), glm::vec3(x, y + 1, perlinResult), glm::vec3(1, 0.5, 0), 0, 0, 0, 0);
+
+			
 		}
 	}
 
@@ -289,11 +298,11 @@ int main(int argc, char* args[])
 		const Uint8* keyboardState = SDL_GetKeyboardState(nullptr);
 		if (keyboardState[SDL_SCANCODE_W])
 		{
-			playerPosition += playerForward * 0.001f;
+			playerPosition += playerForward * 0.01f;
 		}
 		if (keyboardState[SDL_SCANCODE_S])
 		{
-			playerPosition -= playerForward * 0.001f;
+			playerPosition -= playerForward * 0.01f;
 		}
 
 		glm::vec4 playerRight(0, 0, -1, 0);
@@ -303,11 +312,11 @@ int main(int argc, char* args[])
 
 		if (keyboardState[SDL_SCANCODE_A])
 		{
-			playerPosition -= playerRight * 0.001f;
+			playerPosition -= playerRight * 0.01f;
 		}
 		if (keyboardState[SDL_SCANCODE_D])
 		{
-			playerPosition += playerRight * 0.001f;
+			playerPosition += playerRight * 0.01f;
 		}
 
 		
@@ -318,7 +327,9 @@ int main(int argc, char* args[])
 		glUseProgram(programID);
 
 		glm::mat4 view = glm::lookAt(glm::vec3(playerPosition), glm::vec3(playerPosition + playerLook), glm::vec3(0, 1, 0));
-		glm::mat4 projection = glm::perspective(glm::radians(45.0f), 1.0f, 0.1f, 100.0f);
+
+		// Render Distance
+		glm::mat4 projection = glm::perspective(glm::radians(45.0f), 1.0f, 0.1f, 10000.0f);
 
 		glm::mat4 transform;
 		//transform = glm::rotate(transform, sin(SDL_GetTicks() / 10000.0f), glm::vec3(0, 1, 0));
