@@ -71,10 +71,11 @@ void Mesh::addCircle(const glm::vec3& centre, float radius, int numPoints,
 }
 
 
-bool Mesh::loadOBJ(const char * filePath, const glm::vec3& colour,
+bool Mesh::loadOBJ(const char * path,
 	std::vector < glm::vec3 > & outVertices, std::vector < glm::vec2 > & outUvs, std::vector < glm::vec3 > & outNormals)
 {
-	FILE * file = fopen(filePath, "r");
+
+	FILE * file = fopen(path, "r");
 	if (file == NULL) {
 		printf("Impossible to open the file !\n");
 		return false;
@@ -95,6 +96,7 @@ bool Mesh::loadOBJ(const char * filePath, const glm::vec3& colour,
 			tempVertices.push_back(vertex);
 		}
 
+
 		else if (strcmp(lineHeader, "vt") == 0) {
 			glm::vec2 uv;
 			fscanf(file, "%f %f\n", &uv.x, &uv.y);
@@ -110,9 +112,10 @@ bool Mesh::loadOBJ(const char * filePath, const glm::vec3& colour,
 		else if (strcmp(lineHeader, "f") == 0) {
 			std::string vertex1, vertex2, vertex3;
 			unsigned int vertexIndex[3], uvIndex[3], normalIndex[3];
-			int matches = fscanf(file, "%d/%d/%d %d/%d/%d %d/%d/%d\n", &vertexIndex[0], &uvIndex[0], &normalIndex[0], &vertexIndex[1], &uvIndex[1], &normalIndex[1], &vertexIndex[2], &uvIndex[2], &normalIndex[2]);
+			int matches = fscanf(file, "%d/%d/%d %d/%d/%d %d/%d/%d\n", &vertexIndex[0], &uvIndex[0], &normalIndex[0], 
+				&vertexIndex[1], &uvIndex[1], &normalIndex[1], &vertexIndex[2], &uvIndex[2], &normalIndex[2]);
 			if (matches != 9) {
-				printf("File can't be read by our simple parser : ( Try exporting with other options\n");
+				printf("File can't be read by simple parser\n");
 				return false;
 			}
 			vertexIndices.push_back(vertexIndex[0]);
@@ -129,35 +132,56 @@ bool Mesh::loadOBJ(const char * filePath, const glm::vec3& colour,
 		
 
 	} //End while
-	
+	unsigned int vertexIndex = 0;
+	unsigned int uvIndex = 0;
+	unsigned int normalIndex = 0;
+
+	// Error starts here
+	// Doesn't add to out vectors
 	for (int i = 0; i < vertexIndices.size(); i++) {
-			unsigned int vertexIndex = vertexIndices[i];
+			vertexIndex = vertexIndices[i];
 			glm::vec3 vertex = tempVertices[vertexIndex - 1];
 			outVertices.push_back(vertex);
 	}
 	for (int i = 0; i < uvIndices.size(); i++) {
-		unsigned int uvIndex = uvIndices[i];
+		uvIndex = uvIndices[i];
 		glm::vec2 uv = tempUvs[uvIndex - 1];
 		outUvs.push_back(uv);
 	}
 	for (int i = 0; i < normalIndices.size(); i++) {
-		unsigned int normalIndex = normalIndices[i];
+		normalIndex = normalIndices[i];
 		glm::vec3 normal = tempNormals[normalIndex - 1];
-		outVertices.push_back(normal);
+		outNormals.push_back(normal);
 	}
 }// End loadOBJ
 
-void Mesh::createBuffers(std::vector< glm::vec3 >vertices)
+void Mesh::createBuffers(std::vector< glm::vec3 >vertices, std::vector< glm::vec3 >normals, std::vector< glm::vec2 >uvs)
 {
-	if (m_positionBuffer != 0)
+	if (vertexbuffer != 0)
 	{
 		throw std::exception("createBuffers() has already been called");
 	}
 
-	// Create and fill the position buffer
-	glGenBuffers(1, &m_positionBuffer);
-	glBindBuffer(GL_ARRAY_BUFFER, m_positionBuffer);
+	glGenBuffers(1, &vertexbuffer);
+	glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
 	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(glm::vec3), &vertices[0], GL_STATIC_DRAW);
+
+	
+	glGenBuffers(1, &uvbuffer);
+	glBindBuffer(GL_ARRAY_BUFFER, uvbuffer);
+	glBufferData(GL_ARRAY_BUFFER, uvs.size() * sizeof(glm::vec3), &uvs[0], GL_STATIC_DRAW);
+
+	
+	glGenBuffers(1, &normalbuffer);
+	glBindBuffer(GL_ARRAY_BUFFER, normalbuffer);
+	glBufferData(GL_ARRAY_BUFFER, normals.size() * sizeof(glm::vec3), &normals[0], GL_STATIC_DRAW);
+
+
+	/*// Create and fill the position buffer
+	glGenBuffers(1, &m_positionBuffer);
+	//glBindBuffer(GL_ARRAY_BUFFER, m_positionBuffer);
+	//glBufferData(GL_ARRAY_BUFFER, m_vertexPositions.size() * sizeof(glm::vec3), m_vertexPositions.data(), GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(glm::vec3), &vertices[0], GL_STATIC_DRAW);*/
 
 	// Create and fill the colour buffer
 	glGenBuffers(1, &m_colourBuffer);
@@ -168,18 +192,24 @@ void Mesh::createBuffers(std::vector< glm::vec3 >vertices)
 	glGenBuffers(1, &m_uvBuffer);
 	glBindBuffer(GL_ARRAY_BUFFER, m_uvBuffer);
 	glBufferData(GL_ARRAY_BUFFER, m_vertexUVs.size() * sizeof(glm::vec2), m_vertexUVs.data(), GL_STATIC_DRAW);
+
+
 }
 
 void Mesh::draw()
 {
-	if (m_positionBuffer == 0)
+	if (vertexbuffer == 0)
 	{
 		throw std::exception("createBuffers() must be called before draw()");
 	}
 
 	// Bind the position buffer to vertex attribute 0
 	glEnableVertexAttribArray(0);
-	glBindBuffer(GL_ARRAY_BUFFER, m_positionBuffer);
+	glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
+
+	glEnableVertexAttribArray(0);
+	glBindBuffer(GL_ARRAY_BUFFER, normalbuffer);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
 
 	// Bind the colour buffer to vertex attribute 1
@@ -189,8 +219,9 @@ void Mesh::draw()
 
 	// Bind the texture coordinate buffer to vertex attribute 2
 	glEnableVertexAttribArray(2);
-	glBindBuffer(GL_ARRAY_BUFFER, m_uvBuffer);
+	glBindBuffer(GL_ARRAY_BUFFER, uvbuffer);
 	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
+
 
 	glDrawArrays(GL_TRIANGLES, 0, m_vertexPositions.size());
 

@@ -39,6 +39,9 @@ ForestScene::ForestScene()
 	{
 		showErrorMessage("loadTexture failed", ":(");
 	}
+
+	glEnable(GL_LIGHTING);
+	glEnable(GL_LIGHT0);
 }
 
 
@@ -172,41 +175,22 @@ GLuint ForestScene::loadTexture(const std::string& fileName)
 
 void ForestScene::run()
 {
-	
 
 	GLuint VertexArrayID;
 	glGenVertexArrays(1, &VertexArrayID);
 	glBindVertexArray(VertexArrayID);
 
 	Mesh mesh;
-	glm::vec3 a(-1, +1, +1);
-	glm::vec3 b(+1, +1, +1);
-	glm::vec3 c(+1, +1, -1);
-	glm::vec3 d(-1, +1, -1);
-	glm::vec3 e(-1, -1, +1);
-	glm::vec3 f(-1, -1, -1);
-	glm::vec3 g(+1, -1, -1);
-	glm::vec3 h(+1, -1, +1);
-
-	/*mesh.addSquare(a, b, c, d, glm::vec3(1, 0, 0), 0.25f, 0.5f, 0.0f, 0.25f);
-	mesh.addSquare(b, h, g, c, glm::vec3(1, 1, 0), 0.5f, 0.75f, 0.25f, 0.5f);
-	mesh.addSquare(a, e, h, b, glm::vec3(0, 1, 0), 0.25f, 0.5f, 0.25f, 0.5f);
-	mesh.addSquare(d, f, e, a, glm::vec3(0, 0, 1), 0.75f, 1.0f, 0.25f, 0.5f);
-	mesh.addSquare(e, f, g, h, glm::vec3(1, 0.5f, 0), 0.0f, 0.25f, 0.25f, 0.5f);
-	mesh.addSquare(d, c, g, f, glm::vec3(1, 0, 1), 0.25f, 0.5f, 0.5f, 0.75f);*/
-
-	//mesh.addCircle(glm::vec3(0, -2, 0), 1, 500, glm::vec3(1, 1, 0));
-	//mesh.addCircle(glm::vec3(0, -5, 0), 1, 4, glm::vec3(0, 0, 0));
-
 	// Read .obj file
 	std::vector< glm::vec3 > vertices;
 	std::vector< glm::vec2 > uvs;
 	std::vector< glm::vec3 > normals;
-	const glm::vec3 colour = glm::vec3(1, 0, 0);
-	bool res = mesh.loadOBJ("cube.obj", colour, vertices, uvs, normals);
+	bool res = mesh.loadOBJ("cube.obj", vertices, uvs, normals);
 	
 	
-	mesh.createBuffers(vertices);
+	mesh.createBuffers(vertices, normals, uvs);
+
+	
 
 	GLuint programID = loadShaders("vertex.glsl", "fragment.glsl");
 
