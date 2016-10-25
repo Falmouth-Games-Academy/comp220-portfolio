@@ -6,13 +6,19 @@
 class Vertex
 {
 public:
-	Vertex(const glm::vec3& pos)
+	Vertex(const glm::vec3& pos, const glm::vec2& texCoord)
 	{
 		this->pos = pos;
+		this->texCoord = texCoord;
 	}
+
+	inline glm::vec3* GetPos() { return &pos; }		//gets private vec3 pos
+	inline glm::vec2* GetTexCoord() { return &texCoord; }//gets private vec2 Coord
+
 protected:
 private:
 	glm::vec3 pos;
+	glm::vec2 texCoord; //the posistion on the texture we will be mapping to the vertex
 };
 
 class Mesh
@@ -33,7 +39,7 @@ private:
 	enum
 	{
 		POSISTION_VB,
-
+		TEXCOORD_VB,
 		NUM_BUFFERS
 	};
 

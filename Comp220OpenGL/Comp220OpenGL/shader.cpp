@@ -7,6 +7,7 @@ static GLuint CreateShader(const std::string& text, GLenum shaderType);
 
 Shader::Shader(const std::string& fileName)
 {
+	
 	m_program = glCreateProgram(); //creating a new shader program
 	m_shaders[0] = CreateShader(LoadShader(fileName + ".vs"), GL_VERTEX_SHADER);
 	m_shaders[1] = CreateShader(LoadShader(fileName+ ".fs"), GL_FRAGMENT_SHADER);//.vs vertex shader, .fs fragment shader
@@ -15,8 +16,10 @@ Shader::Shader(const std::string& fileName)
 		glAttachShader(m_program, m_shaders[i]);
 	}
 
-	glBindAttribLocation(m_program, 0, "position");//it tells opengl what part of the data to read in what variable in the shader 
 
+	glBindAttribLocation(m_program, 0, "position");//it tells opengl what part of the data to read in what variable in the shader 
+	glBindAttribLocation(m_program, 1, "texCoord");//find attribute texCoord and bind it to 1
+	
 	glLinkProgram(m_program);
 	CheckShaderError(m_program, GL_LINK_STATUS, true, "program linking failure!!!:  ");
 
