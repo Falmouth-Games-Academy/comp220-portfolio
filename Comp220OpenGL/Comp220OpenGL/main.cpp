@@ -6,7 +6,7 @@
 int main(int arc, char ** argv)
 {
 	glewExperimental = GL_TRUE; 
-	glewInit();
+	//glewInit();
 	Display display(800, 600, "Comp220-1-OpenGL");
 	Shader shader(".\\res\\basicShader");
 	Vertex vertices[] = {	

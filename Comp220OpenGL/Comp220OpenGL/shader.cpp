@@ -1,7 +1,7 @@
 #include "shader.h"
 #include <iostream>
 #include <fstream>
-static void CheckShaderError(GLuint shader, GLuint flag, bool isprogram, const std::string& errorMessage);
+static void CheckShaderError(GLuint shader, GLuint flag, bool isProgram, const std::string& errorMessage);
 static std::string LoadShader(const std::string& fileName);
 static GLuint CreateShader(const std::string& text, GLenum shaderType);
 
@@ -9,7 +9,7 @@ Shader::Shader(const std::string& fileName)
 {
 	m_program = glCreateProgram(); //creating a new shader program
 	m_shaders[0] = CreateShader(LoadShader(fileName + ".vs"), GL_VERTEX_SHADER);
-	m_shaders[1] = CreateShader(LoadShader(fileName)+ ".ffs", GL_FRAGMENT_SHADER);//.vs vertex shader, .fs fragment shader
+	m_shaders[1] = CreateShader(LoadShader(fileName+ ".fs"), GL_FRAGMENT_SHADER);//.vs vertex shader, .fs fragment shader
 
 	for (unsigned int i = 0; i < NUM_SHADER; i++) {//add shader to program
 		glAttachShader(m_program, m_shaders[i]);
@@ -18,7 +18,7 @@ Shader::Shader(const std::string& fileName)
 	glBindAttribLocation(m_program, 0, "position");//it tells opengl what part of the data to read in what variable in the shader 
 
 	glLinkProgram(m_program);
-	CheckShaderError(m_program, GL_LINK_STATUS, true, "program linking failure:  ");
+	CheckShaderError(m_program, GL_LINK_STATUS, true, "program linking failure!!!:  ");
 
 	glValidateProgram(m_program);
 	CheckShaderError(m_program, GL_VALIDATE_STATUS, true, "program validation failure:  ");//after error checks checks to see if the program is still valid
@@ -74,7 +74,8 @@ static std::string LoadShader(const std::string& fileName) //Loads a file off th
 	{
 		while (file.good())
 		{
-			getline(file, line); output.append(line + "\n");
+			getline(file, line);
+			output.append(line + "\n");
 		}
 	}
 	else {

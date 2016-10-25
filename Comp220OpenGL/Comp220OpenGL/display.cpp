@@ -49,6 +49,7 @@ void Display::Clear(float r, float g, float b, float a) {
 	glClear(GL_COLOR_BUFFER_BIT);
 
 }
+//set an IsCLosed boolean.
 bool Display::IsClosed() {
 	return m_isClosed;
 }
