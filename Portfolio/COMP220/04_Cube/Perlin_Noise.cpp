@@ -51,35 +51,32 @@ void PerlinNoise::GenerateNoise(unsigned int seed)
 	
 	}
 
-double PerlinNoise::noise(double x, double y, double z , unsigned int seed)
+double PerlinNoise::noise(double x, double y, double z)
 {
-	GenerateNoise(seed);
-	// Find the unit cube that contains the point
-	int X = (int)floor(x) & 255;
-	int Y = (int)floor(y) & 255;
-	int Z = (int)floor(z) & 255;
+	// Algorithm copied from here http://cs.nyu.edu/~perlin/noise/
 
-	// Find relative x, y, z of point in cube
-	x = floor(x);
-	y = floor(y);
-	z = floor(z);
 
-	// Compute fade curves for each of x, y, z
-	double u = fade(x);
-	double v = fade(y);
-	double w = fade(z);
 
-	// Hash coordinates of the 8 cube corners
-	int A = p[X] + Y;
-	int AA = p[A] + Z;
-	int AB = p[A + 1] + Z;
-	int B = p[X + 1] + Y;
-	int BA = p[B] + Z;
-	int BB = p[B + 1] + Z;
+	int X = (int)floor(x) & 255,                  // FIND UNIT CUBE THAT
+		Y = (int)floor(y) & 255,                  // CONTAINS POINT.
+		Z = (int)floor(z) & 255;
+	x -= floor(x);                                // FIND RELATIVE X,Y,Z
+	y -= floor(y);                                // OF POINT IN CUBE.
+	z -= floor(z);
+	double u = fade(x),                                // COMPUTE FADE CURVES
+		v = fade(y),                                // FOR EACH OF X,Y,Z.
+		w = fade(z);
+	int A = p[X] + Y, AA = p[A] + Z, AB = p[A + 1] + Z,      // HASH COORDINATES OF
+		B = p[X + 1] + Y, BA = p[B] + Z, BB = p[B + 1] + Z;      // THE 8 CUBE CORNERS,
 
-	// Add blended results from 8 corners of cube
-	double res = lerp(w, lerp(v, lerp(u, grad(p[AA], x, y, z), grad(p[BA], x - 1, y, z)), lerp(u, grad(p[AB], x, y - 1, z), grad(p[BB], x - 1, y - 1, z))), lerp(v, lerp(u, grad(p[AA + 1], x, y, z - 1), grad(p[BA + 1], x - 1, y, z - 1)), lerp(u, grad(p[AB + 1], x, y - 1, z - 1), grad(p[BB + 1], x - 1, y - 1, z - 1))));
-	return (res + 1.0) / 2.0;
+	return lerp(w, lerp(v, lerp(u, grad(p[AA], x, y, z),  // AND ADD
+		grad(p[BA], x - 1, y, z)), // BLENDED
+		lerp(u, grad(p[AB], x, y - 1, z),  // RESULTS
+			grad(p[BB], x - 1, y - 1, z))),// FROM  8
+		lerp(v, lerp(u, grad(p[AA + 1], x, y, z - 1),  // CORNERS
+			grad(p[BA + 1], x - 1, y, z - 1)), // OF CUBE
+			lerp(u, grad(p[AB + 1], x, y - 1, z - 1),
+				grad(p[BB + 1], x - 1, y - 1, z - 1))));
 }
 
 // Fade Function as defined by Ken Perlin
@@ -91,26 +88,11 @@ double PerlinNoise::fade(double t)
 // Gradient function
 double PerlinNoise::grad(int hash, double x, double y, double z)
 {
-	switch (hash & 0xF)
-	{
-	case 0x0: return  x + y;
-	case 0x1: return -x + y;
-	case 0x2: return  x - y;
-	case 0x3: return -x - y;
-	case 0x4: return  x + z;
-	case 0x5: return -x + z;
-	case 0x6: return  x - z;
-	case 0x7: return -x - z;
-	case 0x8: return  y + z;
-	case 0x9: return -y + z;
-	case 0xA: return  y - z;
-	case 0xB: return -y - z;
-	case 0xC: return  y + x;
-	case 0xD: return -y + z;
-	case 0xE: return  y - x;
-	case 0xF: return -y - z;
-	default: return 0; // never happens
-	}
+	int h = hash & 15;
+	// Convert lower 4 bits of hash into 12 gradient directions
+	double u = h < 8 ? x : y,
+		v = h < 4 ? y : h == 12 || h == 14 ? x : z;
+	return ((h & 1) == 0 ? u : -u) + ((h & 2) == 0 ? v : -v);
 }
 
 double PerlinNoise::lerp(double t, double a, double b)

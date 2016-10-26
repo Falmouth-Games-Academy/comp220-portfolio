@@ -182,7 +182,7 @@ int main(int argc, char* args[])
 
 	Mesh mesh;
 
-	/* CUBE
+	/* CUBE 
 	glm::vec3 a(-1, +1, +1);
 	glm::vec3 b(+1, +1, +1);
 	glm::vec3 c(+1, +1, -1);
@@ -192,7 +192,6 @@ int main(int argc, char* args[])
 	glm::vec3 g(+1, -1, -1);
 	glm::vec3 h(+1, -1, +1);
 
-	
 	mesh.addSquare(a, b, c, d, glm::vec3(1, 0, 0), 0.25f, 0.5f, 0.0f, 0.25f);
 	mesh.addSquare(b, h, g, c, glm::vec3(1, 1, 0), 0.5f, 0.75f, 0.25f, 0.5f);
 	mesh.addSquare(a, e, h, b, glm::vec3(0, 1, 0), 0.25f, 0.5f, 0.25f, 0.5f);
@@ -202,27 +201,30 @@ int main(int argc, char* args[])
 
 	//mesh.addCircle(glm::vec3(0, -2, 0), 1, 500, glm::vec3(1, 1, 0));
 
-	//mesh.addCylinder(glm::vec3(0, -2, 0), 1, 24, -2, glm::vec3(1, 0, 0));
+	mesh.addCylinder(glm::vec3(0, -2, 0), 1, 24, -2, glm::vec3(1, 0, 0));
 	*/
 
 	PerlinNoise perlinNoise;
 
 	// Used for third dimension of perlin noise
 	int z = 0;
-	double seed = 10;
+	double seed = 351;
 
-	int noiseMax = 100;
+	perlinNoise.GenerateNoise(seed);
+
+
+	int noiseMax = 1;
 	int noiseMin = 0;
 
-	for (int x = 0; x < 12; x++)
+	for (int x = 0; x < 40; x++)
 	{
-		for (int y = 0; y < 12; y++)
+		for (int y = 0; y < 40; y++)
 		{
-			double perlinResult = perlinNoise.noise(x, y, z, seed);
+			double perlinResult = perlinNoise.noise((x / 100.0), (y / 100.0), z);
+			//double perlinResult = rand();
 
 			//Normalize values
-			perlinResult = (unsigned char)((perlinResult - noiseMin)*(255 / (noiseMax - noiseMin)));;
-
+			perlinResult = (char)((perlinResult - noiseMin) * (255 / (noiseMax - noiseMin)));;
 
 			mesh.addSquare(glm::vec3(x, y, perlinResult), glm::vec3(x + 1, y, perlinResult), glm::vec3(x + 1, y + 1, perlinResult), glm::vec3(x, y + 1, perlinResult), glm::vec3(1, 0.5, 0), 0, 0, 0, 0);
 
