@@ -5,11 +5,6 @@
 #include "Portfolio_Main.h"
 #include "Mesh.h"
 
-// NOTE: this code is intended to illustrate usage of OpenGL.
-// It is NOT intended to illustrate good coding style or naming conventions!
-// Code has been copied and pasted from tutorials which use different conventions.
-// In your own projects, make sure you rename identifiers to follow a consistent style.
-
 void showErrorMessage(const char* message, const char* title)
 {
 	// Note: this is specific to Windows, and would need redefining to work on Mac or Linux
@@ -131,8 +126,8 @@ GLuint loadTexture(const std::string& fileName)
 int main(int argc, char* args[])
 {
 
-	int windowWidth = 600;
-	int windowHeight = 600;
+	int windowWidth = 1080;
+	int windowHeight = 1080;
 
 
 	if (SDL_Init(SDL_INIT_VIDEO) < 0)
@@ -208,20 +203,20 @@ int main(int argc, char* args[])
 
 	// Used for third dimension of perlin noise
 	int z = 0;
-	int seed = 543;
+	int seed = SDL_GetTicks() / 100;
 
 	perlinNoise.GenerateNoise(seed);
 
-
+	int chunkSize = 600;
 	int noiseMax = 1;
 	int noiseMin = 0;
 
 	// Amplification(the lower the number the higher the amplification)
 	float noiseAmplification = 200.0;
 
-	for (int x = 0; x < 500; x++)
+	for (int x = 0; x < chunkSize; x++)
 	{
-		for (int y = 0; y < 500; y++)
+		for (int y = 0; y < chunkSize; y++)
 		{
 			double perlinResult = perlinNoise.noise((x / noiseAmplification), (y / noiseAmplification), z);
 
@@ -229,7 +224,14 @@ int main(int argc, char* args[])
 			perlinResult = (char)((perlinResult - noiseMin) * (255 / (noiseMax - noiseMin)));;
 
 			//Generate squares next to each other with different z position values
-			mesh.addSquare(glm::vec3(x, y, perlinResult), glm::vec3(x + 1, y, perlinResult), glm::vec3(x + 1, y + 1, perlinResult), glm::vec3(x, y + 1, perlinResult), glm::vec3(sin(perlinResult), cos(perlinResult), tan(perlinResult)), 0, 0, 0, 0);
+			mesh.addSquare(glm::vec3(x, y, perlinResult), glm::vec3(x + 1, y, perlinResult), glm::vec3(x + 1, y + 1, perlinResult), glm::vec3(x, y + 1, perlinResult), 
+				
+				// Square Colour
+				//glm::vec3(1, 0.5, 0), //Orange
+				glm::vec3(sin(perlinResult), cos(perlinResult), tan(perlinResult)),
+				
+				// UV maps
+				0, 0, 0, 0);
 		}
 	}
 
@@ -360,7 +362,7 @@ int main(int argc, char* args[])
 		glm::mat4 projection = glm::perspective(glm::radians(45.0f), 1.0f, 0.1f, 10000.0f);
 
 		glm::mat4 transform;
-		//transform = glm::rotate(transform, sin(SDL_GetTicks() / 10000.0f), glm::vec3(0, 1, 0));
+		//transform = glm::rotate(transform, sin(SDL_GetTicks() / 1000.0f), glm::vec3(0, 1, 0));
 		glm::mat4 mvp = projection * view * transform;
 		glUniformMatrix4fv(mvpLocation, 1, GL_FALSE, glm::value_ptr(mvp));
 
