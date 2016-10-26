@@ -54,18 +54,21 @@ void PerlinNoise::GenerateNoise(unsigned int seed)
 double PerlinNoise::noise(double x, double y, double z)
 {
 	// Algorithm copied from here http://cs.nyu.edu/~perlin/noise/
-
-
+	// Which is based of this paper http://mrl.nyu.edu/~perlin/paper445.pdf
 
 	int X = (int)floor(x) & 255,                  // FIND UNIT CUBE THAT
 		Y = (int)floor(y) & 255,                  // CONTAINS POINT.
 		Z = (int)floor(z) & 255;
+
+
 	x -= floor(x);                                // FIND RELATIVE X,Y,Z
 	y -= floor(y);                                // OF POINT IN CUBE.
 	z -= floor(z);
-	double u = fade(x),                                // COMPUTE FADE CURVES
-		v = fade(y),                                // FOR EACH OF X,Y,Z.
-		w = fade(z);
+
+	// COMPUTE FADE CURVES FOR EACH OF X,Y,Z.
+	double u = fade(x), v = fade(y), w = fade(z);
+
+
 	int A = p[X] + Y, AA = p[A] + Z, AB = p[A + 1] + Z,      // HASH COORDINATES OF
 		B = p[X + 1] + Y, BA = p[B] + Z, BB = p[B + 1] + Z;      // THE 8 CUBE CORNERS,
 
@@ -95,6 +98,7 @@ double PerlinNoise::grad(int hash, double x, double y, double z)
 	return ((h & 1) == 0 ? u : -u) + ((h & 2) == 0 ? v : -v);
 }
 
+// Linear Interpolation
 double PerlinNoise::lerp(double t, double a, double b)
 {
 	return a + t * (b - a);

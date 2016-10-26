@@ -208,7 +208,7 @@ int main(int argc, char* args[])
 
 	// Used for third dimension of perlin noise
 	int z = 0;
-	double seed = rand();
+	int seed = 543;
 
 	perlinNoise.GenerateNoise(seed);
 
@@ -216,19 +216,20 @@ int main(int argc, char* args[])
 	int noiseMax = 1;
 	int noiseMin = 0;
 
-	for (int x = 0; x < 1000; x++)
+	// Amplification(the lower the number the higher the amplification)
+	float noiseAmplification = 200.0;
+
+	for (int x = 0; x < 500; x++)
 	{
-		for (int y = 0; y < 1000; y++)
+		for (int y = 0; y < 500; y++)
 		{
-			double perlinResult = perlinNoise.noise((x / 100.0), (y / 100.0), z);
-			//double perlinResult = rand();
+			double perlinResult = perlinNoise.noise((x / noiseAmplification), (y / noiseAmplification), z);
 
 			//Normalize values
 			perlinResult = (char)((perlinResult - noiseMin) * (255 / (noiseMax - noiseMin)));;
 
-			mesh.addSquare(glm::vec3(x, y, perlinResult), glm::vec3(x + 1, y, perlinResult), glm::vec3(x + 1, y + 1, perlinResult), glm::vec3(x, y + 1, perlinResult), glm::vec3(1, 0.5, 0), 0, 0, 0, 0);
-
-			
+			//Generate squares next to each other with different z position values
+			mesh.addSquare(glm::vec3(x, y, perlinResult), glm::vec3(x + 1, y, perlinResult), glm::vec3(x + 1, y + 1, perlinResult), glm::vec3(x, y + 1, perlinResult), glm::vec3(sin(perlinResult), cos(perlinResult), tan(perlinResult)), 0, 0, 0, 0);
 		}
 	}
 
@@ -248,7 +249,7 @@ int main(int argc, char* args[])
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	//glEnable(GL_CULL_FACE);
+	glEnable(GL_CULL_FACE);
 
 	glm::vec4 playerPosition(0, 0, 5, 1);
 	float playerPitch = 0;
@@ -305,20 +306,20 @@ int main(int argc, char* args[])
 		const Uint8* keyboardState = SDL_GetKeyboardState(nullptr);
 		if (keyboardState[SDL_SCANCODE_W])
 		{
-			playerPosition += playerForward * 0.01f;
+			playerPosition += playerForward * 0.1f;
 			// Speed modifier
 			if (keyboardState[SDL_SCANCODE_LSHIFT])
 			{
-				playerPosition += playerForward * 0.5f;
+				playerPosition += playerForward * 1.0f;
 			}
 		}
 		if (keyboardState[SDL_SCANCODE_S])
 		{
-			playerPosition -= playerForward * 0.01f;
+			playerPosition -= playerForward * 0.1f;
 			// Speed modifier
 			if (keyboardState[SDL_SCANCODE_LSHIFT])
 			{
-				playerPosition -= playerForward * 0.5f;
+				playerPosition -= playerForward * 1.0f;
 			}
 		}
 
@@ -331,18 +332,18 @@ int main(int argc, char* args[])
 
 		if (keyboardState[SDL_SCANCODE_A])
 		{
-			playerPosition -= playerRight * 0.01f;
+			playerPosition -= playerRight * 0.1f;
 			if (keyboardState[SDL_SCANCODE_LSHIFT])
 			{
-				playerPosition -= playerRight * 0.1f;
+				playerPosition -= playerRight * 1.0f;
 			}
 		}
 		if (keyboardState[SDL_SCANCODE_D])
 		{
-			playerPosition += playerRight * 0.01f;
+			playerPosition += playerRight * 0.1f;
 			if (keyboardState[SDL_SCANCODE_LSHIFT])
 			{
-				playerPosition += playerRight * 0.1f;
+				playerPosition += playerRight * 1.0f;
 			}
 		}
 
