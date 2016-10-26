@@ -19,7 +19,8 @@ Shader::Shader(const std::string& fileName)
 
 	glBindAttribLocation(m_program, 0, "position");//it tells opengl what part of the data to read in what variable in the shader 
 	glBindAttribLocation(m_program, 1, "texCoord");//find attribute texCoord and bind it to 1
-	
+	glBindAttribLocation(m_program, 2, "normal");
+
 	glLinkProgram(m_program);
 	CheckShaderError(m_program, GL_LINK_STATUS, true, "program linking failure!!!:  ");
 
@@ -48,10 +49,10 @@ void Shader::Bind()
 	glUseProgram(m_program);
 }
 
-void Shader::Update(const Transform& transform)
+void Shader::Update(const Transform& transform,const Camera& camera)
 {
 	
-	glm::mat4 model = transform.GetModel();
+	glm::mat4 model = camera.GetViewProjection() * transform.GetModel();
 	//if writing own matrices you need to transpose it
 	glUniformMatrix4fv(m_uniforms[TRANSFORM_U], 1, GL_FALSE, &model[0][0]);
 }

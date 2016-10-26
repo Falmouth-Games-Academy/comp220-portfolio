@@ -8,13 +8,14 @@ Display::Display(int width, int height, const std::string& title)
 	//If I need SDL for other things will have to change this chunk
 	SDL_Init(SDL_INIT_EVERYTHING);
 
-	
+	//allocating space
 	SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 8);
 	SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 8);
 	SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 8);
 	SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, 8);		//Size = display this many bits of shades(8=256)
 	SDL_GL_SetAttribute(SDL_GL_BUFFER_SIZE, 32);	//This is how much of data in bits which SDL will allocate for a single pixel
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);	//allocate space for 2 windows that wont be displayed
+	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 16);//depth buffer
 
 
 	//Creates Window
@@ -22,7 +23,7 @@ Display::Display(int width, int height, const std::string& title)
 	m_glContext =SDL_GL_CreateContext(m_window);
 
 	//init glew
-	glewExperimental = GL_TRUE;
+	//glewExperimental = GL_TRUE;
 	GLenum status = glewInit();
 	if (status != GLEW_OK)
 	{
@@ -31,6 +32,14 @@ Display::Display(int width, int height, const std::string& title)
 
 	m_isClosed = false;
 
+	/*the z buffer, at ever pixel your going to store how far way it is from cammera,
+	and what it does when it draws it compares with any close and if it sitn there then draw it*/
+	glEnable(GL_DEPTH_TEST);
+
+
+	//backface culling works for convex items
+	glEnable(GL_CULL_FACE);
+	glCullFace(GL_BACK);
 
 }
 
@@ -46,7 +55,7 @@ Display::~Display()
 //screen color window function
 void Display::Clear(float r, float g, float b, float a) {
 	glClearColor(r, g, b, a);
-	glClear(GL_COLOR_BUFFER_BIT);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 }
 //set an IsCLosed boolean.

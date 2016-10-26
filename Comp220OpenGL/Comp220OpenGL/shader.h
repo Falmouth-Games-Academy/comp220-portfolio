@@ -4,13 +4,14 @@
 #include <string>
 #include <GL/glew.h>
 #include "transform.h"
+#include "camera.h"
 class Shader
 {
 public:
 	Shader(const std::string& fileName);
 	
 	void Bind();//set the gpu in a state so its using the shaders thats part of this parrticual class
-	void Update(const Transform& transform);//update all the uniforms in our array to some new set of values
+	void Update(const Transform& transform,const Camera& camera);//update all the uniforms in our array to some new set of values
 	
 	virtual ~Shader();
 
