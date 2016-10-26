@@ -208,7 +208,7 @@ int main(int argc, char* args[])
 
 	// Used for third dimension of perlin noise
 	int z = 0;
-	double seed = 351;
+	double seed = rand();
 
 	perlinNoise.GenerateNoise(seed);
 
@@ -216,9 +216,9 @@ int main(int argc, char* args[])
 	int noiseMax = 1;
 	int noiseMin = 0;
 
-	for (int x = 0; x < 40; x++)
+	for (int x = 0; x < 1000; x++)
 	{
-		for (int y = 0; y < 40; y++)
+		for (int y = 0; y < 1000; y++)
 		{
 			double perlinResult = perlinNoise.noise((x / 100.0), (y / 100.0), z);
 			//double perlinResult = rand();
@@ -281,14 +281,18 @@ int main(int argc, char* args[])
 
 		int mouseX, mouseY;
 		SDL_GetRelativeMouseState(&mouseX, &mouseY);
+		// Mouse sensitivity
 		playerYaw -= mouseX * 0.005f;
 		playerPitch -= mouseY * 0.005f;
+
+		// Max up & down view distance
 		const float maxPitch = glm::radians(89.0f);
 		if (playerPitch > maxPitch)
 			playerPitch = maxPitch;
 		if (playerPitch < -maxPitch)
 			playerPitch = -maxPitch;
 
+		// Forwards and back movement controls
 		glm::vec4 playerLook(0, 0, -1, 0);
 		glm::mat4 playerRotation;
 		playerRotation = glm::rotate(playerRotation, playerYaw, glm::vec3(0, 1, 0));
@@ -297,16 +301,29 @@ int main(int argc, char* args[])
 
 		glm::vec4 playerForward = playerLook;
 
+		
 		const Uint8* keyboardState = SDL_GetKeyboardState(nullptr);
 		if (keyboardState[SDL_SCANCODE_W])
 		{
 			playerPosition += playerForward * 0.01f;
+			// Speed modifier
+			if (keyboardState[SDL_SCANCODE_LSHIFT])
+			{
+				playerPosition += playerForward * 0.5f;
+			}
 		}
 		if (keyboardState[SDL_SCANCODE_S])
 		{
 			playerPosition -= playerForward * 0.01f;
+			// Speed modifier
+			if (keyboardState[SDL_SCANCODE_LSHIFT])
+			{
+				playerPosition -= playerForward * 0.5f;
+			}
 		}
 
+
+		// For left and right movement
 		glm::vec4 playerRight(0, 0, -1, 0);
 		glm::mat4 playerRightRotation;
 		playerRightRotation = glm::rotate(playerRightRotation, playerYaw - glm::radians(90.0f), glm::vec3(0, 1, 0));
@@ -315,10 +332,18 @@ int main(int argc, char* args[])
 		if (keyboardState[SDL_SCANCODE_A])
 		{
 			playerPosition -= playerRight * 0.01f;
+			if (keyboardState[SDL_SCANCODE_LSHIFT])
+			{
+				playerPosition -= playerRight * 0.1f;
+			}
 		}
 		if (keyboardState[SDL_SCANCODE_D])
 		{
 			playerPosition += playerRight * 0.01f;
+			if (keyboardState[SDL_SCANCODE_LSHIFT])
+			{
+				playerPosition += playerRight * 0.1f;
+			}
 		}
 
 		
