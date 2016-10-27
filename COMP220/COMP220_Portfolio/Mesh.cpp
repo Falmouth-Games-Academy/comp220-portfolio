@@ -93,20 +93,20 @@ bool Mesh::loadOBJ(const char * path,
 		if (strcmp(lineHeader, "v") == 0) {
 			glm::vec3 vertex;
 			fscanf(file, "%f %f %f\n", &vertex.x, &vertex.y, &vertex.z);
-			tempVertices.push_back(vertex);
+			temporaryVertices.push_back(vertex);
 		}
 
 
 		else if (strcmp(lineHeader, "vt") == 0) {
 			glm::vec2 uv;
 			fscanf(file, "%f %f\n", &uv.x, &uv.y);
-			tempUvs.push_back(uv);
+			temporaryUvs.push_back(uv);
 		}
 
 		else if (strcmp(lineHeader, "vn") == 0) {
 			glm::vec3 normal;
 			fscanf(file, "%f %f %f\n", &normal.x, &normal.y, &normal.z);
-			tempNormals.push_back(normal);
+			temporaryNormals.push_back(normal);
 		}
 
 		else if (strcmp(lineHeader, "f") == 0) {
@@ -140,17 +140,17 @@ bool Mesh::loadOBJ(const char * path,
 	// Doesn't add to out vectors
 	for (int i = 0; i < vertexIndices.size(); i++) {
 			vertexIndex = vertexIndices[i];
-			glm::vec3 vertex = tempVertices[vertexIndex - 1];
+			glm::vec3 vertex = temporaryVertices[vertexIndex - 1];
 			outVertices.push_back(vertex);
 	}
 	for (int i = 0; i < uvIndices.size(); i++) {
 		uvIndex = uvIndices[i];
-		glm::vec2 uv = tempUvs[uvIndex - 1];
+		glm::vec2 uv = temporaryUvs[uvIndex - 1];
 		outUvs.push_back(uv);
 	}
 	for (int i = 0; i < normalIndices.size(); i++) {
 		normalIndex = normalIndices[i];
-		glm::vec3 normal = tempNormals[normalIndex - 1];
+		glm::vec3 normal = temporaryNormals[normalIndex - 1];
 		outNormals.push_back(normal);
 	}
 }// End loadOBJ
@@ -162,37 +162,33 @@ void Mesh::createBuffers(std::vector< glm::vec3 >vertices, std::vector< glm::vec
 		throw std::exception("createBuffers() has already been called");
 	}
 
+	//Create and fill the position buffer
 	glGenBuffers(1, &vertexbuffer);
 	glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
 	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(glm::vec3), &vertices[0], GL_STATIC_DRAW);
 
-	
+	// Create and fill the texture coordinate buffer	
 	glGenBuffers(1, &uvbuffer);
 	glBindBuffer(GL_ARRAY_BUFFER, uvbuffer);
-	glBufferData(GL_ARRAY_BUFFER, uvs.size() * sizeof(glm::vec3), &uvs[0], GL_STATIC_DRAW);
-
+	glBufferData(GL_ARRAY_BUFFER, uvs.size() * sizeof(glm::vec2), &uvs[0], GL_STATIC_DRAW);
 	
+	// Create and fill the normal buffer	
 	glGenBuffers(1, &normalbuffer);
 	glBindBuffer(GL_ARRAY_BUFFER, normalbuffer);
 	glBufferData(GL_ARRAY_BUFFER, normals.size() * sizeof(glm::vec3), &normals[0], GL_STATIC_DRAW);
 
 
-	/*// Create and fill the position buffer
+	/*
+	// Create and fill the position buffer
 	glGenBuffers(1, &m_positionBuffer);
 	//glBindBuffer(GL_ARRAY_BUFFER, m_positionBuffer);
 	//glBufferData(GL_ARRAY_BUFFER, m_vertexPositions.size() * sizeof(glm::vec3), m_vertexPositions.data(), GL_STATIC_DRAW);
-	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(glm::vec3), &vertices[0], GL_STATIC_DRAW);*/
+	*/
 
 	// Create and fill the colour buffer
 	glGenBuffers(1, &m_colourBuffer);
 	glBindBuffer(GL_ARRAY_BUFFER, m_colourBuffer);
 	glBufferData(GL_ARRAY_BUFFER, m_vertexColours.size() * sizeof(glm::vec3), m_vertexColours.data(), GL_STATIC_DRAW);
-
-	// Create and fill the texture coordinate buffer
-	glGenBuffers(1, &m_uvBuffer);
-	glBindBuffer(GL_ARRAY_BUFFER, m_uvBuffer);
-	glBufferData(GL_ARRAY_BUFFER, m_vertexUVs.size() * sizeof(glm::vec2), m_vertexUVs.data(), GL_STATIC_DRAW);
-
 
 }
 

@@ -25,9 +25,9 @@ public:
 	void draw();
 
 	std::vector< unsigned int > vertexIndices, uvIndices, normalIndices;
-	std::vector< glm::vec3 > tempVertices;
-	std::vector< glm::vec2 > tempUvs;
-	std::vector< glm::vec3 > tempNormals;
+	std::vector< glm::vec3 > temporaryVertices;
+	std::vector< glm::vec2 > temporaryUvs;
+	std::vector< glm::vec3 > temporaryNormals;
 	
 
 private:

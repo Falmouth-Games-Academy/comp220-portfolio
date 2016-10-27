@@ -173,6 +173,23 @@ GLuint ForestScene::loadTexture(const std::string& fileName)
 	return textureId;
 }
 
+glm::vec4 ForestScene::calculateCameraAngle(int mouseX, int mouseY)
+{
+	playerYaw -= mouseX * mouseSensitivity;
+	playerPitch -= mouseY * mouseSensitivity;
+	const float maxPitch = glm::radians(89.0f);
+	if (playerPitch > maxPitch)
+		playerPitch = maxPitch;
+	if (playerPitch < -maxPitch)
+		playerPitch = -maxPitch;
+
+	glm::vec4 playerLook(0, 0, -1, 0);
+	glm::mat4 playerRotation;
+	playerRotation = glm::rotate(playerRotation, playerYaw, glm::vec3(0, 1, 0));
+	playerRotation = glm::rotate(playerRotation, playerPitch, glm::vec3(1, 0, 0));
+	return playerLook = playerRotation * playerLook;
+}
+
 void ForestScene::run()
 {
 
@@ -185,15 +202,11 @@ void ForestScene::run()
 	std::vector< glm::vec3 > vertices;
 	std::vector< glm::vec2 > uvs;
 	std::vector< glm::vec3 > normals;
-	bool res = mesh.loadOBJ("cube.obj", vertices, uvs, normals);
-	
+	bool res = mesh.loadOBJ("tree.obj", vertices, uvs, normals);
 	
 	mesh.createBuffers(vertices, normals, uvs);
 
-	
-
 	GLuint programID = loadShaders("vertex.glsl", "fragment.glsl");
-
 	GLuint mvpLocation = glGetUniformLocation(programID, "mvp");
 
 	glEnable(GL_DEPTH_TEST);
@@ -205,9 +218,6 @@ void ForestScene::run()
 	//glEnable(GL_CULL_FACE);
 
 	glm::vec4 playerPosition(0, 0, 5, 1);
-	float playerPitch = 0;
-	float playerYaw = 0;
-
 	SDL_SetRelativeMouseMode(SDL_TRUE);
 	SDL_GetRelativeMouseState(nullptr, nullptr);
 
@@ -235,19 +245,7 @@ void ForestScene::run()
 
 		int mouseX, mouseY;
 		SDL_GetRelativeMouseState(&mouseX, &mouseY);
-		playerYaw -= mouseX * mouseSensitivity;
-		playerPitch -= mouseY * mouseSensitivity;
-		const float maxPitch = glm::radians(89.0f);
-		if (playerPitch > maxPitch)
-			playerPitch = maxPitch;
-		if (playerPitch < -maxPitch)
-			playerPitch = -maxPitch;
-
-		glm::vec4 playerLook(0, 0, -1, 0);
-		glm::mat4 playerRotation;
-		playerRotation = glm::rotate(playerRotation, playerYaw, glm::vec3(0, 1, 0));
-		playerRotation = glm::rotate(playerRotation, playerPitch, glm::vec3(1, 0, 0));
-		playerLook = playerRotation * playerLook;
+		glm::vec4 playerLook = calculateCameraAngle(mouseX, mouseY);
 
 		glm::vec4 playerForward(0, 0, -1, 0);
 		glm::mat4 playerForwardRotation;
