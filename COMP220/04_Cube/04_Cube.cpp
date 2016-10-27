@@ -96,7 +96,7 @@ int main(int argc, char* args[])
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	//glEnable(GL_CULL_FACE);
+	glEnable(GL_CULL_FACE);
 
 	glm::vec4 playerPosition(0, 0, 5, 1);
 	float playerPitch = 0;
@@ -104,6 +104,9 @@ int main(int argc, char* args[])
 
 	SDL_SetRelativeMouseMode(SDL_TRUE);
 	SDL_GetRelativeMouseState(nullptr, nullptr);
+
+	//define player speed
+	const float playerSpeed = 0.01f;
 
 	bool running = true;
 	while (running)
@@ -152,11 +155,11 @@ int main(int argc, char* args[])
 		const Uint8* keyboardState = SDL_GetKeyboardState(nullptr);
 		if (keyboardState[SDL_SCANCODE_W])
 		{
-			playerPosition += playerForward * 0.01f;
+			playerPosition += playerForward * playerSpeed;
 		}
 		if (keyboardState[SDL_SCANCODE_S])
 		{
-			playerPosition -= playerForward * 0.01f;
+			playerPosition -= playerForward * playerSpeed;
 		}
 
 		glm::vec4 playerRight(0, 0, -1, 0);
@@ -166,11 +169,11 @@ int main(int argc, char* args[])
 
 		if (keyboardState[SDL_SCANCODE_A])
 		{
-			playerPosition -= playerRight * 0.01f;
+			playerPosition -= playerRight * playerSpeed;
 		}
 		if (keyboardState[SDL_SCANCODE_D])
 		{
-			playerPosition += playerRight * 0.01f;
+			playerPosition += playerRight * playerSpeed;
 		}
 
 		glClearColor(0.0f, 0.5f, 1.0f, 1.0f);

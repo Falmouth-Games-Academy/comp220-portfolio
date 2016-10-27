@@ -65,7 +65,7 @@ void Mesh::addCircle(const glm::vec3& centre, float radius, int numPoints,
 	{
 		float angle = angleStep * i;
 		glm::vec3 nextEdgePoint = centre + radius * glm::vec3(cos(angle), 0, sin(angle));
-		addTriangle(centre, lastEdgePoint, nextEdgePoint, colour, glm::vec2(), glm::vec2(), glm::vec2());
+		addTriangle(centre, nextEdgePoint, lastEdgePoint, colour, glm::vec2(), glm::vec2(), glm::vec2());
 		lastEdgePoint = nextEdgePoint;
 	}
 }
