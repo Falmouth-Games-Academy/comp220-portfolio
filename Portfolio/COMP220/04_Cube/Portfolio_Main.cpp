@@ -126,8 +126,8 @@ GLuint loadTexture(const std::string& fileName)
 int main(int argc, char* args[])
 {
 
-	int windowWidth = 1080;
-	int windowHeight = 1080;
+	int windowWidth = 1000;
+	int windowHeight = 1000;
 
 
 	if (SDL_Init(SDL_INIT_VIDEO) < 0)
@@ -141,7 +141,7 @@ int main(int argc, char* args[])
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 
-	SDL_Window* window = SDL_CreateWindow("My first OpenGL program", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, windowWidth, windowHeight, SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL);
+	SDL_Window* window = SDL_CreateWindow("Portfolio Project - Alli", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, windowWidth, windowHeight, SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL);
 
 	if (window == nullptr)
 	{
@@ -195,9 +195,9 @@ int main(int argc, char* args[])
 	mesh.addSquare(d, c, g, f, glm::vec3(1, 0, 1), 0.25f, 0.5f, 0.5f, 0.75f);
 
 	//mesh.addCircle(glm::vec3(0, -2, 0), 1, 500, glm::vec3(1, 1, 0));
-
-	mesh.addCylinder(glm::vec3(0, -2, 0), 1, 24, -2, glm::vec3(1, 0, 0));
 	*/
+	mesh.addCylinder(glm::vec3(0, -2, 0), 1, 24, -2, glm::vec3(1, 0, 0));
+	
 
 	PerlinNoise perlinNoise;
 
@@ -207,12 +207,12 @@ int main(int argc, char* args[])
 
 	perlinNoise.GenerateNoise(seed);
 
-	int chunkSize = 600;
-	int noiseMax = 1;
+	int chunkSize = 1725;
+	int noiseMax = 3;
 	int noiseMin = 0;
 
 	// Amplification(the lower the number the higher the amplification)
-	float noiseAmplification = 200.0;
+	float noiseAmplification = 100.0;
 
 	for (int x = 0; x < chunkSize; x++)
 	{
@@ -223,26 +223,25 @@ int main(int argc, char* args[])
 			//Normalize values
 			perlinResult = (char)((perlinResult - noiseMin) * (255 / (noiseMax - noiseMin)));;
 
+
 			//Generate squares next to each other with different z position values
-			mesh.addSquare(glm::vec3(x, y, perlinResult), glm::vec3(x + 1, y, perlinResult), glm::vec3(x + 1, y + 1, perlinResult), glm::vec3(x, y + 1, perlinResult), 
-				
+			//mesh.addSquare(glm::vec3(x, perlinResult, y), glm::vec3(x + 1, perlinResult, y), glm::vec3(x + 1, perlinResult + 1, y), glm::vec3(x, perlinResult + 1, y), // SideWays Squares
+			mesh.addSquare(glm::vec3(x, y, perlinResult), glm::vec3(x + 1, y, perlinResult), glm::vec3(x + 1, y + 1, perlinResult), glm::vec3(x, y + 1, perlinResult), // Flat Squares
+
 				// Square Colour
 				//glm::vec3(1, 0.5, 0), //Orange
-				glm::vec3(sin(perlinResult), cos(perlinResult), tan(perlinResult)),
-				
+				//glm::vec3(sin(perlinResult), cos(perlinResult), tan(perlinResult)), //Rainbow
+				//glm::vec3(sin(perlinResult), tan(perlinResult), tan(perlinResult)), //Rainbow Red/White
+				//glm::vec3(perlinResult / 80 ,perlinResult / 35, perlinResult / 700 ), // Grassy texture
+				glm::vec3(sin(perlinResult) / 10 ,tan(perlinResult / 80), perlinResult / 100 ), // Grassy texture
+
+
 				// UV maps
 				0, 0, 0, 0);
 		}
 	}
-
-
-	
-	
-	
 	mesh.createBuffers();
-
 	GLuint programID = loadShaders("vertex.glsl", "fragment.glsl");
-
 	GLuint mvpLocation = glGetUniformLocation(programID, "mvp");
 
 	glEnable(GL_DEPTH_TEST);
@@ -253,7 +252,7 @@ int main(int argc, char* args[])
 
 	glEnable(GL_CULL_FACE);
 
-	glm::vec4 playerPosition(0, 0, 5, 1);
+	glm::vec4 playerPosition(0, 50, 50, 1);
 	float playerPitch = 0;
 	float playerYaw = 0;
 
@@ -362,7 +361,7 @@ int main(int argc, char* args[])
 		glm::mat4 projection = glm::perspective(glm::radians(45.0f), 1.0f, 0.1f, 10000.0f);
 
 		glm::mat4 transform;
-		//transform = glm::rotate(transform, sin(SDL_GetTicks() / 1000.0f), glm::vec3(0, 1, 0));
+		transform = glm::rotate(transform, glm::radians(-90.0f), glm::vec3(1, 0, 0));  // Rotate by 90 to make the level flat
 		glm::mat4 mvp = projection * view * transform;
 		glUniformMatrix4fv(mvpLocation, 1, GL_FALSE, glm::value_ptr(mvp));
 
