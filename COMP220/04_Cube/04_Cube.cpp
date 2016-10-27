@@ -7,6 +7,7 @@
 #include "ErrorMessage.h"
 #include "LoadShader.h"
 #include "texture.h"
+#include "PlayerMovement.h"
 
 // NOTE: this code is intended to illustrate usage of OpenGL.
 // It is NOT intended to illustrate good coding style or naming conventions!
@@ -86,7 +87,8 @@ int main(int argc, char* args[])
 	// creates a shader
 	GLuint programID = Lshader.loadShaders("vertex.glsl", "fragment.glsl");
 
-
+	glm::mat4 mvp;
+	PlayerMovement player(&mvp);
 
 	GLuint mvpLocation = glGetUniformLocation(programID, "mvp");
 
@@ -193,6 +195,9 @@ int main(int argc, char* args[])
 
 		SDL_GL_SwapWindow(window);
 	}
+
+	//get rid of player movement
+	player.~PlayerMovement;
 
 	SDL_GL_DeleteContext(glContext);
 	SDL_DestroyWindow(window);

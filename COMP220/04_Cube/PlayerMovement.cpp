@@ -2,8 +2,9 @@
 #include "PlayerMovement.h"
 
 
-PlayerMovement::PlayerMovement()
+PlayerMovement::PlayerMovement(glm::mat4 *mvp)
 {
+	this->mvp = mvp;
 }
 
 
