@@ -206,12 +206,15 @@ int main(int argc, char* args[])
 	int seed = SDL_GetTicks() / 100;
 
 	// Generate perlin noise based off a seed
-	perlinNoise.GenerateNoise(seed);
+	//perlinNoise.GenerateNoise(seed);
 
-	//Set the grounds colour
+	// Geneate perlin noise based of Ken Perlins Permutation Vector
+	perlinNoise.GeneratePerlinNoise();
+
+	// The grounds colour Variable
 	glm::vec3 colour = glm::vec3(0,0,0);
 
-	int chunkSize = 100; // Max 1725 squares ~3M
+	int chunkSize = 700; // Max 700 squares ~3M
 	int noiseMax = 3;
 	int noiseMin = 0;
 
@@ -226,22 +229,23 @@ int main(int argc, char* args[])
 
 			//Normalize values
 			perlinResult = (char)((perlinResult - noiseMin) * (255 / (noiseMax - noiseMin)));;
-			colour = glm::vec3(sin(perlinResult), cos(perlinResult), tan(perlinResult));
 
-			//Generate squares next to each other with different z position values
-			/*mesh.addSquare(glm::vec3(x, perlinResult, y), glm::vec3(x + 1, perlinResult, y), glm::vec3(x + 1, perlinResult + 1, y), glm::vec3(x, perlinResult + 1, y), // SideWays Squares
-			mesh.addSquare(glm::vec3(x, y, perlinResult), glm::vec3(x + 1, y, perlinResult), glm::vec3(x + 1, y + 1, perlinResult), glm::vec3(x, y + 1, perlinResult), // Flat Squares
+			// Cube Colour
+			if (perlinResult > 0)
+			{
+				colour =
 
-				// Square Colour
-				//glm::vec3(1, 0.5, 0), //Orange
-				//glm::vec3(sin(perlinResult), cos(perlinResult), tan(perlinResult)), //Rainbow Red/White
-				glm::vec3(perlinResult / 80 ,perlinResult / 35, perlinResult / 700 ), // Grassy texture
-				//glm::vec3(sin(perlinResult) / 80 ,sin(perlinResult / 35), sin(perlinResult) / 100 ), // Grassy texture
-				//glm::vec3(perlinResult / 10, perlinResult / 30, perlinResult / 75), // Grassy texture
-
-				// UV maps
-				0, 0, 0, 0);
-				*/
+					//glm::vec3(sin(perlinResult), cos(perlinResult), tan(perlinResult));
+					//glm::vec3(1, 0.5, 0), //Orange
+					//glm::vec3(sin(perlinResult), cos(perlinResult), tan(perlinResult)), //Rainbow Red/White
+					glm::vec3(perlinResult / 100, perlinResult / 50, perlinResult / 700); // Grassy texture
+					//glm::vec3(sin(perlinResult) / 80 ,sin(perlinResult / 35), sin(perlinResult) / 100 ), // Grassy texture
+					//glm::vec3(perlinResult / 10, perlinResult / 30, perlinResult / 75), // Grassy texture
+			}
+			else
+			{
+				colour = glm::vec3(-perlinResult / 70, -perlinResult / 100, -sin(perlinResult / 700));
+			}
 
 			glm::vec3 a(x-1, y+1, perlinResult +1);
 			glm::vec3 b(x+1, y+1, perlinResult +1);
