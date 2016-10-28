@@ -1,12 +1,12 @@
 #include "stdafx.h"
 #include "ForestScene.h"
-
+#include "Mesh.h"
 
 ForestScene::ForestScene()
 {
 	if (SDL_Init(SDL_INIT_VIDEO) < 0)
 	{
-		showErrorMessage(SDL_GetError(), "SDL_Init failed");
+		errorSystem.showErrorMessage(SDL_GetError(), "SDL_Init failed");
 	}
 
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
@@ -18,46 +18,36 @@ ForestScene::ForestScene()
 
 	if (window == nullptr)
 	{
-		showErrorMessage(SDL_GetError(), "SDL_CreateWindow failed");
+		errorSystem.showErrorMessage(SDL_GetError(), "SDL_CreateWindow failed");
 	}
 
 	glContext = SDL_GL_CreateContext(window);
 
 	if (glContext == nullptr)
 	{
-		showErrorMessage(SDL_GetError(), "SDL_GL_CreateContext failed");
+		errorSystem.showErrorMessage(SDL_GetError(), "SDL_GL_CreateContext failed");
 	}
 
 	if (glewInit() != GLEW_OK)
 	{
-		showErrorMessage("glewInit failed", ":(");
+		errorSystem.showErrorMessage("glewInit failed", "Error");
 	}
 
-	GLuint diceTexture = loadTexture("dice_texture_2.png");
+	texture = loadTexture("treeTexture.png");
 
-	if (diceTexture == 0)
+	if (texture == 0)
 	{
-		showErrorMessage("loadTexture failed", ":(");
+		errorSystem.showErrorMessage("loadTexture failed", "Error");
 	}
 
-	glEnable(GL_LIGHTING);
-	glEnable(GL_LIGHT0);
 }
-
 
 ForestScene::~ForestScene()
 {
-
 	SDL_GL_DeleteContext(glContext);
 	SDL_DestroyWindow(window);
 
 	SDL_Quit();
-}
-
-void ForestScene::showErrorMessage(const char* message, const char* title)
-{
-	// Note: this is specific to Windows, and would need redefining to work on Mac or Linux
-	MessageBoxA(nullptr, message, title, MB_OK | MB_ICONERROR);
 }
 
 bool ForestScene::compileShader(GLuint shaderId, const std::string& shaderFileName)
@@ -74,7 +64,7 @@ bool ForestScene::compileShader(GLuint shaderId, const std::string& shaderFileNa
 	}
 	else
 	{
-		showErrorMessage(shaderFileName.c_str(), "File not found");
+		errorSystem.showErrorMessage(shaderFileName.c_str(), "File not found");
 		return false;
 	}
 
@@ -93,14 +83,13 @@ bool ForestScene::compileShader(GLuint shaderId, const std::string& shaderFileNa
 		// Display the compilation log
 		std::vector<char> errorMessage(infoLogLength + 1);
 		glGetShaderInfoLog(shaderId, infoLogLength, NULL, errorMessage.data());
-		showErrorMessage(errorMessage.data(), shaderFileName.c_str());
+		errorSystem.showErrorMessage(errorMessage.data(), shaderFileName.c_str());
 	}
 
 	return (result != GL_FALSE);
 }
 
-GLuint ForestScene::loadShaders(const std::string& vertex_file_path, const std::string& fragment_file_path)
-{
+GLuint ForestScene::loadShaders(const std::string& vertex_file_path, const std::string& fragment_file_path) {
 
 	// Create the shaders
 	GLuint vertexShaderId = glCreateShader(GL_VERTEX_SHADER);
@@ -123,7 +112,7 @@ GLuint ForestScene::loadShaders(const std::string& vertex_file_path, const std::
 	if (infoLogLength > 1) {
 		std::vector<char> errorMessage(infoLogLength + 1);
 		glGetProgramInfoLog(programId, infoLogLength, NULL, errorMessage.data());
-		showErrorMessage(errorMessage.data(), "glLinkProgram error");
+		errorSystem.showErrorMessage(errorMessage.data(), "glLinkProgram error");
 	}
 
 	glDetachShader(programId, vertexShaderId);
@@ -141,7 +130,7 @@ GLuint ForestScene::loadTexture(const std::string& fileName)
 
 	if (textureSurface == nullptr)
 	{
-		showErrorMessage(SDL_GetError(), "IMG_Load failed");
+		errorSystem.showErrorMessage(SDL_GetError(), "IMG_Load failed");
 		return 0;
 	}
 
@@ -160,7 +149,7 @@ GLuint ForestScene::loadTexture(const std::string& fileName)
 	}
 	else
 	{
-		showErrorMessage("Invalid pixel format", ":(");
+		errorSystem.showErrorMessage("Invalid pixel format", ":(");
 		return 0;
 	}
 
@@ -173,41 +162,22 @@ GLuint ForestScene::loadTexture(const std::string& fileName)
 	return textureId;
 }
 
-glm::vec4 ForestScene::calculateCameraAngle(int mouseX, int mouseY)
-{
-	playerYaw -= mouseX * mouseSensitivity;
-	playerPitch -= mouseY * mouseSensitivity;
-	const float maxPitch = glm::radians(89.0f);
-	if (playerPitch > maxPitch)
-		playerPitch = maxPitch;
-	if (playerPitch < -maxPitch)
-		playerPitch = -maxPitch;
-
-	glm::vec4 playerLook(0, 0, -1, 0);
-	glm::mat4 playerRotation;
-	playerRotation = glm::rotate(playerRotation, playerYaw, glm::vec3(0, 1, 0));
-	playerRotation = glm::rotate(playerRotation, playerPitch, glm::vec3(1, 0, 0));
-	return playerLook = playerRotation * playerLook;
-}
-
 void ForestScene::run()
 {
-
 	GLuint VertexArrayID;
 	glGenVertexArrays(1, &VertexArrayID);
 	glBindVertexArray(VertexArrayID);
 
 	Mesh mesh;
-	// Read .obj file
-	std::vector< glm::vec3 > vertices;
-	std::vector< glm::vec2 > uvs;
-	std::vector< glm::vec3 > normals;
-	bool res = mesh.loadOBJ("tree.obj", vertices, uvs, normals);
+	mesh.loadOBJ("tree.obj");
 	
-	mesh.createBuffers(vertices, normals, uvs);
+	mesh.createBuffers();
 
 	GLuint programID = loadShaders("vertex.glsl", "fragment.glsl");
+
 	GLuint mvpLocation = glGetUniformLocation(programID, "mvp");
+
+	GLuint lightDirectionLocation = glGetUniformLocation(programID, "lightDirection");
 
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
@@ -215,9 +185,12 @@ void ForestScene::run()
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	//glEnable(GL_CULL_FACE);
+	glEnable(GL_CULL_FACE);
 
 	glm::vec4 playerPosition(0, 0, 5, 1);
+	float playerPitch = 0;
+	float playerYaw = 0;
+
 	SDL_SetRelativeMouseMode(SDL_TRUE);
 	SDL_GetRelativeMouseState(nullptr, nullptr);
 
@@ -245,22 +218,34 @@ void ForestScene::run()
 
 		int mouseX, mouseY;
 		SDL_GetRelativeMouseState(&mouseX, &mouseY);
-		glm::vec4 playerLook = calculateCameraAngle(mouseX, mouseY);
+		playerYaw -= mouseX * 0.005f;
+		playerPitch -= mouseY * 0.005f;
+		const float maxPitch = glm::radians(89.0f);
+		if (playerPitch > maxPitch)
+			playerPitch = maxPitch;
+		if (playerPitch < -maxPitch)
+			playerPitch = -maxPitch;
 
-		glm::vec4 playerForward(0, 0, -1, 0);
+		glm::vec4 playerLook(0, 0, -1, 0);
+		glm::mat4 playerRotation;
+		playerRotation = glm::rotate(playerRotation, playerYaw, glm::vec3(0, 1, 0));
+		playerRotation = glm::rotate(playerRotation, playerPitch, glm::vec3(1, 0, 0));
+		playerLook = playerRotation * playerLook;
+
+		/*glm::vec4 playerForward(0, 0, -1, 0);
 		glm::mat4 playerForwardRotation;
 		playerForwardRotation = glm::rotate(playerForwardRotation, playerYaw, glm::vec3(0, 1, 0));
-		playerForward = playerForwardRotation * playerForward;
-		playerForward = playerLook;
+		playerForward = playerForwardRotation * playerForward;*/
+		glm::vec4 playerForward = playerLook;
 
 		const Uint8* keyboardState = SDL_GetKeyboardState(nullptr);
 		if (keyboardState[SDL_SCANCODE_W])
 		{
-			playerPosition += playerForward * movementMultipler;
+			playerPosition += playerForward * 0.001f;
 		}
 		if (keyboardState[SDL_SCANCODE_S])
 		{
-			playerPosition -= playerForward * movementMultipler;
+			playerPosition -= playerForward * 0.001f;
 		}
 
 		glm::vec4 playerRight(0, 0, -1, 0);
@@ -270,14 +255,14 @@ void ForestScene::run()
 
 		if (keyboardState[SDL_SCANCODE_A])
 		{
-			playerPosition -= playerRight * movementMultipler;
+			playerPosition -= playerRight * 0.001f;
 		}
 		if (keyboardState[SDL_SCANCODE_D])
 		{
-			playerPosition += playerRight * movementMultipler;
+			playerPosition += playerRight * 0.001f;
 		}
 
-		glClearColor(0.0f, 0.5f, 1.0f, 1.0f);
+		glClearColor(0.0f, 0.0f, 0.2f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		glUseProgram(programID);
@@ -289,6 +274,8 @@ void ForestScene::run()
 		//transform = glm::rotate(transform, SDL_GetTicks() / 1000.0f, glm::vec3(0, 1, 0));
 		glm::mat4 mvp = projection * view * transform;
 		glUniformMatrix4fv(mvpLocation, 1, GL_FALSE, glm::value_ptr(mvp));
+
+		glUniform3f(lightDirectionLocation, 1, 1, 1);
 
 		mesh.draw();
 
