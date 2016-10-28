@@ -15,6 +15,9 @@ Mesh::~Mesh()
 
 	if (m_uvBuffer != 0)
 		glDeleteBuffers(1, &m_uvBuffer);
+
+	if (m_normalBuffer != 0)
+		glDeleteBuffers(1, &m_normalBuffer);
 }
 
 void Mesh::addTriangle(const glm::vec3& p1, const glm::vec3& p2, const glm::vec3& p3,
@@ -39,6 +42,8 @@ void Mesh::addTriangle(const glm::vec3& p1, const glm::vec3& p2, const glm::vec3
 	m_vertexUVs.push_back(t1);
 	m_vertexUVs.push_back(t2);
 	m_vertexUVs.push_back(t3);
+
+
 }
 
 void Mesh::addSquare(const glm::vec3& a, const glm::vec3& b,
@@ -121,6 +126,11 @@ void Mesh::createBuffers()
 	glGenBuffers(1, &m_uvBuffer);
 	glBindBuffer(GL_ARRAY_BUFFER, m_uvBuffer);
 	glBufferData(GL_ARRAY_BUFFER, m_vertexUVs.size() * sizeof(glm::vec2), m_vertexUVs.data(), GL_STATIC_DRAW);
+
+	// Create and fill the normal buffer
+	glGenBuffers(1, &m_normalBuffer);
+	glBindBuffer(GL_ARRAY_BUFFER, m_normalBuffer);
+	glBufferData(GL_ARRAY_BUFFER, m_vertexNormals.size() * sizeof(glm::vec3), m_vertexNormals.data(), GL_STATIC_DRAW);
 }
 
 void Mesh::draw()
@@ -145,9 +155,15 @@ void Mesh::draw()
 	glBindBuffer(GL_ARRAY_BUFFER, m_uvBuffer);
 	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
 
+	// Bind the normal buffer to vertex attribute 3
+	glEnableVertexAttribArray(3);
+	glBindBuffer(GL_ARRAY_BUFFER, m_normalBuffer);
+	glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
+
 	glDrawArrays(GL_TRIANGLES, 0, m_vertexPositions.size());
 
 	glDisableVertexAttribArray(0);
 	glDisableVertexAttribArray(1);
 	glDisableVertexAttribArray(2);
+	glDisableVertexAttribArray(3);
 }

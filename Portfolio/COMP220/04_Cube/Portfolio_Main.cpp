@@ -176,6 +176,7 @@ int main(int argc, char* args[])
 	glBindVertexArray(VertexArrayID);
 
 	Mesh mesh;
+	PerlinNoise perlinNoise;
 
 	/* CUBE 
 	glm::vec3 a(-1, +1, +1);
@@ -199,11 +200,12 @@ int main(int argc, char* args[])
 	mesh.addCylinder(glm::vec3(0, -2, 0), 1, 24, -2, glm::vec3(1, 0, 0));
 	
 
-	PerlinNoise perlinNoise;
+	
 
 	// Used for third dimension of perlin noise
 	int z = 0;
 	int seed = SDL_GetTicks() / 100;
+	std::vector<int> cellX, cellY, cellZ;
 
 	// Generate perlin noise based off a seed
 	//perlinNoise.GenerateNoise(seed);
@@ -225,10 +227,13 @@ int main(int argc, char* args[])
 	{
 		for (int y = 0; y < chunkSize; y++)
 		{
+			cellX.push_back(x);
+			cellY.push_back(y);
 			double perlinResult = perlinNoise.noise((x / noiseAmplification), (y / noiseAmplification), z);
 
 			//Normalize values
 			perlinResult = (char)((perlinResult - noiseMin) * (255 / (noiseMax - noiseMin)));;
+			cellZ.push_back(perlinResult);
 
 			// Cube Colour
 			if (perlinResult > 0)
@@ -262,6 +267,11 @@ int main(int argc, char* args[])
 	mesh.createBuffers();
 	GLuint programID = loadShaders("vertex.glsl", "fragment.glsl");
 	GLuint mvpLocation = glGetUniformLocation(programID, "mvp");
+
+	GLuint lightDirectionLocation = glGetUniformLocation(programID, "lightDirection");
+
+	GLuint eyeDirectionLocation = glGetUniformLocation(programID, "eyeDirection");
+	GLuint specularIntensity = glGetUniformLocation(programID, "specularIntensity");
 
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
@@ -367,7 +377,6 @@ int main(int argc, char* args[])
 			}
 		}
 
-		
 
 		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -383,6 +392,14 @@ int main(int argc, char* args[])
 		transform = glm::rotate(transform, glm::radians(-90.0f), glm::vec3(1, 0, 0));  // Rotate by 90 to make the level flat
 		glm::mat4 mvp = projection * view * transform;
 		glUniformMatrix4fv(mvpLocation, 1, GL_FALSE, glm::value_ptr(mvp));
+
+		// Lighting
+		glUniform3f(lightDirectionLocation, 20, 20, 200);
+
+		glUniform3f(eyeDirectionLocation, playerPosition.x, playerPosition.y, playerPosition.z);
+		float specularIntensityVal = 100.0f;
+		glUniform1f(specularIntensity, specularIntensityVal);
+
 
 		mesh.draw();
 
