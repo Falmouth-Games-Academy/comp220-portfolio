@@ -15,64 +15,102 @@ Mesh::~Mesh()
 
 	if (m_uvBuffer != 0)
 		glDeleteBuffers(1, &m_uvBuffer);
+
+	if (m_normalBuffer != 0)
+		glDeleteBuffers(1, &m_normalBuffer);
 }
 
-void Mesh::addTriangle(const glm::vec3& p1, const glm::vec3& p2, const glm::vec3& p3,
-	const glm::vec3& colour,
-	const glm::vec2& t1, const glm::vec2& t2, const glm::vec2& t3)
+void Mesh::addTriangle(Vertex v1, Vertex v2, Vertex v3)
+{
+	glm::vec3 normal = glm::cross(v2.vertexPosition - v1.vertexPosition, v3.vertexPosition - v1.vertexPosition);
+	normal = glm::normalize(normal);
+
+	v1.vertexNormal = normal;
+	v2.vertexNormal = normal;
+	v3.vertexNormal = normal;
+
+	addVertex(v1);
+	addVertex(v2);
+	addVertex(v3);
+}
+
+void Mesh::addVertex(const Vertex& vertex)
 {
 	if (m_positionBuffer != 0)
 	{
-		throw std::exception("Cannot add triangles after createBuffers() has been called");
+		throw std::exception("Cannot add vertices after createBuffers() has been called");
 	}
 
-	// Add the vertex positions
-	m_vertexPositions.push_back(p1);
-	m_vertexPositions.push_back(p2);
-	m_vertexPositions.push_back(p3);
-	
-	// Make all three vertices the same colour
-	for (int i = 0; i < 3; i++)
-		m_vertexColours.push_back(colour);
-
-	// Add the texture coordinates
-	m_vertexUVs.push_back(t1);
-	m_vertexUVs.push_back(t2);
-	m_vertexUVs.push_back(t3);
+	m_vertexPositions.push_back(vertex.vertexPosition);
+	m_vertexColours.push_back(vertex.vertexColour);
+	m_vertexUVs.push_back(vertex.vertexTextureCoord);
+	m_vertexNormals.push_back(vertex.vertexNormal);
 }
 
-void Mesh::addSquare(const glm::vec3& a, const glm::vec3& b,
-	const glm::vec3& c, const glm::vec3& d, const glm::vec3& colour,
-	float u1, float u2, float v1, float v2)
+Vertex Mesh::createSphereVertex(float radius, float longitude, float latitude, const glm::vec3& colour)
 {
-	glm::vec2 ta(u1, v1);
-	glm::vec2 tb(u1, v2);
-	glm::vec2 tc(u2, v2);
-	glm::vec2 td(u2, v1);
+	glm::vec3 unitPos(
+		cos(latitude) * cos(longitude),
+		sin(latitude),
+		cos(latitude) * sin(longitude));
 
-	addTriangle(a, b, d, colour, ta, tb, td);
-	addTriangle(d, b, c, colour, td, tb, tc);
+	glm::vec2 textureCoords(
+		-longitude / glm::radians(360.0f),
+		latitude / glm::radians(180.0f) + 0.5f);
+
+	return Vertex(radius * unitPos,
+		colour,
+		textureCoords);
 }
 
-void Mesh::addCircle(const glm::vec3& centre, float radius, int numPoints,
-	const glm::vec3& colour)
+void Mesh::addSphere(float radius, int quality, const glm::vec3& colour)
 {
-	float angleStep = glm::radians(360.0f) / numPoints;
+	float angleStep = glm::radians(90.0f) / quality;
 
-	glm::vec3 lastEdgePoint = centre + radius * glm::vec3(1, 0, 0);
+	std::vector<Vertex> lastRingPoints, ringPoints;
 
-	for (int i = 1; i <= numPoints; i++)
+	// Top cap
+	float latitude = angleStep * (quality - 1);
+	for (int i = 0; i <= quality * 4; i++)
 	{
-		float angle = angleStep * i;
-		glm::vec3 nextEdgePoint = centre + radius * glm::vec3(cos(angle), 0, sin(angle));
-		addTriangle(centre, lastEdgePoint, nextEdgePoint, colour, glm::vec2(), glm::vec2(), glm::vec2());
-		lastEdgePoint = nextEdgePoint;
+		float longitude = i * angleStep;
+		ringPoints.push_back(createSphereVertex(radius, longitude, latitude, colour));
+		if (ringPoints.size() > 1)
+		{
+			Vertex pole = createSphereVertex(radius, longitude - 0.5f*angleStep, glm::radians(90.0f), colour);
+			addTriangle(pole, ringPoints[i], ringPoints[i - 1]);
+		}
+	}
+
+	// Rings
+	for (int j = quality - 2; j > -quality; j--)
+	{
+		lastRingPoints.clear();
+		std::swap(lastRingPoints, ringPoints);
+
+		float latitude = angleStep * j;
+		for (int i = 0; i <= quality * 4; i++)
+		{
+			float longitude = i * angleStep;
+			ringPoints.push_back(createSphereVertex(radius, longitude, latitude, colour));
+			if (ringPoints.size() > 1)
+			{
+				addTriangle(lastRingPoints[i], ringPoints[i], ringPoints[i - 1]);
+				addTriangle(lastRingPoints[i - 1], lastRingPoints[i], ringPoints[i - 1]);
+			}
+		}
+	}
+
+	// Bottom cap
+	for (int i = 1; i < ringPoints.size(); i++)
+	{
+		Vertex pole = createSphereVertex(radius, (i - 0.5f)*angleStep, glm::radians(-90.0f), colour);
+		addTriangle(pole, ringPoints[i - 1], ringPoints[i]);
 	}
 }
 
 
-bool Mesh::loadOBJ(const char * path,
-	std::vector < glm::vec3 > & outVertices, std::vector < glm::vec2 > & outUvs, std::vector < glm::vec3 > & outNormals)
+bool Mesh::loadOBJ(const char * path)
 {
 
 	FILE * file = fopen(path, "r");
@@ -112,7 +150,7 @@ bool Mesh::loadOBJ(const char * path,
 		else if (strcmp(lineHeader, "f") == 0) {
 			std::string vertex1, vertex2, vertex3;
 			unsigned int vertexIndex[3], uvIndex[3], normalIndex[3];
-			int matches = fscanf(file, "%d/%d/%d %d/%d/%d %d/%d/%d\n", &vertexIndex[0], &uvIndex[0], &normalIndex[0], 
+			int matches = fscanf(file, "%d/%d/%d %d/%d/%d %d/%d/%d\n", &vertexIndex[0], &uvIndex[0], &normalIndex[0],
 				&vertexIndex[1], &uvIndex[1], &normalIndex[1], &vertexIndex[2], &uvIndex[2], &normalIndex[2]);
 			if (matches != 9) {
 				printf("File can't be read by simple parser\n");
@@ -129,83 +167,69 @@ bool Mesh::loadOBJ(const char * path,
 			normalIndices.push_back(normalIndex[2]);
 		}
 
-		
+
 
 	} //End while
 	unsigned int vertexIndex = 0;
 	unsigned int uvIndex = 0;
 	unsigned int normalIndex = 0;
 
-	// Error starts here
-	// Doesn't add to out vectors
 	for (int i = 0; i < vertexIndices.size(); i++) {
-			vertexIndex = vertexIndices[i];
-			glm::vec3 vertex = temporaryVertices[vertexIndex - 1];
-			outVertices.push_back(vertex);
+		vertexIndex = vertexIndices[i];
+		glm::vec3 vertex = temporaryVertices[vertexIndex - 1];
+		m_vertexPositions.push_back(vertex);
 	}
 	for (int i = 0; i < uvIndices.size(); i++) {
 		uvIndex = uvIndices[i];
 		glm::vec2 uv = temporaryUvs[uvIndex - 1];
-		outUvs.push_back(uv);
+		m_vertexUVs.push_back(uv);
 	}
 	for (int i = 0; i < normalIndices.size(); i++) {
 		normalIndex = normalIndices[i];
 		glm::vec3 normal = temporaryNormals[normalIndex - 1];
-		outNormals.push_back(normal);
+		m_vertexNormals.push_back(normal);
 	}
 }// End loadOBJ
 
-void Mesh::createBuffers(std::vector< glm::vec3 >vertices, std::vector< glm::vec3 >normals, std::vector< glm::vec2 >uvs)
+void Mesh::createBuffers()
 {
-	if (vertexbuffer != 0)
+	if (m_positionBuffer != 0)
 	{
 		throw std::exception("createBuffers() has already been called");
 	}
 
-	//Create and fill the position buffer
-	glGenBuffers(1, &vertexbuffer);
-	glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
-	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(glm::vec3), &vertices[0], GL_STATIC_DRAW);
-
-	// Create and fill the texture coordinate buffer	
-	glGenBuffers(1, &uvbuffer);
-	glBindBuffer(GL_ARRAY_BUFFER, uvbuffer);
-	glBufferData(GL_ARRAY_BUFFER, uvs.size() * sizeof(glm::vec2), &uvs[0], GL_STATIC_DRAW);
-	
-	// Create and fill the normal buffer	
-	glGenBuffers(1, &normalbuffer);
-	glBindBuffer(GL_ARRAY_BUFFER, normalbuffer);
-	glBufferData(GL_ARRAY_BUFFER, normals.size() * sizeof(glm::vec3), &normals[0], GL_STATIC_DRAW);
-
-
-	/*
 	// Create and fill the position buffer
 	glGenBuffers(1, &m_positionBuffer);
-	//glBindBuffer(GL_ARRAY_BUFFER, m_positionBuffer);
-	//glBufferData(GL_ARRAY_BUFFER, m_vertexPositions.size() * sizeof(glm::vec3), m_vertexPositions.data(), GL_STATIC_DRAW);
-	*/
+	glBindBuffer(GL_ARRAY_BUFFER, m_positionBuffer);
+	glBufferData(GL_ARRAY_BUFFER, m_vertexPositions.size() * sizeof(glm::vec3), m_vertexPositions.data(), GL_STATIC_DRAW);
+
 
 	// Create and fill the colour buffer
 	glGenBuffers(1, &m_colourBuffer);
 	glBindBuffer(GL_ARRAY_BUFFER, m_colourBuffer);
 	glBufferData(GL_ARRAY_BUFFER, m_vertexColours.size() * sizeof(glm::vec3), m_vertexColours.data(), GL_STATIC_DRAW);
 
+	// Create and fill the texture coordinate buffer
+	glGenBuffers(1, &m_uvBuffer);
+	glBindBuffer(GL_ARRAY_BUFFER, m_uvBuffer);
+	glBufferData(GL_ARRAY_BUFFER, m_vertexUVs.size() * sizeof(glm::vec2), m_vertexUVs.data(), GL_STATIC_DRAW);
+
+	// Create and fill the normal buffer
+	glGenBuffers(1, &m_normalBuffer);
+	glBindBuffer(GL_ARRAY_BUFFER, m_normalBuffer);
+	glBufferData(GL_ARRAY_BUFFER, m_vertexNormals.size() * sizeof(glm::vec3), m_vertexNormals.data(), GL_STATIC_DRAW);
 }
 
 void Mesh::draw()
 {
-	if (vertexbuffer == 0)
+	if (m_positionBuffer == 0)
 	{
 		throw std::exception("createBuffers() must be called before draw()");
 	}
 
 	// Bind the position buffer to vertex attribute 0
 	glEnableVertexAttribArray(0);
-	glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
-
-	glEnableVertexAttribArray(0);
-	glBindBuffer(GL_ARRAY_BUFFER, normalbuffer);
+	glBindBuffer(GL_ARRAY_BUFFER, m_positionBuffer);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
 
 	// Bind the colour buffer to vertex attribute 1
@@ -215,13 +239,18 @@ void Mesh::draw()
 
 	// Bind the texture coordinate buffer to vertex attribute 2
 	glEnableVertexAttribArray(2);
-	glBindBuffer(GL_ARRAY_BUFFER, uvbuffer);
+	glBindBuffer(GL_ARRAY_BUFFER, m_uvBuffer);
 	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
 
+	// Bind the normal buffer to vertex attribute 3
+	glEnableVertexAttribArray(3);
+	glBindBuffer(GL_ARRAY_BUFFER, m_normalBuffer);
+	glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
 
 	glDrawArrays(GL_TRIANGLES, 0, m_vertexPositions.size());
 
 	glDisableVertexAttribArray(0);
 	glDisableVertexAttribArray(1);
 	glDisableVertexAttribArray(2);
+	glDisableVertexAttribArray(3);
 }
