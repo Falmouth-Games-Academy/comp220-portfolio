@@ -204,10 +204,12 @@ int main(int argc, char* args[])
 	// Used for third dimension of perlin noise
 	int z = 0;
 	int seed = SDL_GetTicks() / 100;
+	int seed2 = rand() % 256;
 
 	perlinNoise.GenerateNoise(seed);
 
-	int chunkSize = 1725;
+
+	int chunkSize = 1725; // Max 1725 squares ~3M
 	int noiseMax = 3;
 	int noiseMin = 0;
 
@@ -230,11 +232,10 @@ int main(int argc, char* args[])
 
 				// Square Colour
 				//glm::vec3(1, 0.5, 0), //Orange
-				//glm::vec3(sin(perlinResult), cos(perlinResult), tan(perlinResult)), //Rainbow
-				//glm::vec3(sin(perlinResult), tan(perlinResult), tan(perlinResult)), //Rainbow Red/White
-				//glm::vec3(perlinResult / 80 ,perlinResult / 35, perlinResult / 700 ), // Grassy texture
-				glm::vec3(sin(perlinResult) / 10 ,tan(perlinResult / 80), perlinResult / 100 ), // Grassy texture
-
+				//glm::vec3(sin(perlinResult), cos(perlinResult), tan(perlinResult)), //Rainbow Red/White
+				glm::vec3(perlinResult / 80 ,perlinResult / 35, perlinResult / 700 ), // Grassy texture
+				//glm::vec3(sin(perlinResult) / 80 ,sin(perlinResult / 35), sin(perlinResult) / 100 ), // Grassy texture
+				//glm::vec3(perlinResult / 10, perlinResult / 30, perlinResult / 75), // Grassy texture
 
 				// UV maps
 				0, 0, 0, 0);
@@ -311,7 +312,7 @@ int main(int argc, char* args[])
 			// Speed modifier
 			if (keyboardState[SDL_SCANCODE_LSHIFT])
 			{
-				playerPosition += playerForward * 1.0f;
+				playerPosition += playerForward * 2.0f;
 			}
 		}
 		if (keyboardState[SDL_SCANCODE_S])
@@ -320,7 +321,7 @@ int main(int argc, char* args[])
 			// Speed modifier
 			if (keyboardState[SDL_SCANCODE_LSHIFT])
 			{
-				playerPosition -= playerForward * 1.0f;
+				playerPosition -= playerForward * 2.0f;
 			}
 		}
 
@@ -336,7 +337,7 @@ int main(int argc, char* args[])
 			playerPosition -= playerRight * 0.1f;
 			if (keyboardState[SDL_SCANCODE_LSHIFT])
 			{
-				playerPosition -= playerRight * 1.0f;
+				playerPosition -= playerRight * 2.0f;
 			}
 		}
 		if (keyboardState[SDL_SCANCODE_D])
@@ -344,7 +345,7 @@ int main(int argc, char* args[])
 			playerPosition += playerRight * 0.1f;
 			if (keyboardState[SDL_SCANCODE_LSHIFT])
 			{
-				playerPosition += playerRight * 1.0f;
+				playerPosition += playerRight * 2.0f;
 			}
 		}
 
