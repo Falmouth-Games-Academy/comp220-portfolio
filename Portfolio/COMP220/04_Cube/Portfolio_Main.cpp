@@ -239,6 +239,8 @@ int main(int argc, char* args[])
 
 				// UV maps
 				0, 0, 0, 0);
+
+			
 		}
 	}
 	mesh.createBuffers();

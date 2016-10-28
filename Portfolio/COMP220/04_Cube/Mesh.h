@@ -13,6 +13,8 @@ public:
 		const glm::vec3& colour,
 		float u1, float u2, float v1, float v2);
 
+	void Mesh::addCube(const glm::vec3& a, const glm::vec3& b, const glm::vec3& c, const glm::vec3& d, const glm::vec3& e, const glm::vec3& f, const glm::vec3& g, const glm::vec3& h, const glm::vec3& colour);
+
 	void addCircle(const glm::vec3& centre, float radius, int numPoints,
 		const glm::vec3& colour);
 
