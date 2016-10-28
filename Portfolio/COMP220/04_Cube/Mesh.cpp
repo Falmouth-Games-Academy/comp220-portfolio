@@ -56,15 +56,6 @@ void Mesh::addSquare(const glm::vec3& a, const glm::vec3& b,
 
 void Mesh::addCube(const glm::vec3& a, const glm::vec3& b,const glm::vec3& c,const glm::vec3& d, const glm::vec3& e, const glm::vec3& f, const glm::vec3& g, const glm::vec3& h, const glm::vec3& colour)
 {
-	glm::vec3 a(-1, +1, +1);
-	glm::vec3 b(+1, +1, +1);
-	glm::vec3 c(+1, +1, -1);
-	glm::vec3 d(-1, +1, -1);
-	glm::vec3 e(-1, -1, +1);
-	glm::vec3 f(-1, -1, -1);
-	glm::vec3 g(+1, -1, -1);
-	glm::vec3 h(+1, -1, +1);
-
 	addSquare(a, b, c, d, colour, 0.0f, 0.0f, 0.0f, 0.0f);
 	addSquare(b, h, g, c, colour, 0.0f, 0.0f, 0.0f, 0.0f);
 	addSquare(a, e, h, b, colour, 0.0f, 0.0f, 0.0f, 0.0f);

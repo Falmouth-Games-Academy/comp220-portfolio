@@ -204,12 +204,14 @@ int main(int argc, char* args[])
 	// Used for third dimension of perlin noise
 	int z = 0;
 	int seed = SDL_GetTicks() / 100;
-	int seed2 = rand() % 256;
 
+	// Generate perlin noise based off a seed
 	perlinNoise.GenerateNoise(seed);
 
+	//Set the grounds colour
+	glm::vec3 colour = glm::vec3(0,0,0);
 
-	int chunkSize = 1725; // Max 1725 squares ~3M
+	int chunkSize = 100; // Max 1725 squares ~3M
 	int noiseMax = 3;
 	int noiseMin = 0;
 
@@ -224,10 +226,10 @@ int main(int argc, char* args[])
 
 			//Normalize values
 			perlinResult = (char)((perlinResult - noiseMin) * (255 / (noiseMax - noiseMin)));;
-
+			colour = glm::vec3(sin(perlinResult), cos(perlinResult), tan(perlinResult));
 
 			//Generate squares next to each other with different z position values
-			//mesh.addSquare(glm::vec3(x, perlinResult, y), glm::vec3(x + 1, perlinResult, y), glm::vec3(x + 1, perlinResult + 1, y), glm::vec3(x, perlinResult + 1, y), // SideWays Squares
+			/*mesh.addSquare(glm::vec3(x, perlinResult, y), glm::vec3(x + 1, perlinResult, y), glm::vec3(x + 1, perlinResult + 1, y), glm::vec3(x, perlinResult + 1, y), // SideWays Squares
 			mesh.addSquare(glm::vec3(x, y, perlinResult), glm::vec3(x + 1, y, perlinResult), glm::vec3(x + 1, y + 1, perlinResult), glm::vec3(x, y + 1, perlinResult), // Flat Squares
 
 				// Square Colour
@@ -239,8 +241,18 @@ int main(int argc, char* args[])
 
 				// UV maps
 				0, 0, 0, 0);
+				*/
 
-			
+			glm::vec3 a(x-1, y+1, perlinResult +1);
+			glm::vec3 b(x+1, y+1, perlinResult +1);
+			glm::vec3 c(x+1, y+1, perlinResult -1);
+			glm::vec3 d(x-1, y+1, perlinResult -1);
+			glm::vec3 e(x-1, y-1, perlinResult +1);
+			glm::vec3 f(x-1, y-1, perlinResult -1);
+			glm::vec3 g(x+1, y-1, perlinResult -1);
+			glm::vec3 h(x+1, y-1, perlinResult +1);
+
+			mesh.addCube(a, b, c, d, e, f, g, h, colour);
 		}
 	}
 	mesh.createBuffers();
