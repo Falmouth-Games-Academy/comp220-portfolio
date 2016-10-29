@@ -12,8 +12,6 @@ out vec4 fragmentColour;
 void main()
 {
 	vec3 lightDirectionNorm = normalize(lightDirection);
-	vec3 cameraDirectionNorm = normalize(gl_Position);
-
 	float diffuseIntensity = dot(normal, lightDirectionNorm);
 	vec3 ambientColor = vec3(0.3, 0.3, 0.3);
 	vec3 lighting = ambientColor * diffuseIntensity;

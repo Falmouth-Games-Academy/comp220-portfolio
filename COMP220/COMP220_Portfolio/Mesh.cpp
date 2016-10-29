@@ -195,6 +195,7 @@ bool Mesh::loadOBJ(const char * path, glm::vec3 modelColour)
 		glm::vec3 normal = temporaryNormals[normalIndex - 1];
 		m_vertexNormals.push_back(normal);
 	}
+
 }// End loadOBJ
 
 void Mesh::createBuffers()
