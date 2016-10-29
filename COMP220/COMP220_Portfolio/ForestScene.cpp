@@ -169,7 +169,7 @@ void ForestScene::run()
 	glBindVertexArray(VertexArrayID);
 
 	Mesh mesh;
-	mesh.loadOBJ("tree.obj");
+	mesh.loadOBJ("tree.obj", glm::vec3(1.0, 1.0,1.0));
 
 	mesh.createBuffers();
 

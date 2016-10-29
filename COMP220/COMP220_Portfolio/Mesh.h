@@ -12,7 +12,7 @@ public:
 
 	void addSphere(float radius, int quality, const glm::vec3& colour);
 	
-	bool Mesh::loadOBJ(const char * path);
+	bool Mesh::loadOBJ(const char * path, glm::vec3 colour);
 
 	void createBuffers();
 	void draw();

@@ -110,7 +110,7 @@ void Mesh::addSphere(float radius, int quality, const glm::vec3& colour)
 }
 
 
-bool Mesh::loadOBJ(const char * path)
+bool Mesh::loadOBJ(const char * path, glm::vec3 modelColour)
 {
 
 	FILE * file = fopen(path, "r");
@@ -180,6 +180,10 @@ bool Mesh::loadOBJ(const char * path)
 		vertexIndex = vertexIndices[i];
 		glm::vec3 vertex = temporaryVertices[vertexIndex - 1];
 		m_vertexPositions.push_back(vertex);
+	}
+	for (int i = 0; i < vertexIndices.size(); i++) {
+		glm::vec3 colour = modelColour;
+		m_vertexColours.push_back(colour);
 	}
 	for (int i = 0; i < uvIndices.size(); i++) {
 		uvIndex = uvIndices[i];
