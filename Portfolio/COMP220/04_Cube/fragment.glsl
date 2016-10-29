@@ -20,9 +20,9 @@ void main()
 
 	float cosAlpha = clamp( dot( E,R ), 0,1 );
 	float diffuseIntensity = dot(normal, lightDirectionNorm);
-	float ambientIntensity  = 0.1;
+	float ambientIntensity  = 0.5;
 	float lightIntensity = diffuseIntensity + pow(cosAlpha, specularIntensity) + ambientIntensity;
 
 	//fragmentColour = vec4(colour, 1.0);
-	fragmentColour = vec4(lightIntensity * colour, 1.0); // * texture(textureSampler, uv);
+	fragmentColour = vec4(lightIntensity * colour, 1.0);      // * texture(textureSampler, uv);
 }

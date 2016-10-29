@@ -43,8 +43,13 @@ void Mesh::addTriangle(const glm::vec3& p1, const glm::vec3& p2, const glm::vec3
 	m_vertexUVs.push_back(t2);
 	m_vertexUVs.push_back(t3);
 
+	glm::vec3 normal = glm::cross(p3 - p1, p2 - p1);
+	normal = glm::normalize(normal);
+
+	m_vertexNormals.push_back(normal);
 
 }
+
 
 void Mesh::addSquare(const glm::vec3& a, const glm::vec3& b,
 	const glm::vec3& c, const glm::vec3& d, const glm::vec3& colour,

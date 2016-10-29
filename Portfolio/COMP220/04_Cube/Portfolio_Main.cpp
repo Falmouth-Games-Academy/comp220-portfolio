@@ -203,9 +203,8 @@ int main(int argc, char* args[])
 	
 
 	// Used for third dimension of perlin noise
-	int z = 0;
 	int seed = SDL_GetTicks() / 100;
-	std::vector<int> cellX, cellY, cellZ;
+	std::vector<float> cellX, cellY, cellZ;
 
 	// Generate perlin noise based off a seed
 	//perlinNoise.GenerateNoise(seed);
@@ -219,17 +218,16 @@ int main(int argc, char* args[])
 	int chunkSize = 700; // Max 700 squares ~3M
 	int noiseMax = 3;
 	int noiseMin = 0;
+	int y = 0;
 
 	// Amplification(the lower the number the higher the amplification)
 	float noiseAmplification = 100.0;
 
 	for (int x = 0; x < chunkSize; x++)
 	{
-		for (int y = 0; y < chunkSize; y++)
+		for (int z = 0; z < chunkSize; z++)
 		{
-			cellX.push_back(x);
-			cellY.push_back(y);
-			double perlinResult = perlinNoise.noise((x / noiseAmplification), (y / noiseAmplification), z);
+			double perlinResult = perlinNoise.noise((x / noiseAmplification), (z / noiseAmplification), y);
 
 			//Normalize values
 			perlinResult = (char)((perlinResult - noiseMin) * (255 / (noiseMax - noiseMin)));;
@@ -252,14 +250,14 @@ int main(int argc, char* args[])
 				colour = glm::vec3(-perlinResult / 70, -perlinResult / 100, -sin(perlinResult / 700));
 			}
 
-			glm::vec3 a(x-1, y+1, perlinResult +1);
-			glm::vec3 b(x+1, y+1, perlinResult +1);
-			glm::vec3 c(x+1, y+1, perlinResult -1);
-			glm::vec3 d(x-1, y+1, perlinResult -1);
-			glm::vec3 e(x-1, y-1, perlinResult +1);
-			glm::vec3 f(x-1, y-1, perlinResult -1);
-			glm::vec3 g(x+1, y-1, perlinResult -1);
-			glm::vec3 h(x+1, y-1, perlinResult +1);
+			glm::vec3 a(x-0.5, perlinResult + 0.5, z +1);
+			glm::vec3 b(x+0.5, perlinResult + 0.5, z +1);
+			glm::vec3 c(x+0.5, perlinResult + 0.5, z -1);
+			glm::vec3 d(x-0.5, perlinResult + 0.5, z -1);
+			glm::vec3 e(x-0.5, perlinResult - 0.5, z +1);
+			glm::vec3 f(x-0.5, perlinResult - 0.5, z -1);
+			glm::vec3 g(x+0.5, perlinResult - 0.5, z -1);
+			glm::vec3 h(x+0.5, perlinResult - 0.5, z +1);
 
 			mesh.addCube(a, b, c, d, e, f, g, h, colour);
 		}
@@ -279,7 +277,7 @@ int main(int argc, char* args[])
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	glEnable(GL_CULL_FACE);
+	//glEnable(GL_CULL_FACE);
 
 	glm::vec4 playerPosition(0, 50, 50, 1);
 	float playerPitch = 0;
@@ -389,12 +387,12 @@ int main(int argc, char* args[])
 		glm::mat4 projection = glm::perspective(glm::radians(45.0f), 1.0f, 0.1f, 10000.0f);
 
 		glm::mat4 transform;
-		transform = glm::rotate(transform, glm::radians(-90.0f), glm::vec3(1, 0, 0));  // Rotate by 90 to make the level flat
+		//transform = glm::rotate(transform, glm::radians(-90.0f), glm::vec3(1, 0, 0));  // Rotate by 90 to make the level flat
 		glm::mat4 mvp = projection * view * transform;
 		glUniformMatrix4fv(mvpLocation, 1, GL_FALSE, glm::value_ptr(mvp));
 
 		// Lighting
-		glUniform3f(lightDirectionLocation, 20, 20, 200);
+		glUniform3f(lightDirectionLocation, 1, 1, 1);
 
 		glUniform3f(eyeDirectionLocation, playerPosition.x, playerPosition.y, playerPosition.z);
 		float specularIntensityVal = 100.0f;

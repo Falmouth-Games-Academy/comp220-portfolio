@@ -8,12 +8,14 @@ layout(location = 3) in vec3 vertexNormal;
 uniform mat4 mvp;
 
 out vec3 colour;
+out vec3 normal;
 out vec2 uv;
 
 void main()
 {
 	gl_Position = mvp * vec4(vertexPos, 1.0);
 	colour = vertexColour;
+	normal = vertexNormal;
 	uv = vertexUV;
 	uv.y = 1.0 - uv.y;
 }
