@@ -156,15 +156,12 @@ bool Mesh::loadOBJ(const char * path, glm::vec3 modelColour)
 				printf("File can't be read by simple parser\n");
 				return false;
 			}
-			
-
 			for (int i = 0; i < 3; i++)
 			{
 				vertexIndices.push_back(vertexIndex[i]);
 				uvIndices.push_back(uvIndex[i]);
 				normalIndices.push_back(normalIndex[i]);
 			}
-
 		}
 
 

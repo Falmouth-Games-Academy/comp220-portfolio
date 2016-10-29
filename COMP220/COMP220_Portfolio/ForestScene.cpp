@@ -169,7 +169,9 @@ void ForestScene::run()
 	glBindVertexArray(VertexArrayID);
 
 	Mesh mesh;
-	mesh.loadOBJ("tree.obj", glm::vec3(1.0, 1.0,1.0));
+	bool tree = mesh.loadOBJ("tree.obj", glm::vec3(1.0, 1.0,1.0));
+	if (!tree)
+		errorSystem.showErrorMessage("Model loading failed.", "Error");
 
 	mesh.createBuffers();
 
