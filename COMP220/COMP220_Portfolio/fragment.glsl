@@ -13,5 +13,6 @@ void main()
 {
 	vec3 lightDirectionNorm = normalize(lightDirection);
 	float diffuseIntensity = dot(normal, lightDirectionNorm);
-	fragmentColour = vec4(diffuseIntensity * colour, 1.0) * texture(textureSampler, uv);
+	//colour = vec4(1.0, 0,0,1.0);
+	fragmentColour = texture(textureSampler, uv);
 }
