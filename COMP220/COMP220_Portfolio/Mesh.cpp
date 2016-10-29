@@ -156,23 +156,25 @@ bool Mesh::loadOBJ(const char * path)
 				printf("File can't be read by simple parser\n");
 				return false;
 			}
-			vertexIndices.push_back(vertexIndex[0]);
-			vertexIndices.push_back(vertexIndex[1]);
-			vertexIndices.push_back(vertexIndex[2]);
-			uvIndices.push_back(uvIndex[0]);
-			uvIndices.push_back(uvIndex[1]);
-			uvIndices.push_back(uvIndex[2]);
-			normalIndices.push_back(normalIndex[0]);
-			normalIndices.push_back(normalIndex[1]);
-			normalIndices.push_back(normalIndex[2]);
+			
+
+			for (int i = 0; i < 3; i++)
+			{
+				vertexIndices.push_back(vertexIndex[i]);
+				uvIndices.push_back(uvIndex[i]);
+				normalIndices.push_back(normalIndex[i]);
+			}
+
 		}
 
 
 
 	} //End while
-	unsigned int vertexIndex = 0;
-	unsigned int uvIndex = 0;
-	unsigned int normalIndex = 0;
+	vertexIndex = 0;
+	uvIndex = 0;
+	normalIndex = 0;
+
+	float offset = 3;
 
 	for (int i = 0; i < vertexIndices.size(); i++) {
 		vertexIndex = vertexIndices[i];

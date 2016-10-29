@@ -170,7 +170,7 @@ void ForestScene::run()
 
 	Mesh mesh;
 	mesh.loadOBJ("tree.obj");
-	
+
 	mesh.createBuffers();
 
 	GLuint programID = loadShaders("vertex.glsl", "fragment.glsl");
@@ -218,8 +218,8 @@ void ForestScene::run()
 
 		int mouseX, mouseY;
 		SDL_GetRelativeMouseState(&mouseX, &mouseY);
-		playerYaw -= mouseX * 0.005f;
-		playerPitch -= mouseY * 0.005f;
+		playerYaw -= mouseX * mouseSensitivity;
+		playerPitch -= mouseY * mouseSensitivity;
 		const float maxPitch = glm::radians(89.0f);
 		if (playerPitch > maxPitch)
 			playerPitch = maxPitch;
@@ -241,11 +241,11 @@ void ForestScene::run()
 		const Uint8* keyboardState = SDL_GetKeyboardState(nullptr);
 		if (keyboardState[SDL_SCANCODE_W])
 		{
-			playerPosition += playerForward * 0.001f;
+			playerPosition += playerForward * movementMultipler;
 		}
 		if (keyboardState[SDL_SCANCODE_S])
 		{
-			playerPosition -= playerForward * 0.001f;
+			playerPosition -= playerForward * movementMultipler;
 		}
 
 		glm::vec4 playerRight(0, 0, -1, 0);
@@ -255,14 +255,14 @@ void ForestScene::run()
 
 		if (keyboardState[SDL_SCANCODE_A])
 		{
-			playerPosition -= playerRight * 0.001f;
+			playerPosition -= playerRight * movementMultipler;
 		}
 		if (keyboardState[SDL_SCANCODE_D])
 		{
-			playerPosition += playerRight * 0.001f;
+			playerPosition += playerRight * movementMultipler;
 		}
 
-		glClearColor(0.0f, 0.0f, 0.2f, 1.0f);
+		glClearColor(0.0f, 0.0f, 0.1f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		glUseProgram(programID);
