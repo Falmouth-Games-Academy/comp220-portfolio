@@ -13,7 +13,7 @@ public:
 	//Double buffer
 	void Update();
 	bool IsClosed();
-
+	void light();
 	virtual ~Display();
 	
 protected:

@@ -57,6 +57,7 @@ void Display::Clear(float r, float g, float b, float a) {
 	glClearColor(r, g, b, a);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+	
 }
 //set an IsCLosed boolean.
 bool Display::IsClosed() {
@@ -74,4 +75,23 @@ void  Display::Update()
 		if (e.type == SDL_QUIT)
 			m_isClosed = true;
 	}
+}
+void Display::light()
+{
+	// Lighting set up
+	glLightModeli(GL_LIGHT_MODEL_LOCAL_VIEWER, GL_TRUE);
+	glEnable(GL_LIGHTING);
+	glEnable(GL_LIGHT0);
+
+	// Set lighting intensity and color
+	GLfloat qaAmbientLight[] = { 0.2, 0.2, 0.2, 1.0 };
+	GLfloat qaDiffuseLight[] = { 0.8, 0.8, 0.8, 1.0 };
+	GLfloat qaSpecularLight[] = { 1.0, 1.0, 1.0, 1.0 };
+	glLightfv(GL_LIGHT0, GL_AMBIENT, qaAmbientLight);
+	glLightfv(GL_LIGHT0, GL_DIFFUSE, qaDiffuseLight);
+	glLightfv(GL_LIGHT0, GL_SPECULAR, qaSpecularLight);
+
+	// Set the light position
+	GLfloat qaLightPosition[] = { .5, .5, 0.0, 1.0 };
+	glLightfv(GL_LIGHT0, GL_POSITION, qaLightPosition);
 }
