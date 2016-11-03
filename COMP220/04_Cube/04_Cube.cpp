@@ -87,11 +87,6 @@ int main(int argc, char* args[])
 	// creates a shader
 	GLuint programID = Lshader.loadShaders("vertex.glsl", "fragment.glsl");
 
-	glm::mat4 mvp;
-	PlayerMovement player(&mvp);
-
-	GLuint mvpLocation = glGetUniformLocation(programID, "mvp");
-
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
 
@@ -100,16 +95,21 @@ int main(int argc, char* args[])
 
 	glEnable(GL_CULL_FACE);
 
-	glm::vec4 playerPosition(0, 0, 5, 1);
-	float playerPitch = 0;
-	float playerYaw = 0;
-
 	SDL_SetRelativeMouseMode(SDL_TRUE);
 	SDL_GetRelativeMouseState(nullptr, nullptr);
 
-	//define player speed
-	const float playerSpeed = 0.01f;
 
+	// set up for player movement class
+	GLuint mvpLocation = glGetUniformLocation(programID, "mvp");
+
+	glm::mat4 finalMVP;
+	glm::mat4 *mvp = &finalMVP;
+	PlayerMovement player(mvp);
+
+	GLuint mvpLocation = glGetUniformLocation(programID, "mvp");
+
+
+	//start main loop
 	bool running = true;
 	while (running)
 	{
@@ -132,72 +132,23 @@ int main(int argc, char* args[])
 			}
 		}
 
-		int mouseX, mouseY;
-		SDL_GetRelativeMouseState(&mouseX, &mouseY);
-		playerYaw -= mouseX * 0.005f;
-		playerPitch -= mouseY * 0.005f;
-		const float maxPitch = glm::radians(89.0f);
-		if (playerPitch > maxPitch)
-			playerPitch = maxPitch;
-		if (playerPitch < -maxPitch)
-			playerPitch = -maxPitch;
-
-		glm::vec4 playerLook(0, 0, -1, 0);
-		glm::mat4 playerRotation;
-		playerRotation = glm::rotate(playerRotation, playerYaw, glm::vec3(0, 1, 0));
-		playerRotation = glm::rotate(playerRotation, playerPitch, glm::vec3(1, 0, 0));
-		playerLook = playerRotation * playerLook;
-
-		/*glm::vec4 playerForward(0, 0, -1, 0);
-		glm::mat4 playerForwardRotation;
-		playerForwardRotation = glm::rotate(playerForwardRotation, playerYaw, glm::vec3(0, 1, 0));
-		playerForward = playerForwardRotation * playerForward;*/
-		glm::vec4 playerForward = playerLook;
-
-		const Uint8* keyboardState = SDL_GetKeyboardState(nullptr);
-		if (keyboardState[SDL_SCANCODE_W])
-		{
-			playerPosition += playerForward * playerSpeed;
-		}
-		if (keyboardState[SDL_SCANCODE_S])
-		{
-			playerPosition -= playerForward * playerSpeed;
-		}
-
-		glm::vec4 playerRight(0, 0, -1, 0);
-		glm::mat4 playerRightRotation;
-		playerRightRotation = glm::rotate(playerRightRotation, playerYaw - glm::radians(90.0f), glm::vec3(0, 1, 0));
-		playerRight = playerRightRotation * playerRight;
-
-		if (keyboardState[SDL_SCANCODE_A])
-		{
-			playerPosition -= playerRight * playerSpeed;
-		}
-		if (keyboardState[SDL_SCANCODE_D])
-		{
-			playerPosition += playerRight * playerSpeed;
-		}
+		player.tick();
 
 		glClearColor(0.0f, 0.5f, 1.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		glUseProgram(programID);
 
-		glm::mat4 view = glm::lookAt(glm::vec3(playerPosition), glm::vec3(playerPosition + playerLook), glm::vec3(0, 1, 0));
-		glm::mat4 projection = glm::perspective(glm::radians(45.0f), 1.0f, 0.1f, 100.0f);
 
-		glm::mat4 transform;
-		//transform = glm::rotate(transform, SDL_GetTicks() / 1000.0f, glm::vec3(0, 1, 0));
-		glm::mat4 mvp = projection * view * transform;
-		glUniformMatrix4fv(mvpLocation, 1, GL_FALSE, glm::value_ptr(mvp));
+		glm::mat4 finalMVP = *mvp;
+		glUniformMatrix4fv(mvpLocation, 1, GL_FALSE, glm::value_ptr(finalMVP));
 
 		mesh.draw();
 
 		SDL_GL_SwapWindow(window);
 	}
 
-	//get rid of player movement
-	player.~PlayerMovement;
+	player.~PlayerMovement();
 
 	SDL_GL_DeleteContext(glContext);
 	SDL_DestroyWindow(window);

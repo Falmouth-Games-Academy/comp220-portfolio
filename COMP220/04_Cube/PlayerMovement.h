@@ -9,17 +9,21 @@ public:
 	
 	~PlayerMovement();
 
+	void tick();
 
-
+	glm::mat4 *MVP;
 
 private:
 	// constants for sensitivity and speed
 	const float movementSpeed = 0.01;
-
 	const float mouseSensitivity = 0.005;
+
+	// store the players position
+	glm::vec4 playerPosition;
+	float playerPitch = 0;
+	float playerYaw = 0;
 
 	// stores the mouse position
 	int mouseX, mouseY;
 
-	glm::mat4 *mvp;
 };
