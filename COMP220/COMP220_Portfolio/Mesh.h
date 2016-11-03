@@ -17,7 +17,6 @@ public:
 	void createBuffers();
 	void draw();
 
-private:
 
 	std::vector< unsigned int > vertexIndices, uvIndices, normalIndices;
 	std::vector< glm::vec3 > temporaryVertices, temporaryNormals;

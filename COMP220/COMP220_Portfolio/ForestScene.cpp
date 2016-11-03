@@ -33,7 +33,8 @@ ForestScene::ForestScene()
 		errorSystem.showErrorMessage("glewInit failed", "Error");
 	}
 
-	Texture treeTrunkTexture("treeTexture.png");
+	Texture treeTrunkTexture("tree_trunk.png");
+	//Texture leafTexture("leaf.png");
 }
 
 ForestScene::~ForestScene()
@@ -124,12 +125,19 @@ void ForestScene::run()
 	glGenVertexArrays(1, &VertexArrayID);
 	glBindVertexArray(VertexArrayID);
 
-	Mesh mesh;
+	/*Mesh mesh;
 	bool tree = mesh.loadOBJ("tree.obj", glm::vec3(1.0, 1.0,1.0));
 	if (!tree)
 		errorSystem.showErrorMessage("Model loading failed.", "Error");
 
-	mesh.createBuffers();
+	mesh.createBuffers();*/
+
+	OBJLoader treeModel;
+	bool tree = treeModel.loadOBJ("tree.obj", glm::vec3(1.0, 1.0, 1.0));
+	if (!tree)
+		errorSystem.showErrorMessage("Model loading failed.", "Error");
+
+	treeModel.mesh.createBuffers();
 
 	GLuint programID = loadShaders("vertex.glsl", "fragment.glsl");
 
@@ -235,7 +243,7 @@ void ForestScene::run()
 
 		glUniform3f(lightDirectionLocation, 1, 1, 1);
 
-		mesh.draw();
+		treeModel.mesh.draw();
 
 		SDL_GL_SwapWindow(window);
 	}

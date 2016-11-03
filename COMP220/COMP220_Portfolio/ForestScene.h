@@ -2,6 +2,7 @@
 #include"Mesh.h"
 #include"ErrorMessage.h"
 #include"Texture.h"
+#include"OBJLoader.h"
 
 class ForestScene
 {
