@@ -197,7 +197,7 @@ int main(int argc, char* args[])
 
 	//mesh.addCircle(glm::vec3(0, -2, 0), 1, 500, glm::vec3(1, 1, 0));
 	*/
-	mesh.addCylinder(glm::vec3(0, -2, 0), 1, 24, -2, glm::vec3(1, 0, 0));
+	mesh.addCylinder(glm::vec3(0, 2, 0), 1, 24, -2, glm::vec3(1, 0, 0));
 	
 
 	
@@ -215,7 +215,7 @@ int main(int argc, char* args[])
 	// The grounds colour Variable
 	glm::vec3 colour = glm::vec3(0,0,0);
 
-	int chunkSize = 700; // Max 700 squares ~3M
+	int chunkSize = 100; // Max 700 squares ~3M
 	int noiseMax = 3;
 	int noiseMin = 0;
 	int y = 0;
@@ -270,6 +270,10 @@ int main(int argc, char* args[])
 
 	GLuint eyeDirectionLocation = glGetUniformLocation(programID, "eyeDirection");
 	GLuint specularIntensity = glGetUniformLocation(programID, "specularIntensity");
+	GLuint LightColor = glGetUniformLocation(programID, "LightColor");
+	GLuint LightPower = glGetUniformLocation(programID, "LightPower");
+	GLuint distance = glGetUniformLocation(programID, "distance");
+
 
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
@@ -277,7 +281,7 @@ int main(int argc, char* args[])
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	//glEnable(GL_CULL_FACE);
+	glEnable(GL_CULL_FACE);
 
 	glm::vec4 playerPosition(0, 50, 50, 1);
 	float playerPitch = 0;
@@ -378,8 +382,8 @@ int main(int argc, char* args[])
 
 		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
 		glUseProgram(programID);
+
 
 		glm::mat4 view = glm::lookAt(glm::vec3(playerPosition), glm::vec3(playerPosition + playerLook), glm::vec3(0, 1, 0));
 
@@ -387,7 +391,7 @@ int main(int argc, char* args[])
 		glm::mat4 projection = glm::perspective(glm::radians(45.0f), 1.0f, 0.1f, 10000.0f);
 
 		glm::mat4 transform;
-		//transform = glm::rotate(transform, glm::radians(-90.0f), glm::vec3(1, 0, 0));  // Rotate by 90 to make the level flat
+		//transform = glm::rotate(transform, glm::radians(-90.0f), glm::vec3(1, 0, 0)); 
 		glm::mat4 mvp = projection * view * transform;
 		glUniformMatrix4fv(mvpLocation, 1, GL_FALSE, glm::value_ptr(mvp));
 
@@ -395,7 +399,15 @@ int main(int argc, char* args[])
 		glUniform3f(lightDirectionLocation, 1, 1, 1);
 
 		glUniform3f(eyeDirectionLocation, playerPosition.x, playerPosition.y, playerPosition.z);
-		float specularIntensityVal = 100.0f;
+
+		// Changes specular value
+		float specularIntensityVal = 1000.0f;
+		float lightPower = 10.0f;
+
+		glm::vec3 lightColour(5, 5, 5);
+
+		glUniform1f(LightPower, lightPower);
+		glUniform3f(LightColor, lightColour.r, lightColour.g, lightColour.b);
 		glUniform1f(specularIntensity, specularIntensityVal);
 
 
