@@ -1,6 +1,7 @@
 #pragma once
 #include"Mesh.h"
 #include"ErrorMessage.h"
+#include"Texture.h"
 
 class ForestScene
 {
@@ -22,7 +23,7 @@ public:
 private:
 	SDL_Window* window;
 	SDL_GLContext glContext;
-	GLuint texture;
+	GLuint treeTrunkTexture;
 
 	float mouseSensitivity = 0.01f;
 	float movementMultipler = 0.01f;
