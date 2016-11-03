@@ -102,11 +102,7 @@ int main(int argc, char* args[])
 	// set up for player movement class
 	GLuint mvpLocation = glGetUniformLocation(programID, "mvp");
 
-	glm::mat4 finalMVP;
-	glm::mat4 *mvp = &finalMVP;
-	PlayerMovement player(mvp);
-
-	GLuint mvpLocation = glGetUniformLocation(programID, "mvp");
+	PlayerMovement player;
 
 
 	//start main loop
@@ -140,15 +136,12 @@ int main(int argc, char* args[])
 		glUseProgram(programID);
 
 
-		glm::mat4 finalMVP = *mvp;
-		glUniformMatrix4fv(mvpLocation, 1, GL_FALSE, glm::value_ptr(finalMVP));
+		glUniformMatrix4fv(mvpLocation, 1, GL_FALSE, glm::value_ptr(player.getMVP()));
 
 		mesh.draw();
 
 		SDL_GL_SwapWindow(window);
 	}
-
-	player.~PlayerMovement();
 
 	SDL_GL_DeleteContext(glContext);
 	SDL_DestroyWindow(window);

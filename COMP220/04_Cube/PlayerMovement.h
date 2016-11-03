@@ -5,13 +5,13 @@ class PlayerMovement
 {
 public:
 	//initialise with a pointer to the final value to be used in render
-	PlayerMovement(glm::mat4 *mvp);
+	PlayerMovement();
 	
 	~PlayerMovement();
 
 	void tick();
 
-	glm::mat4 *MVP;
+	glm::mat4 getMVP();
 
 private:
 	// constants for sensitivity and speed
@@ -25,5 +25,8 @@ private:
 
 	// stores the mouse position
 	int mouseX, mouseY;
+
+	// stores the camera position
+	glm::mat4 MVP;
 
 };

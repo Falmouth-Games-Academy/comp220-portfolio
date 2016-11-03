@@ -5,19 +5,15 @@
 having the mvp be a pointer allows for dynamic manipulation of the value without having
 to set it to a new value every tick
 */
-PlayerMovement::PlayerMovement(glm::mat4 *mvp)
+PlayerMovement::PlayerMovement()
 {
-	MVP = mvp;
-	
+	// gives the player an initial position
 	glm::vec4 playerPosition(0, 0, 5, 1);
-	this->playerPosition = playerPosition;
-	
 }
 
 
 PlayerMovement::~PlayerMovement()
 {
-	delete MVP;
 }
 
 void PlayerMovement::tick()
@@ -73,5 +69,10 @@ void PlayerMovement::tick()
 
 	glm::mat4 transform;
 	//transform = glm::rotate(transform, SDL_GetTicks() / 1000.0f, glm::vec3(0, 1, 0));
-	*MVP = projection * view * transform;
+	MVP = projection * view * transform;
+}
+
+glm::mat4 PlayerMovement::getMVP()
+{
+	return MVP;
 }
