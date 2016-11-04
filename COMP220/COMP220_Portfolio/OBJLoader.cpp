@@ -4,6 +4,9 @@
 
 OBJLoader::OBJLoader()
 {
+	/*Mesh firstMesh;
+	modelMeshes.push_back(firstMesh);
+	currentMesh = modelMeshes.size();*/
 }
 
 
@@ -19,7 +22,7 @@ bool OBJLoader::loadOBJ(const char * path, glm::vec3 modelColour)
 		printf("Impossible to open the file !\n");
 		return false;
 	}
-
+	colour = modelColour;
 	// Scan through file
 	while (1) {
 
@@ -48,6 +51,12 @@ bool OBJLoader::loadOBJ(const char * path, glm::vec3 modelColour)
 			temporaryNormals.push_back(normal);
 		}
 
+		else if ((strcmp(lineHeader, "usemtl") == 0) ){
+			Mesh addMesh;
+			modelMeshes.push_back(addMesh);
+			currentMesh = modelMeshes.size() - 1;
+		}
+
 		else if (strcmp(lineHeader, "f") == 0) {
 			std::string vertex1, vertex2, vertex3;
 			unsigned int vertexIndex[3], uvIndex[3], normalIndex[3];
@@ -59,37 +68,51 @@ bool OBJLoader::loadOBJ(const char * path, glm::vec3 modelColour)
 			}
 			for (int i = 0; i < 3; i++)
 			{
-				vertexIndices.push_back(vertexIndex[i]);
-				uvIndices.push_back(uvIndex[i]);
-				normalIndices.push_back(normalIndex[i]);
+				modelMeshes[currentMesh].vertexIndices.push_back(vertexIndex[i]);
+				modelMeshes[currentMesh].uvIndices.push_back(uvIndex[i]);
+				modelMeshes[currentMesh].normalIndices.push_back(normalIndex[i]);
 			}
 		}
 
 
 
 	} //End while
+	for (int i = 0; i < modelMeshes.size(); i++)
+	{
+		currentMesh = i;
+		addtoVector();
+	}
+
+}// End loadOBJ
+
+void OBJLoader::addtoVector()
+{
 	vertexIndex = 0;
 	uvIndex = 0;
 	normalIndex = 0;
 
-	for (int i = 0; i < vertexIndices.size(); i++) {
-		vertexIndex = vertexIndices[i];
+	for (int i = 0; i < modelMeshes[currentMesh].vertexIndices.size(); i++) {
+		vertexIndex = modelMeshes[currentMesh].vertexIndices[i];
 		glm::vec3 vertex = temporaryVertices[vertexIndex - 1];
-		mesh.m_vertexPositions.push_back(vertex);
+		modelMeshes[currentMesh].m_vertexPositions.push_back(vertex);
 	}
-	for (int i = 0; i < vertexIndices.size(); i++) {
-		glm::vec3 colour = modelColour;
-		mesh.m_vertexColours.push_back(colour);
+	for (int i = 0; i < modelMeshes[currentMesh].vertexIndices.size(); i++) {
+		modelMeshes[currentMesh].m_vertexColours.push_back(colour);
 	}
-	for (int i = 0; i < uvIndices.size(); i++) {
-		uvIndex = uvIndices[i];
+	for (int i = 0; i < modelMeshes[currentMesh].uvIndices.size(); i++) {
+		uvIndex = modelMeshes[currentMesh].uvIndices[i];
 		glm::vec2 uv = temporaryUvs[uvIndex - 1];
-		mesh.m_vertexUVs.push_back(uv);
+		modelMeshes[currentMesh].m_vertexUVs.push_back(uv);
 	}
-	for (int i = 0; i < normalIndices.size(); i++) {
-		normalIndex = normalIndices[i];
+	for (int i = 0; i < modelMeshes[currentMesh].normalIndices.size(); i++) {
+		normalIndex = modelMeshes[currentMesh].normalIndices[i];
 		glm::vec3 normal = temporaryNormals[normalIndex - 1];
-		mesh.m_vertexNormals.push_back(normal);
+		modelMeshes[currentMesh].m_vertexNormals.push_back(normal);
 	}
+}
 
-}// End loadOBJ
+void OBJLoader::loadTextures(const std::string& fileName)
+{
+	Texture texture(fileName);
+	modelTextures.push_back(texture);
+}

@@ -27,7 +27,6 @@ GLuint Texture::loadTexture(const std::string& fileName)
 		return 0;
 	}
 
-	GLuint textureId;
 	glGenTextures(1, &textureId);
 	glBindTexture(GL_TEXTURE_2D, textureId);
 
@@ -53,4 +52,9 @@ GLuint Texture::loadTexture(const std::string& fileName)
 
 	SDL_FreeSurface(textureSurface);
 	return textureId;
+}
+
+void Texture::bindTexture()
+{
+	glBindTexture(GL_TEXTURE_2D, textureId);
 }
