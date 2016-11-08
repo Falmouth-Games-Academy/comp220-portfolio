@@ -145,6 +145,8 @@ void ForestScene::run()
 
 	GLuint lightDirectionLocation = glGetUniformLocation(programID, "lightDirection");
 
+	GLuint cameraSpaceLocation = glGetUniformLocation(programID, "cameraSpace");
+
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
 
@@ -242,6 +244,7 @@ void ForestScene::run()
 		glUniformMatrix4fv(mvpLocation, 1, GL_FALSE, glm::value_ptr(mvp));
 
 		glUniform3f(lightDirectionLocation, 1, 1, 1);
+		glUniform3f(cameraSpaceLocation, playerPosition.x, playerPosition.y, playerPosition.z);
 
 		for (int i = 0; i < treeModel.modelTextures.size(); i++)
 		{
