@@ -215,7 +215,7 @@ int main(int argc, char* args[])
 	// The grounds colour Variable
 	glm::vec3 colour = glm::vec3(0,0,0);
 
-	int chunkSize = 100; // Max 700 squares ~3M
+	int chunkSize = 700; // Max 700 squares ~3M
 	int noiseMax = 3;
 	int noiseMin = 0;
 	int y = 0;
@@ -227,8 +227,9 @@ int main(int argc, char* args[])
 	{
 		for (int z = 0; z < chunkSize; z++)
 		{
-			double perlinResult = perlinNoise.noise((x / noiseAmplification), (z / noiseAmplification), y);
-
+			double perlinResult1 = perlinNoise.noise((x / noiseAmplification), (z / noiseAmplification), y);
+			double perlinResult2 = perlinNoise.noise((x / noiseAmplification + 1), (z / noiseAmplification) + 1, y);
+			double perlinResult = perlinResult1 + perlinResult2;
 			//Normalize values
 			perlinResult = (char)((perlinResult - noiseMin) * (255 / (noiseMax - noiseMin)));;
 			cellZ.push_back(perlinResult);
@@ -250,14 +251,16 @@ int main(int argc, char* args[])
 				colour = glm::vec3(-perlinResult / 70, -perlinResult / 100, -sin(perlinResult / 700));
 			}
 
-			glm::vec3 a(x-0.5, perlinResult + 0.5, z +1);
-			glm::vec3 b(x+0.5, perlinResult + 0.5, z +1);
-			glm::vec3 c(x+0.5, perlinResult + 0.5, z -1);
-			glm::vec3 d(x-0.5, perlinResult + 0.5, z -1);
-			glm::vec3 e(x-0.5, perlinResult - 0.5, z +1);
-			glm::vec3 f(x-0.5, perlinResult - 0.5, z -1);
-			glm::vec3 g(x+0.5, perlinResult - 0.5, z -1);
-			glm::vec3 h(x+0.5, perlinResult - 0.5, z +1);
+			float SquareSize = 0.5f;
+
+			glm::vec3 a(x - SquareSize, perlinResult + SquareSize, z + SquareSize);
+			glm::vec3 b(x + SquareSize, perlinResult + SquareSize, z + SquareSize);
+			glm::vec3 c(x + SquareSize, perlinResult + SquareSize, z - SquareSize);
+			glm::vec3 d(x - SquareSize, perlinResult + SquareSize, z - SquareSize);
+			glm::vec3 e(x - SquareSize, perlinResult - SquareSize, z + SquareSize);
+			glm::vec3 f(x - SquareSize, perlinResult - SquareSize, z - SquareSize);
+			glm::vec3 g(x + SquareSize, perlinResult - SquareSize, z - SquareSize);
+			glm::vec3 h(x + SquareSize, perlinResult - SquareSize, z + SquareSize);
 
 			mesh.addCube(a, b, c, d, e, f, g, h, colour);
 		}
@@ -401,14 +404,16 @@ int main(int argc, char* args[])
 		glUniform3f(eyeDirectionLocation, playerPosition.x, playerPosition.y, playerPosition.z);
 
 		// Changes specular value
-		float specularIntensityVal = 1000.0f;
-		float lightPower = 10.0f;
+		float specularIntensityVal = 10.0f;
+		float lightPower = 1.0f;
 
-		glm::vec3 lightColour(5, 5, 5);
+		glm::vec3 lightColour(1, sin(SDL_GetTicks() / 11000), 1);
 
 		glUniform1f(LightPower, lightPower);
 		glUniform3f(LightColor, lightColour.r, lightColour.g, lightColour.b);
 		glUniform1f(specularIntensity, specularIntensityVal);
+
+		
 
 
 		mesh.draw();
