@@ -5,6 +5,8 @@ class Texture
 public:
 	//! Constructor
 	Texture(const std::string& fileName);
+	//! Constructor
+	Texture();
 	//! Destructor
 	~Texture();
 
@@ -15,6 +17,7 @@ public:
 	GLuint loadTexture(const std::string& fileName);
 
 	void bindTexture();
+	GLuint loadDDS(const char * imagepath);
 
 	GLuint texture;
 	GLuint textureId;
