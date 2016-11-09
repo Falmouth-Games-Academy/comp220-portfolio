@@ -8,6 +8,7 @@
 #include "LoadShader.h"
 #include "texture.h"
 #include "PlayerMovement.h"
+#include "noise.h"
 
 // NOTE: this code is intended to illustrate usage of OpenGL.
 // It is NOT intended to illustrate good coding style or naming conventions!
@@ -64,22 +65,22 @@ int main(int argc, char* args[])
 	glGenVertexArrays(1, &VertexArrayID);
 	glBindVertexArray(VertexArrayID);
 
-	Mesh mesh;
-	glm::vec3 a(-1, +1, +1);
-	glm::vec3 b(+1, +1, +1);
-	glm::vec3 c(+1, +1, -1);
-	glm::vec3 d(-1, +1, -1);
-	glm::vec3 e(-1, -1, +1);
-	glm::vec3 f(-1, -1, -1);
-	glm::vec3 g(+1, -1, -1);
-	glm::vec3 h(+1, -1, +1);
+	PlayerMovement player;
 
-	/*mesh.addSquare(a, b, c, d, glm::vec3(1, 0, 0), 0.25f, 0.5f, 0.0f, 0.25f);
-	mesh.addSquare(b, h, g, c, glm::vec3(1, 1, 0), 0.5f, 0.75f, 0.25f, 0.5f);
-	mesh.addSquare(a, e, h, b, glm::vec3(0, 1, 0), 0.25f, 0.5f, 0.25f, 0.5f);
-	mesh.addSquare(d, f, e, a, glm::vec3(0, 0, 1), 0.75f, 1.0f, 0.25f, 0.5f);
-	mesh.addSquare(e, f, g, h, glm::vec3(1, 0.5f, 0), 0.0f, 0.25f, 0.25f, 0.5f);
-	mesh.addSquare(d, c, g, f, glm::vec3(1, 0, 1), 0.25f, 0.5f, 0.5f, 0.75f);*/
+	noise::Perlin perlinNoise;
+
+	Mesh mesh;
+	glm::vec3 a(+1, perlinNoise.noise(1, -1, 0), -1);
+	glm::vec3 b(+1, perlinNoise.noise(1, 1, 0), 1);
+	glm::vec3 c(-1, perlinNoise.noise(-1, -1, 0), -1);
+	glm::vec3 d(-1, perlinNoise.noise(-1, 1, 0), 1);
+	srand(9385746);
+	float random1 = float(rand() % 255) / 255.0f;
+	float random2 = float(rand() % 255) / 255.0f;
+	float random3 = float(rand() % 255) / 255.0f;
+	glm::vec3 colour(random1, random2, random3);
+	glm::vec2 texture1(0,0);
+	mesh.addTriangle(a, c, b, colour, texture1, texture1, texture1);
 
 	mesh.addCircle(glm::vec3(0, -2, 0), 1, 500, glm::vec3(1, 1, 0));
 	mesh.createBuffers();
@@ -102,7 +103,7 @@ int main(int argc, char* args[])
 	// set up for player movement class
 	GLuint mvpLocation = glGetUniformLocation(programID, "mvp");
 
-	PlayerMovement player;
+
 
 
 	//start main loop
