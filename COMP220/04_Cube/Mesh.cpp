@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "Mesh.h"
+#include "noise.h"
 
 Mesh::Mesh()
 {
@@ -67,6 +68,45 @@ void Mesh::addCircle(const glm::vec3& centre, float radius, int numPoints,
 		glm::vec3 nextEdgePoint = centre + radius * glm::vec3(cos(angle), 0, sin(angle));
 		addTriangle(centre, nextEdgePoint, lastEdgePoint, colour, glm::vec2(), glm::vec2(), glm::vec2());
 		lastEdgePoint = nextEdgePoint;
+	}
+}
+
+void Mesh::generateTerrain(int maxX, int maxY)
+{
+	const noise::Perlin perlin;
+	double previousNx = 0, previousNy = 0;
+	for (double x = 1; x < maxX; x++)
+	{
+		for (double y = 1; y < maxY; y++)
+		{
+			double nx = x / maxX - 0.5, ny = y / maxY - 0.5;
+			
+			glm::vec3 p1(x - 1, perlin.noise(previousNx, previousNy), y - 1);
+			glm::vec3 p2(x, perlin.noise(nx, previousNy), y - 1);
+			glm::vec3 p3(x, perlin.noise(nx, ny), y);
+			glm::vec3 p4(x - 1, perlin.noise(previousNx, ny), y);
+
+			glm::vec3 col(nx,ny,previousNx);
+
+			addSquare(p4, p3, p2, p1, col, -1, +1, -1, +1);
+
+			double previousNx = nx, previousNy = ny;
+
+			/*
+			http://blog.kazade.co.uk/2014/05/a-public-domain-c11-1d2d3d-perlin-noise.html
+			double perlinA = perlin.noise(x / maxX, y / maxY);
+			double perlinB = perlin.noise(x + 1 / maxX, y / maxY);
+			double perlinC = perlin.noise(x + 1 / maxX, y + 1 / maxY);
+			double perlinD = perlin.noise(x / maxX, y + 1 / maxY);
+
+			glm::vec3 a(x, perlinA, y);
+			glm::vec3 b(x + 1, perlinB, y);
+			glm::vec3 c(x + 1, perlinC, y + 1);
+			glm::vec3 d(x, perlinD, y + 1);
+			glm::vec3 col(perlinA, perlinB, perlinA);
+			addSquare(d, c, b, a, col, -1, +1, -1, +1);
+			*/		
+		}
 	}
 }
 

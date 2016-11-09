@@ -8,7 +8,6 @@
 #include "LoadShader.h"
 #include "texture.h"
 #include "PlayerMovement.h"
-#include "noise.h"
 
 // NOTE: this code is intended to illustrate usage of OpenGL.
 // It is NOT intended to illustrate good coding style or naming conventions!
@@ -67,9 +66,10 @@ int main(int argc, char* args[])
 
 	PlayerMovement player;
 
-	noise::Perlin perlinNoise;
-
 	Mesh mesh;
+	mesh.generateTerrain(500, 500);
+	/*
+	noise::Perlin perlinNoise;
 	glm::vec3 a(+1, perlinNoise.noise(1, -1, 0), -1);
 	glm::vec3 b(+1, perlinNoise.noise(1, 1, 0), 1);
 	glm::vec3 c(-1, perlinNoise.noise(-1, -1, 0), -1);
@@ -81,6 +81,8 @@ int main(int argc, char* args[])
 	glm::vec3 colour(random1, random2, random3);
 	glm::vec2 texture1(0,0);
 	mesh.addTriangle(a, c, b, colour, texture1, texture1, texture1);
+	*/
+
 
 	mesh.addCircle(glm::vec3(0, -2, 0), 1, 500, glm::vec3(1, 1, 0));
 	mesh.createBuffers();

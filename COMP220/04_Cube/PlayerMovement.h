@@ -15,7 +15,7 @@ public:
 
 private:
 	// constants for sensitivity and speed
-	const float movementSpeed = 0.01;
+	const float movementSpeed = 0.1;
 	const float mouseSensitivity = 0.005;
 
 	// store the players position
