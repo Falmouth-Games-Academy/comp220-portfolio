@@ -179,7 +179,7 @@ int main(int argc, char* args[])
 	Mesh mesh;
 	PerlinNoise perlinNoise;
 
-	mesh.addCylinder(glm::vec3(0, 2, 0), 1, 24, -2, glm::vec3(1, 0, 0));
+	//mesh.addCylinder(glm::vec3(0, 2, 0), 1, 24, -2, glm::vec3(1, 0, 0));
 	
 
 	
@@ -196,7 +196,7 @@ int main(int argc, char* args[])
 	// The grounds colour Variable
 	glm::vec3 colour = glm::vec3(0,0,0);
 
-	int chunkSize = 100; // Max 700 squares ~3M
+	int chunkSize = 500; // Max 700 squares ~3M
 	int noiseMax = 3;
 	int noiseMin = 0;
 	int y = 0;
@@ -227,7 +227,7 @@ int main(int argc, char* args[])
 			}
 			else
 			{
-				colour = glm::vec3(-perlinResult / 70, -perlinResult / 100, -sin(perlinResult / 700));
+				colour = glm::vec3(-perlinResult / 7, -perlinResult / 10, -sin(perlinResult / 70));
 			}
 
 			float SquareSize = 0.5f;
@@ -388,7 +388,7 @@ int main(int argc, char* args[])
 
 		// Changes specular value
 		float specularIntensityVal = 1000.0f;
-		float lightPower = 0.2f;
+		float lightPower = 0.8f;
 
 		// Changes the colour of the light
 		glm::vec3 lightColour(1, 1, 1);
@@ -398,7 +398,7 @@ int main(int argc, char* args[])
 		//The position of the light
 		glm::vec3 lightPos(1, 5, 1);
 
-		glUniform3f(lightDirectionLocation, sin(SDL_GetTicks() / 1000.0f), 1, 1);
+		glUniform3f(lightDirectionLocation, 10 , 50, sin(SDL_GetTicks() / 1000.0f));
 		glUniform3f(eyeDirectionLocation, 1, 1, 1);
 		glUniform1f(LightPower, lightPower);
 		glUniform3f(LightColor, lightColour.r, lightColour.g, lightColour.b);

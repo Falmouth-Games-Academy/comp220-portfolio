@@ -49,7 +49,8 @@ void Mesh::addTriangle(const glm::vec3& p1, const glm::vec3& p2, const glm::vec3
 
 	glm::vec3 normal = glm::normalize(glm::cross(edge1, edge2));
 
-	m_vertexNormals.push_back(normal);
+	for (int i = 0; i < 3; i++)
+		m_vertexNormals.push_back(normal);
 
 }
 
