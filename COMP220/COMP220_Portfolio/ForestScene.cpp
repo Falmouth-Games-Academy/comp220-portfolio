@@ -123,7 +123,8 @@ void ForestScene::run()
 	glBindVertexArray(VertexArrayID);
 
 	ParticleEffectManager particleEffect;
-
+	particleEffect.createBuffers();
+	
 	OBJLoader treeModel;
 	bool tree = treeModel.loadOBJ("tree.obj", glm::vec3(1.0, 1.0, 1.0));
 	if (!tree)
@@ -236,6 +237,8 @@ void ForestScene::run()
 
 		glm::mat4 view = glm::lookAt(glm::vec3(playerPosition), glm::vec3(playerPosition + playerLook), glm::vec3(0, 1, 0));
 		glm::mat4 projection = glm::perspective(glm::radians(45.0f), 1.0f, 0.1f, 100.0f);
+
+		particleEffect.run(view);
 
 		glm::mat4 transform;
 		//transform = glm::rotate(transform, SDL_GetTicks() / 1000.0f, glm::vec3(0, 1, 0));

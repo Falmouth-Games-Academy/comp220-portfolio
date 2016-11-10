@@ -4,9 +4,6 @@
 
 OBJLoader::OBJLoader()
 {
-	/*Mesh firstMesh;
-	modelMeshes.push_back(firstMesh);
-	currentMesh = modelMeshes.size();*/
 }
 
 
