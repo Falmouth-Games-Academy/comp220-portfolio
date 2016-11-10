@@ -14,9 +14,7 @@ public:
 
 	bool compileShader(GLuint shaderId, const std::string& shaderFileName);
 	GLuint loadShaders(const std::string& vertex_file_path, const std::string& fragment_file_path);
-	GLuint loadTexture(const std::string& fileName);
 	void run();
-	glm::vec4 calculateCameraAngle(int mouseX, int mouseY);
 
 	ErrorMessage errorSystem;
 

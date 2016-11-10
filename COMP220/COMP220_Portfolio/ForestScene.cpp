@@ -32,9 +32,6 @@ ForestScene::ForestScene()
 	{
 		errorSystem.showErrorMessage("glewInit failed", "Error");
 	}
-
-	Texture treeTrunkTexture("tree_trunk.png");
-	//Texture leafTexture("leaf.png");
 }
 
 ForestScene::~ForestScene()
@@ -138,6 +135,7 @@ void ForestScene::run()
 	{
 		treeModel.modelMeshes[i].createBuffers();
 	}
+	treeModel.checkTextures();
 
 	GLuint programID = loadShaders("vertex.glsl", "fragment.glsl");
 
@@ -250,7 +248,6 @@ void ForestScene::run()
 		{
 			treeModel.modelTextures[i].bindTexture();
 			treeModel.modelMeshes[i].draw();
-
 		}
 
 		SDL_GL_SwapWindow(window);

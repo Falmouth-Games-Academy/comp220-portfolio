@@ -14,6 +14,7 @@ public:
 	//! Loads texture from file
 	GLuint loadTexture(const std::string& fileName);
 
+	//! Binds the texture which needs to be active
 	void bindTexture();
 
 	GLuint texture;

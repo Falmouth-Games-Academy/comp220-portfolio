@@ -116,3 +116,11 @@ void OBJLoader::loadTextures(const std::string& fileName)
 	Texture texture(fileName);
 	modelTextures.push_back(texture);
 }
+
+void OBJLoader::checkTextures()
+{
+	if (modelMeshes.size() > modelTextures.size())
+		errorSystem.showErrorMessage("Not enough textures loaded.", "Error");
+	else if (modelMeshes.size() < modelTextures.size())
+		errorSystem.showErrorMessage("Too many textures loaded.", "Error");
+}
