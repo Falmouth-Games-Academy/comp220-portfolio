@@ -20,6 +20,8 @@ Mesh::~Mesh()
 		glDeleteBuffers(1, &m_normalBuffer);
 }
 
+void Mesh::addTriangleVertex(Vertex v1, Vertex v2, Vertex v3)
+
 void Mesh::addTriangle(const glm::vec3& p1, const glm::vec3& p2, const glm::vec3& p3,
 	const glm::vec3& colour,
 	const glm::vec2& t1, const glm::vec2& t2, const glm::vec2& t3)
@@ -43,8 +45,11 @@ void Mesh::addTriangle(const glm::vec3& p1, const glm::vec3& p2, const glm::vec3
 	m_vertexUVs.push_back(t2);
 	m_vertexUVs.push_back(t3);
 
-	glm::vec3 normal = glm::cross(p3 - p1, p2 - p1);
-	normal = glm::normalize(normal);
+
+	glm::vec3 edge1(p3 - p1);
+	glm::vec3 edge2(p2 - p1);
+
+	glm::vec3 normal = glm::normalize(glm::cross(edge1, edge2));
 
 	m_vertexNormals.push_back(normal);
 

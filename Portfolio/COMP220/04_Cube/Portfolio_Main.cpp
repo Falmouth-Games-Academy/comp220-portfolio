@@ -175,28 +175,10 @@ int main(int argc, char* args[])
 	glGenVertexArrays(1, &VertexArrayID);
 	glBindVertexArray(VertexArrayID);
 
+	// Create an instance of the objects
 	Mesh mesh;
 	PerlinNoise perlinNoise;
 
-	/* CUBE 
-	glm::vec3 a(-1, +1, +1);
-	glm::vec3 b(+1, +1, +1);
-	glm::vec3 c(+1, +1, -1);
-	glm::vec3 d(-1, +1, -1);
-	glm::vec3 e(-1, -1, +1);
-	glm::vec3 f(-1, -1, -1);
-	glm::vec3 g(+1, -1, -1);
-	glm::vec3 h(+1, -1, +1);
-
-	mesh.addSquare(a, b, c, d, glm::vec3(1, 0, 0), 0.25f, 0.5f, 0.0f, 0.25f);
-	mesh.addSquare(b, h, g, c, glm::vec3(1, 1, 0), 0.5f, 0.75f, 0.25f, 0.5f);
-	mesh.addSquare(a, e, h, b, glm::vec3(0, 1, 0), 0.25f, 0.5f, 0.25f, 0.5f);
-	mesh.addSquare(d, f, e, a, glm::vec3(0, 0, 1), 0.75f, 1.0f, 0.25f, 0.5f);
-	mesh.addSquare(e, f, g, h, glm::vec3(1, 0.5f, 0), 0.0f, 0.25f, 0.25f, 0.5f);
-	mesh.addSquare(d, c, g, f, glm::vec3(1, 0, 1), 0.25f, 0.5f, 0.5f, 0.75f);
-
-	//mesh.addCircle(glm::vec3(0, -2, 0), 1, 500, glm::vec3(1, 1, 0));
-	*/
 	mesh.addCylinder(glm::vec3(0, 2, 0), 1, 24, -2, glm::vec3(1, 0, 0));
 	
 
@@ -204,7 +186,6 @@ int main(int argc, char* args[])
 
 	// Used for third dimension of perlin noise
 	int seed = SDL_GetTicks() / 100;
-	std::vector<float> cellX, cellY, cellZ;
 
 	// Generate perlin noise based off a seed
 	//perlinNoise.GenerateNoise(seed);
@@ -215,7 +196,7 @@ int main(int argc, char* args[])
 	// The grounds colour Variable
 	glm::vec3 colour = glm::vec3(0,0,0);
 
-	int chunkSize = 700; // Max 700 squares ~3M
+	int chunkSize = 100; // Max 700 squares ~3M
 	int noiseMax = 3;
 	int noiseMin = 0;
 	int y = 0;
@@ -227,12 +208,10 @@ int main(int argc, char* args[])
 	{
 		for (int z = 0; z < chunkSize; z++)
 		{
-			double perlinResult1 = perlinNoise.noise((x / noiseAmplification), (z / noiseAmplification), y);
-			double perlinResult2 = perlinNoise.noise((x / noiseAmplification + 1), (z / noiseAmplification) + 1, y);
-			double perlinResult = perlinResult1 + perlinResult2;
+			double perlinResult = perlinNoise.noise((x / noiseAmplification), (z / noiseAmplification), y);
+			
 			//Normalize values
 			perlinResult = (char)((perlinResult - noiseMin) * (255 / (noiseMax - noiseMin)));;
-			cellZ.push_back(perlinResult);
 
 			// Cube Colour
 			if (perlinResult > 0)
@@ -274,8 +253,11 @@ int main(int argc, char* args[])
 	GLuint eyeDirectionLocation = glGetUniformLocation(programID, "eyeDirection");
 	GLuint specularIntensity = glGetUniformLocation(programID, "specularIntensity");
 	GLuint LightColor = glGetUniformLocation(programID, "LightColor");
+	GLuint ObjectColor = glGetUniformLocation(programID, "ObjectColor");
 	GLuint LightPower = glGetUniformLocation(programID, "LightPower");
 	GLuint distance = glGetUniformLocation(programID, "distance");
+
+	GLuint LightPos = glGetUniformLocation(programID, "LightPos");
 
 
 	glEnable(GL_DEPTH_TEST);
@@ -284,9 +266,12 @@ int main(int argc, char* args[])
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+	//glEnable(GL_LIGHTING);
+	
+
 	glEnable(GL_CULL_FACE);
 
-	glm::vec4 playerPosition(0, 50, 50, 1);
+	glm::vec4 playerPosition(50, 50, 50, 1);
 	float playerPitch = 0;
 	float playerYaw = 0;
 
@@ -399,22 +384,29 @@ int main(int argc, char* args[])
 		glUniformMatrix4fv(mvpLocation, 1, GL_FALSE, glm::value_ptr(mvp));
 
 		// Lighting
-		glUniform3f(lightDirectionLocation, 1, 1, 1);
 
-		glUniform3f(eyeDirectionLocation, playerPosition.x, playerPosition.y, playerPosition.z);
 
 		// Changes specular value
-		float specularIntensityVal = 10.0f;
-		float lightPower = 1.0f;
+		float specularIntensityVal = 1000.0f;
+		float lightPower = 0.2f;
 
-		glm::vec3 lightColour(1, sin(SDL_GetTicks() / 11000), 1);
+		// Changes the colour of the light
+		glm::vec3 lightColour(1, 1, 1);
 
+		glm::vec3 objectColour(colour.r, colour.g, colour.b);
+
+		//The position of the light
+		glm::vec3 lightPos(1, 5, 1);
+
+		glUniform3f(lightDirectionLocation, sin(SDL_GetTicks() / 1000.0f), 1, 1);
+		glUniform3f(eyeDirectionLocation, 1, 1, 1);
 		glUniform1f(LightPower, lightPower);
 		glUniform3f(LightColor, lightColour.r, lightColour.g, lightColour.b);
+		glUniform3f(ObjectColor, objectColour.r, objectColour.g, objectColour.b);
 		glUniform1f(specularIntensity, specularIntensityVal);
+		glUniform3f(LightPos, lightPos.x, lightPos.y, lightPos.z);
 
 		
-
 
 		mesh.draw();
 

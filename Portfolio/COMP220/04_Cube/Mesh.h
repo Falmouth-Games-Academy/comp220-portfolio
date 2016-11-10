@@ -7,6 +7,10 @@ public:
 	Mesh();
 	~Mesh();
 
+	// Triangle made from vertex class
+	void addTriangleVertex(Vertex v1, Vertex v2, Vertex v3);
+
+	// Old triangle function
 	void addTriangle(const glm::vec3& p1, const glm::vec3& p2, const glm::vec3& p3,
 		const glm::vec3& colour,
 		const glm::vec2& t1, const glm::vec2& t2, const glm::vec2& t3);
