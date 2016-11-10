@@ -122,6 +122,7 @@ void ForestScene::run()
 	glGenVertexArrays(1, &VertexArrayID);
 	glBindVertexArray(VertexArrayID);
 
+	ParticleEffectManager particleEffect;
 
 	OBJLoader treeModel;
 	bool tree = treeModel.loadOBJ("tree.obj", glm::vec3(1.0, 1.0, 1.0));

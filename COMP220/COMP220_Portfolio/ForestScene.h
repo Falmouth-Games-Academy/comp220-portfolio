@@ -18,7 +18,7 @@ public:
 	void run();
 
 	ErrorMessage errorSystem;
-	ParticleEffectManager particleEffect;
+
 
 private:
 	SDL_Window* window;
