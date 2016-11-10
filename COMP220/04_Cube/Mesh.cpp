@@ -72,46 +72,49 @@ void Mesh::addCircle(const glm::vec3& centre, float radius, int numPoints,
 	}
 }
 
-void Mesh::generateTerrain(int maxX, int maxY)
+
+
+void Mesh::generateTerrain(int maxX, int maxY, float noiseAmplification, float heightAmplification)
 {
 	uint32_t seed = time(0);
 	const noise::Perlin perlin(seed);
 	double previousNx = 0, previousNy = 0;
 	for (double x = 1; x < maxX; x++)
 	{
-		double nx = x / maxX - 0.5;
+		double nx = x / maxX * noiseAmplification;
 		for (double y = 1; y < maxY; y++)
 		{
-			double ny = y / maxY - 0.5;
+			double ny = y / maxY * noiseAmplification;
 
-			glm::vec3 p1(x - 1, perlin.noise(previousNx, previousNy), y - 1);
-			glm::vec3 p2(x, perlin.noise(nx, previousNy), y - 1);
-			glm::vec3 p3(x, perlin.noise(nx, ny) , y);
-			glm::vec3 p4(x - 1, perlin.noise(previousNx, ny), y);
+			glm::vec3 p1(x - 1, perlin.noise(previousNx, previousNy) * heightAmplification, y - 1);
+			glm::vec3 p2(x, perlin.noise(nx, previousNy) * heightAmplification, y - 1);
+			glm::vec3 p3(x, perlin.noise(nx, ny) * heightAmplification, y);
+			glm::vec3 p4(x - 1, perlin.noise(previousNx, ny) * heightAmplification, y);
 
-			glm::vec3 col(nx*2,ny*2,0.5);
+			glm::vec3 col(perlin.noise(nx, ny) + 0.5, 1 - (perlin.noise(nx, ny) + 0.5), (perlin.noise(nx, ny) + 0.5) * ((nx + ny) / 2));
 
 			addSquare(p4, p3, p2, p1, col, -1, +1, -1, +1);
 
 			previousNy = ny;
 
-			/*
-			http://blog.kazade.co.uk/2014/05/a-public-domain-c11-1d2d3d-perlin-noise.html
-			double perlinA = perlin.noise(x / maxX, y / maxY);
-			double perlinB = perlin.noise(x + 1 / maxX, y / maxY);
-			double perlinC = perlin.noise(x + 1 / maxX, y + 1 / maxY);
-			double perlinD = perlin.noise(x / maxX, y + 1 / maxY);
-
-			glm::vec3 a(x, perlinA, y);
-			glm::vec3 b(x + 1, perlinB, y);
-			glm::vec3 c(x + 1, perlinC, y + 1);
-			glm::vec3 d(x, perlinD, y + 1);
-			glm::vec3 col(perlinA, perlinB, perlinA);
-			addSquare(d, c, b, a, col, -1, +1, -1, +1);
-			*/		
 		}
 
 		previousNx = nx;
+	}
+}
+
+// Layers higher frequencys of noise over original generation for more varience
+double Mesh::getLayeredNoise(double nx, double ny, double noiseAmplitutude, int numberOfIterations)
+{
+	noise::Perlin perlin(time(0));
+	double layerOpacity = 1;
+	
+	double noise = perlin.noise(nx, ny);
+	for (int i = 0; i < numberOfIterations; i++)
+	{
+		layerOpacity /= 2;
+	
+		
 	}
 }
 
@@ -166,3 +169,5 @@ void Mesh::draw()
 	glDisableVertexAttribArray(1);
 	glDisableVertexAttribArray(2);
 }
+
+

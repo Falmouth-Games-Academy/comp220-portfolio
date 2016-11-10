@@ -6,7 +6,7 @@ public:
 	Mesh();
 	~Mesh();
 
-	void generateTerrain(int maxX, int maxY);
+	void generateTerrain(int maxX, int maxY, float noiseAmplification, float heightAmplification);
 
 	void addTriangle(const glm::vec3& p1, const glm::vec3& p2, const glm::vec3& p3,
 		const glm::vec3& colour,
@@ -22,6 +22,9 @@ public:
 	void draw();
 
 private:
+
+	double getLayeredNoise(double x, double y, double noiseAmplitutude, int numberOfIterations);
+
 	std::vector<glm::vec3> m_vertexPositions, m_vertexColours;
 	std::vector<glm::vec2> m_vertexUVs;
 	GLuint m_positionBuffer = 0, m_colourBuffer = 0, m_uvBuffer = 0;
