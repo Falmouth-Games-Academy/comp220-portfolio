@@ -3,6 +3,7 @@
 #include"ErrorMessage.h"
 #include"Texture.h"
 #include"OBJLoader.h"
+#include"ParticleEffectManager.h"
 
 class ForestScene
 {
@@ -17,19 +18,15 @@ public:
 	void run();
 
 	ErrorMessage errorSystem;
-
+	ParticleEffectManager particleEffect;
 
 private:
 	SDL_Window* window;
 	SDL_GLContext glContext;
-	GLuint treeTrunkTexture;
 
 	float mouseSensitivity = 0.01f;
 	float movementMultipler = 0.01f;
 
-	
 	float playerPitch = 0;
 	float playerYaw = 0;
-
-
 };
