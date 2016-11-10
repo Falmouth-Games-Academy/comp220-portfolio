@@ -67,7 +67,7 @@ int main(int argc, char* args[])
 	PlayerMovement player;
 
 	Mesh mesh;
-	mesh.generateTerrain(500, 500);
+	mesh.generateTerrain(10, 10);
 	/*
 	noise::Perlin perlinNoise;
 	glm::vec3 a(+1, perlinNoise.noise(1, -1, 0), -1);

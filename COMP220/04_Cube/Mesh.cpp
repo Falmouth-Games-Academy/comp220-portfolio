@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "Mesh.h"
 #include "noise.h"
+#include <time.h>
 
 Mesh::Mesh()
 {
@@ -73,24 +74,26 @@ void Mesh::addCircle(const glm::vec3& centre, float radius, int numPoints,
 
 void Mesh::generateTerrain(int maxX, int maxY)
 {
-	const noise::Perlin perlin;
+	uint32_t seed = time(0);
+	const noise::Perlin perlin(seed);
 	double previousNx = 0, previousNy = 0;
 	for (double x = 1; x < maxX; x++)
 	{
+		double nx = x / maxX - 0.5;
 		for (double y = 1; y < maxY; y++)
 		{
-			double nx = x / maxX - 0.5, ny = y / maxY - 0.5;
-			
+			double ny = y / maxY - 0.5;
+
 			glm::vec3 p1(x - 1, perlin.noise(previousNx, previousNy), y - 1);
 			glm::vec3 p2(x, perlin.noise(nx, previousNy), y - 1);
-			glm::vec3 p3(x, perlin.noise(nx, ny), y);
+			glm::vec3 p3(x, perlin.noise(nx, ny) , y);
 			glm::vec3 p4(x - 1, perlin.noise(previousNx, ny), y);
 
-			glm::vec3 col(nx,ny,previousNx);
+			glm::vec3 col(nx*2,ny*2,0.5);
 
 			addSquare(p4, p3, p2, p1, col, -1, +1, -1, +1);
 
-			double previousNx = nx, previousNy = ny;
+			previousNy = ny;
 
 			/*
 			http://blog.kazade.co.uk/2014/05/a-public-domain-c11-1d2d3d-perlin-noise.html
@@ -107,6 +110,8 @@ void Mesh::generateTerrain(int maxX, int maxY)
 			addSquare(d, c, b, a, col, -1, +1, -1, +1);
 			*/		
 		}
+
+		previousNx = nx;
 	}
 }
 
