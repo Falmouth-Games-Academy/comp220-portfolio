@@ -23,7 +23,6 @@
 #include <string>
 #include <vector>
 #include <sstream>
-#include<algorithm>
 
 // SDL
 #include <SDL.h>
