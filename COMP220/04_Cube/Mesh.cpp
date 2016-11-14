@@ -2,6 +2,7 @@
 #include "Mesh.h"
 #include "noise.h"
 #include <time.h>
+#include <cmath>
 
 Mesh::Mesh()
 {
@@ -86,12 +87,12 @@ void Mesh::generateTerrain(int maxX, int maxY, float noiseAmplification, float h
 		{
 			double ny = y / maxY * noiseAmplification;
 
-			glm::vec3 p1(x - 1, perlin.noise(previousNx, previousNy) * heightAmplification, y - 1);
-			glm::vec3 p2(x, perlin.noise(nx, previousNy) * heightAmplification, y - 1);
-			glm::vec3 p3(x, perlin.noise(nx, ny) * heightAmplification, y);
-			glm::vec3 p4(x - 1, perlin.noise(previousNx, ny) * heightAmplification, y);
+			glm::vec3 p1(x - 1, getLayeredNoise(previousNx, previousNy, perlin, 1) * heightAmplification, y - 1);
+			glm::vec3 p2(x, getLayeredNoise(nx, previousNy, perlin, 1) * heightAmplification, y - 1);
+			glm::vec3 p3(x, getLayeredNoise(nx, ny, perlin, 1) * heightAmplification, y);
+			glm::vec3 p4(x - 1, getLayeredNoise(previousNx, ny, perlin, 1) * heightAmplification, y);
 
-			glm::vec3 col(perlin.noise(nx, ny) + 0.5, 1 - (perlin.noise(nx, ny) + 0.5), (perlin.noise(nx, ny) + 0.5) * ((nx + ny) / 2));
+			glm::vec3 col(getLayeredNoise(nx, ny, perlin, 4) + 0.5, 1 - (getLayeredNoise(nx, ny, perlin, 4) + 0.5), (getLayeredNoise(nx, ny, perlin, 4) + 0.5) * ((nx + ny) / 2));
 
 			addSquare(p4, p3, p2, p1, col, -1, +1, -1, +1);
 
@@ -104,18 +105,19 @@ void Mesh::generateTerrain(int maxX, int maxY, float noiseAmplification, float h
 }
 
 // Layers higher frequencys of noise over original generation for more varience
-double Mesh::getLayeredNoise(double nx, double ny, double noiseAmplitutude, int numberOfIterations)
+double Mesh::getLayeredNoise(double nx, double ny, noise::Perlin perlin, int numberOfIterations)
 {
-	noise::Perlin perlin(time(0));
 	double layerOpacity = 1;
-	
-	double noise = perlin.noise(nx, ny);
+	double exponenial = 1;
+	double noise = 0;
+
 	for (int i = 0; i < numberOfIterations; i++)
 	{
 		layerOpacity /= 2;
-	
-		
+		noise += layerOpacity * perlin.noise(exponenial * nx, exponenial * ny);
+		exponenial *= 2;
 	}
+	return noise;
 }
 
 void Mesh::createBuffers()

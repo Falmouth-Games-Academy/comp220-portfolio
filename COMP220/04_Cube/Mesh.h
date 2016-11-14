@@ -1,5 +1,7 @@
 #pragma once
 
+#include "noise.h"
+
 class Mesh
 {
 public:
@@ -23,7 +25,7 @@ public:
 
 private:
 
-	double getLayeredNoise(double x, double y, double noiseAmplitutude, int numberOfIterations);
+	double getLayeredNoise(double nx, double ny, noise::Perlin noise, int numberOfIterations);
 
 	std::vector<glm::vec3> m_vertexPositions, m_vertexColours;
 	std::vector<glm::vec2> m_vertexUVs;
