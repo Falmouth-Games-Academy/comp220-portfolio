@@ -11,7 +11,10 @@ Terrain::~Terrain()
 {
 }
 
-
+void Terrain::generateTerrain(Mesh& mesh)
+{
+	generateChunk(mesh);
+}
 void Terrain::generateChunk(Mesh& mesh)
 {
 	//Create instance of class
@@ -29,8 +32,8 @@ void Terrain::generateChunk(Mesh& mesh)
 
 	// The grounds colour Variable
 	glm::vec3 colour = glm::vec3(0, 0, 0);
-
-	for (int x = 0; x < chunkSize; x++)
+	int x = 0;
+	for (x; x < chunkSize; x++)
 	{
 		for (int z = 0; z < chunkSize; z++)
 		{
@@ -42,18 +45,11 @@ void Terrain::generateChunk(Mesh& mesh)
 			// Cube Colour
 			if (perlinResult > 0)
 			{
-				colour =
-
-					//glm::vec3(sin(perlinResult), cos(perlinResult), tan(perlinResult));
-					//glm::vec3(1, 0.5, 0), //Orange
-					//glm::vec3(sin(perlinResult), cos(perlinResult), tan(perlinResult)), //Rainbow Red/White
-					glm::vec3(perlinResult / 100, perlinResult / 50, perlinResult / 700); // Grassy texture
-																						  //glm::vec3(sin(perlinResult) / 80 ,sin(perlinResult / 35), sin(perlinResult) / 100 ), // Grassy texture
-																						  //glm::vec3(perlinResult / 10, perlinResult / 30, perlinResult / 75), // Grassy texture
+				colour = glm::vec3(perlinResult / 100, perlinResult / 50, perlinResult / 700); // Grassy texture
 			}
 			else
 			{
-				colour = glm::vec3(-perlinResult / 7, -perlinResult / 10, -sin(perlinResult / 70));
+				colour = glm::vec3(-perlinResult / 7, -perlinResult / 10, perlinResult / 70);
 			}
 
 			glm::vec3 a(x - SquareSize, perlinResult + SquareSize, z + SquareSize);

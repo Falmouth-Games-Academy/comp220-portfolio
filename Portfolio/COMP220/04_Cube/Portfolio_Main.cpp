@@ -176,29 +176,23 @@ int main(int argc, char* args[])
 
 	// Create an instance of the objects
 	Mesh mesh;
-
-	mesh.addCylinder(glm::vec3(0, 2, 0), 1, 24, -2, glm::vec3(1, 0, 0));
-	
 	Terrain terrain;
 
+	// Generate the terrain
+	mesh.addCylinder(glm::vec3(0, 2, 0), 1, 24, 2, glm::vec3(1, 0, 0));
 	terrain.generateChunk(mesh);
 
-
-	
-
 	mesh.createBuffers();
+	// Variables to be used in the shader
 	GLuint programID = loadShaders("vertex.glsl", "fragment.glsl");
 	GLuint mvpLocation = glGetUniformLocation(programID, "mvp");
-
 	GLuint lightDirectionLocation = glGetUniformLocation(programID, "lightDirection");
-
 	GLuint eyeDirectionLocation = glGetUniformLocation(programID, "eyeDirection");
 	GLuint specularIntensity = glGetUniformLocation(programID, "specularIntensity");
 	GLuint LightColor = glGetUniformLocation(programID, "LightColor");
 	GLuint ObjectColor = glGetUniformLocation(programID, "ObjectColor");
 	GLuint LightPower = glGetUniformLocation(programID, "LightPower");
 	GLuint distance = glGetUniformLocation(programID, "distance");
-
 	GLuint LightPos = glGetUniformLocation(programID, "LightPos");
 
 
@@ -209,8 +203,6 @@ int main(int argc, char* args[])
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	glEnable(GL_LIGHTING);
-	
-
 	glEnable(GL_CULL_FACE);
 
 	glm::vec4 playerPosition(50, 50, 50, 1);
@@ -325,26 +317,27 @@ int main(int argc, char* args[])
 		glm::mat4 mvp = projection * view * transform;
 		glUniformMatrix4fv(mvpLocation, 1, GL_FALSE, glm::value_ptr(mvp));
 
-		// Lighting
 
-		// Changes specular value
+
+
+		////////////// Lighting Variables /////////////////
+
+		// Changes specular value and light power
 		float specularIntensityVal = 1000.0f;
-		float lightPower = 0.8f;
+		float lightPower = 0.5f;
 
 		// Changes the colour of the light
 		glm::vec3 lightColour(1, 1, 1);
 
-
 		// The grounds colour Variable
-		glm::vec3 colour = glm::vec3(100, 100, 100);
+		glm::vec3 colour = glm::vec3(1, 1, 1);
 		glm::vec3 objectColour(colour.r, colour.g, colour.b);
 
-		
-
-		//The position of the light
+		// The position of the light
 		glm::vec3 lightPos(1, 5, 1);
 
-		glUniform3f(lightDirectionLocation, 100 , 100, 0);
+		// Passing in the values to the fragment shader
+		glUniform3f(lightDirectionLocation, 100, 100, 0);
 		glUniform3f(eyeDirectionLocation, 100, 100, 0);
 		glUniform1f(LightPower, lightPower);
 		glUniform3f(LightColor, lightColour.r, lightColour.g, lightColour.b);
