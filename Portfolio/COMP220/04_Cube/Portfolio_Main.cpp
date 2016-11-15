@@ -175,75 +175,90 @@ int main(int argc, char* args[])
 	glGenVertexArrays(1, &VertexArrayID);
 	glBindVertexArray(VertexArrayID);
 
+	// Create an instance of the objects
 	Mesh mesh;
-
-	/* CUBE 
-	glm::vec3 a(-1, +1, +1);
-	glm::vec3 b(+1, +1, +1);
-	glm::vec3 c(+1, +1, -1);
-	glm::vec3 d(-1, +1, -1);
-	glm::vec3 e(-1, -1, +1);
-	glm::vec3 f(-1, -1, -1);
-	glm::vec3 g(+1, -1, -1);
-	glm::vec3 h(+1, -1, +1);
-
-	mesh.addSquare(a, b, c, d, glm::vec3(1, 0, 0), 0.25f, 0.5f, 0.0f, 0.25f);
-	mesh.addSquare(b, h, g, c, glm::vec3(1, 1, 0), 0.5f, 0.75f, 0.25f, 0.5f);
-	mesh.addSquare(a, e, h, b, glm::vec3(0, 1, 0), 0.25f, 0.5f, 0.25f, 0.5f);
-	mesh.addSquare(d, f, e, a, glm::vec3(0, 0, 1), 0.75f, 1.0f, 0.25f, 0.5f);
-	mesh.addSquare(e, f, g, h, glm::vec3(1, 0.5f, 0), 0.0f, 0.25f, 0.25f, 0.5f);
-	mesh.addSquare(d, c, g, f, glm::vec3(1, 0, 1), 0.25f, 0.5f, 0.5f, 0.75f);
-
-	//mesh.addCircle(glm::vec3(0, -2, 0), 1, 500, glm::vec3(1, 1, 0));
-	*/
-	mesh.addCylinder(glm::vec3(0, -2, 0), 1, 24, -2, glm::vec3(1, 0, 0));
-	
-
 	PerlinNoise perlinNoise;
 
+	//mesh.addCylinder(glm::vec3(0, 2, 0), 1, 24, -2, glm::vec3(1, 0, 0));
+	
+
+	
+
 	// Used for third dimension of perlin noise
-	int z = 0;
 	int seed = SDL_GetTicks() / 100;
-	int seed2 = rand() % 256;
 
-	perlinNoise.GenerateNoise(seed);
+	// Generate perlin noise based off a seed
+	//perlinNoise.GenerateNoise(seed);
 
+	// Geneate perlin noise based of Ken Perlins Permutation Vector
+	perlinNoise.GeneratePerlinNoise();
 
-	int chunkSize = 1725; // Max 1725 squares ~3M
+	// The grounds colour Variable
+	glm::vec3 colour = glm::vec3(0,0,0);
+
+	int chunkSize = 600; // Max 700 squares ~3M
 	int noiseMax = 3;
 	int noiseMin = 0;
+	int y = 0;
 
 	// Amplification(the lower the number the higher the amplification)
 	float noiseAmplification = 100.0;
 
 	for (int x = 0; x < chunkSize; x++)
 	{
-		for (int y = 0; y < chunkSize; y++)
+		for (int z = 0; z < chunkSize; z++)
 		{
-			double perlinResult = perlinNoise.noise((x / noiseAmplification), (y / noiseAmplification), z);
-
+			double perlinResult = perlinNoise.noise((x / noiseAmplification), (z / noiseAmplification), y);
+			
 			//Normalize values
 			perlinResult = (char)((perlinResult - noiseMin) * (255 / (noiseMax - noiseMin)));;
 
+			// Cube Colour
+			if (perlinResult > 0)
+			{
+				colour =
 
-			//Generate squares next to each other with different z position values
-			//mesh.addSquare(glm::vec3(x, perlinResult, y), glm::vec3(x + 1, perlinResult, y), glm::vec3(x + 1, perlinResult + 1, y), glm::vec3(x, perlinResult + 1, y), // SideWays Squares
-			mesh.addSquare(glm::vec3(x, y, perlinResult), glm::vec3(x + 1, y, perlinResult), glm::vec3(x + 1, y + 1, perlinResult), glm::vec3(x, y + 1, perlinResult), // Flat Squares
+					//glm::vec3(sin(perlinResult), cos(perlinResult), tan(perlinResult));
+					//glm::vec3(1, 0.5, 0), //Orange
+					//glm::vec3(sin(perlinResult), cos(perlinResult), tan(perlinResult)), //Rainbow Red/White
+					glm::vec3(perlinResult / 100, perlinResult / 50, perlinResult / 700); // Grassy texture
+					//glm::vec3(sin(perlinResult) / 80 ,sin(perlinResult / 35), sin(perlinResult) / 100 ), // Grassy texture
+					//glm::vec3(perlinResult / 10, perlinResult / 30, perlinResult / 75), // Grassy texture
+			}
+			else
+			{
+				colour = glm::vec3(-perlinResult / 7, -perlinResult / 10, -sin(perlinResult / 70));
+			}
 
-				// Square Colour
-				//glm::vec3(1, 0.5, 0), //Orange
-				//glm::vec3(sin(perlinResult), cos(perlinResult), tan(perlinResult)), //Rainbow Red/White
-				glm::vec3(perlinResult / 80 ,perlinResult / 35, perlinResult / 700 ), // Grassy texture
-				//glm::vec3(sin(perlinResult) / 80 ,sin(perlinResult / 35), sin(perlinResult) / 100 ), // Grassy texture
-				//glm::vec3(perlinResult / 10, perlinResult / 30, perlinResult / 75), // Grassy texture
+			float SquareSize = 0.5f;
 
-				// UV maps
-				0, 0, 0, 0);
+			glm::vec3 a(x - SquareSize, perlinResult + SquareSize, z + SquareSize);
+			glm::vec3 b(x + SquareSize, perlinResult + SquareSize, z + SquareSize);
+			glm::vec3 c(x + SquareSize, perlinResult + SquareSize, z - SquareSize);
+			glm::vec3 d(x - SquareSize, perlinResult + SquareSize, z - SquareSize);
+			glm::vec3 e(x - SquareSize, perlinResult - SquareSize, z + SquareSize);
+			glm::vec3 f(x - SquareSize, perlinResult - SquareSize, z - SquareSize);
+			glm::vec3 g(x + SquareSize, perlinResult - SquareSize, z - SquareSize);
+			glm::vec3 h(x + SquareSize, perlinResult - SquareSize, z + SquareSize);
+
+			mesh.addCube(a, b, c, d, e, f, g, h, colour);
 		}
 	}
 	mesh.createBuffers();
 	GLuint programID = loadShaders("vertex.glsl", "fragment.glsl");
 	GLuint mvpLocation = glGetUniformLocation(programID, "mvp");
+
+	GLuint lightDirectionLocation = glGetUniformLocation(programID, "lightDirection");
+
+	GLuint eyeDirectionLocation = glGetUniformLocation(programID, "eyeDirection");
+	GLuint specularIntensity = glGetUniformLocation(programID, "specularIntensity");
+	GLuint LightColor = glGetUniformLocation(programID, "LightColor");
+	GLuint ObjectColor = glGetUniformLocation(programID, "ObjectColor");
+	GLuint LightPower = glGetUniformLocation(programID, "LightPower");
+	GLuint distance = glGetUniformLocation(programID, "distance");
+
+	GLuint LightPos = glGetUniformLocation(programID, "LightPos");
+
 
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
@@ -251,9 +266,12 @@ int main(int argc, char* args[])
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+	glEnable(GL_LIGHTING);
+	
+
 	glEnable(GL_CULL_FACE);
 
-	glm::vec4 playerPosition(0, 50, 50, 1);
+	glm::vec4 playerPosition(50, 50, 50, 1);
 	float playerPitch = 0;
 	float playerYaw = 0;
 
@@ -349,12 +367,11 @@ int main(int argc, char* args[])
 			}
 		}
 
-		
 
 		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
 		glUseProgram(programID);
+
 
 		glm::mat4 view = glm::lookAt(glm::vec3(playerPosition), glm::vec3(playerPosition + playerLook), glm::vec3(0, 1, 0));
 
@@ -362,9 +379,34 @@ int main(int argc, char* args[])
 		glm::mat4 projection = glm::perspective(glm::radians(45.0f), 1.0f, 0.1f, 10000.0f);
 
 		glm::mat4 transform;
-		transform = glm::rotate(transform, glm::radians(-90.0f), glm::vec3(1, 0, 0));  // Rotate by 90 to make the level flat
+		//transform = glm::rotate(transform, glm::radians(-90.0f), glm::vec3(1, 0, 0)); 
 		glm::mat4 mvp = projection * view * transform;
 		glUniformMatrix4fv(mvpLocation, 1, GL_FALSE, glm::value_ptr(mvp));
+
+		// Lighting
+
+
+		// Changes specular value
+		float specularIntensityVal = 1000.0f;
+		float lightPower = 0.8f;
+
+		// Changes the colour of the light
+		glm::vec3 lightColour(1, 1, 1);
+
+		glm::vec3 objectColour(colour.r, colour.g, colour.b);
+
+		
+
+		//The position of the light
+		glm::vec3 lightPos(1, 5, 1);
+
+		glUniform3f(lightDirectionLocation, 100 , 100, 0);
+		glUniform3f(eyeDirectionLocation, 100, 100, 0);
+		glUniform1f(LightPower, lightPower);
+		glUniform3f(LightColor, lightColour.r, lightColour.g, lightColour.b);
+		glUniform3f(ObjectColor, objectColour.r, objectColour.g, objectColour.b);
+		glUniform1f(specularIntensity, specularIntensityVal);
+		glUniform3f(LightPos, lightPos.x, lightPos.y, lightPos.z);
 
 		mesh.draw();
 

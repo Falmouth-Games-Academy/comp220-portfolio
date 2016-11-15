@@ -6,6 +6,7 @@ public:
 	~PerlinNoise();
 
 	void GenerateNoise(unsigned int seed);
+	void GeneratePerlinNoise();
 	int seed;
 
 	std::vector<int> p;
