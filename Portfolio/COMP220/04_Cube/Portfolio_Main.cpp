@@ -196,7 +196,7 @@ int main(int argc, char* args[])
 	// The grounds colour Variable
 	glm::vec3 colour = glm::vec3(0,0,0);
 
-	int chunkSize = 500; // Max 700 squares ~3M
+	int chunkSize = 600; // Max 700 squares ~3M
 	int noiseMax = 3;
 	int noiseMin = 0;
 	int y = 0;
@@ -266,7 +266,7 @@ int main(int argc, char* args[])
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	//glEnable(GL_LIGHTING);
+	glEnable(GL_LIGHTING);
 	
 
 	glEnable(GL_CULL_FACE);
@@ -395,18 +395,18 @@ int main(int argc, char* args[])
 
 		glm::vec3 objectColour(colour.r, colour.g, colour.b);
 
+		
+
 		//The position of the light
 		glm::vec3 lightPos(1, 5, 1);
 
-		glUniform3f(lightDirectionLocation, 10 , 50, sin(SDL_GetTicks() / 1000.0f));
-		glUniform3f(eyeDirectionLocation, 1, 1, 1);
+		glUniform3f(lightDirectionLocation, 100 , 100, 0);
+		glUniform3f(eyeDirectionLocation, 100, 100, 0);
 		glUniform1f(LightPower, lightPower);
 		glUniform3f(LightColor, lightColour.r, lightColour.g, lightColour.b);
 		glUniform3f(ObjectColor, objectColour.r, objectColour.g, objectColour.b);
 		glUniform1f(specularIntensity, specularIntensityVal);
 		glUniform3f(LightPos, lightPos.x, lightPos.y, lightPos.z);
-
-		
 
 		mesh.draw();
 
