@@ -3,7 +3,6 @@
 
 #include "stdafx.h"
 #include "Portfolio_Main.h"
-#include "Mesh.h"
 
 void showErrorMessage(const char* message, const char* title)
 {
@@ -177,73 +176,16 @@ int main(int argc, char* args[])
 
 	// Create an instance of the objects
 	Mesh mesh;
-	PerlinNoise perlinNoise;
 
-	//mesh.addCylinder(glm::vec3(0, 2, 0), 1, 24, -2, glm::vec3(1, 0, 0));
+	mesh.addCylinder(glm::vec3(0, 2, 0), 1, 24, -2, glm::vec3(1, 0, 0));
+	
+	Terrain terrain;
+
+	terrain.generateChunk(mesh);
+
+
 	
 
-	
-
-	// Used for third dimension of perlin noise
-	int seed = SDL_GetTicks() / 100;
-
-	// Generate perlin noise based off a seed
-	//perlinNoise.GenerateNoise(seed);
-
-	// Geneate perlin noise based of Ken Perlins Permutation Vector
-	perlinNoise.GeneratePerlinNoise();
-
-	// The grounds colour Variable
-	glm::vec3 colour = glm::vec3(0,0,0);
-
-	int chunkSize = 600; // Max 700 squares ~3M
-	int noiseMax = 3;
-	int noiseMin = 0;
-	int y = 0;
-
-	// Amplification(the lower the number the higher the amplification)
-	float noiseAmplification = 100.0;
-
-	for (int x = 0; x < chunkSize; x++)
-	{
-		for (int z = 0; z < chunkSize; z++)
-		{
-			double perlinResult = perlinNoise.noise((x / noiseAmplification), (z / noiseAmplification), y);
-			
-			//Normalize values
-			perlinResult = (char)((perlinResult - noiseMin) * (255 / (noiseMax - noiseMin)));;
-
-			// Cube Colour
-			if (perlinResult > 0)
-			{
-				colour =
-
-					//glm::vec3(sin(perlinResult), cos(perlinResult), tan(perlinResult));
-					//glm::vec3(1, 0.5, 0), //Orange
-					//glm::vec3(sin(perlinResult), cos(perlinResult), tan(perlinResult)), //Rainbow Red/White
-					glm::vec3(perlinResult / 100, perlinResult / 50, perlinResult / 700); // Grassy texture
-					//glm::vec3(sin(perlinResult) / 80 ,sin(perlinResult / 35), sin(perlinResult) / 100 ), // Grassy texture
-					//glm::vec3(perlinResult / 10, perlinResult / 30, perlinResult / 75), // Grassy texture
-			}
-			else
-			{
-				colour = glm::vec3(-perlinResult / 7, -perlinResult / 10, -sin(perlinResult / 70));
-			}
-
-			float SquareSize = 0.5f;
-
-			glm::vec3 a(x - SquareSize, perlinResult + SquareSize, z + SquareSize);
-			glm::vec3 b(x + SquareSize, perlinResult + SquareSize, z + SquareSize);
-			glm::vec3 c(x + SquareSize, perlinResult + SquareSize, z - SquareSize);
-			glm::vec3 d(x - SquareSize, perlinResult + SquareSize, z - SquareSize);
-			glm::vec3 e(x - SquareSize, perlinResult - SquareSize, z + SquareSize);
-			glm::vec3 f(x - SquareSize, perlinResult - SquareSize, z - SquareSize);
-			glm::vec3 g(x + SquareSize, perlinResult - SquareSize, z - SquareSize);
-			glm::vec3 h(x + SquareSize, perlinResult - SquareSize, z + SquareSize);
-
-			mesh.addCube(a, b, c, d, e, f, g, h, colour);
-		}
-	}
 	mesh.createBuffers();
 	GLuint programID = loadShaders("vertex.glsl", "fragment.glsl");
 	GLuint mvpLocation = glGetUniformLocation(programID, "mvp");
@@ -385,7 +327,6 @@ int main(int argc, char* args[])
 
 		// Lighting
 
-
 		// Changes specular value
 		float specularIntensityVal = 1000.0f;
 		float lightPower = 0.8f;
@@ -393,6 +334,9 @@ int main(int argc, char* args[])
 		// Changes the colour of the light
 		glm::vec3 lightColour(1, 1, 1);
 
+
+		// The grounds colour Variable
+		glm::vec3 colour = glm::vec3(100, 100, 100);
 		glm::vec3 objectColour(colour.r, colour.g, colour.b);
 
 		
