@@ -178,9 +178,12 @@ int main(int argc, char* args[])
 	Mesh mesh;
 	Terrain terrain;
 
-	// Generate the terrain
+	//////// Generate the terrain ///////////////
+	terrain.generateTerrain(mesh);
 	mesh.addCylinder(glm::vec3(0, 2, 0), 1, 24, 2, glm::vec3(1, 0, 0));
-	terrain.generateChunk(mesh);
+
+
+	
 
 	mesh.createBuffers();
 	// Variables to be used in the shader
@@ -277,7 +280,6 @@ int main(int argc, char* args[])
 			}
 		}
 
-
 		// For left and right movement
 		glm::vec4 playerRight(0, 0, -1, 0);
 		glm::mat4 playerRightRotation;
@@ -306,7 +308,6 @@ int main(int argc, char* args[])
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glUseProgram(programID);
 
-
 		glm::mat4 view = glm::lookAt(glm::vec3(playerPosition), glm::vec3(playerPosition + playerLook), glm::vec3(0, 1, 0));
 
 		// Render Distance
@@ -330,7 +331,7 @@ int main(int argc, char* args[])
 		glm::vec3 lightColour(1, 1, 1);
 
 		// The grounds colour Variable
-		glm::vec3 colour = glm::vec3(1, 1, 1);
+		glm::vec3 colour = glm::vec3(1, sin(SDL_GetTicks() / 1000.0f), 1);
 		glm::vec3 objectColour(colour.r, colour.g, colour.b);
 
 		// The position of the light

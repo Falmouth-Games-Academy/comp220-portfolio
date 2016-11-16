@@ -13,7 +13,7 @@ public:
 	void generateTerrain(Mesh& mesh);
 
 
-	int chunkSize = 500; // Max 700 squares ~3M
+	int chunkSize = 700; // Max 700 squares ~3M
 	int noiseMax = 3;
 	int noiseMin = 0;
 	int y = 0;
