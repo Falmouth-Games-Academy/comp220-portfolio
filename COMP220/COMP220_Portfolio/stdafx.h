@@ -24,6 +24,7 @@
 #include <vector>
 #include <sstream>
 #include <algorithm>
+#include <memory>
 
 // SDL
 #include <SDL.h>
