@@ -3,7 +3,6 @@
 
 #include "stdafx.h"
 #include "Portfolio_Main.h"
-#include "Mesh.h"
 
 void showErrorMessage(const char* message, const char* title)
 {
@@ -177,86 +176,26 @@ int main(int argc, char* args[])
 
 	// Create an instance of the objects
 	Mesh mesh;
-	PerlinNoise perlinNoise;
+	Terrain terrain;
 
-	//mesh.addCylinder(glm::vec3(0, 2, 0), 1, 24, -2, glm::vec3(1, 0, 0));
+	//////// Generate the terrain ///////////////
+	terrain.generateTerrain(mesh);
+	mesh.addCylinder(glm::vec3(0, 2, 0), 1, 24, 2, glm::vec3(1, 0, 0));
+
+
 	
 
-	
-
-	// Used for third dimension of perlin noise
-	int seed = SDL_GetTicks() / 100;
-
-	// Generate perlin noise based off a seed
-	//perlinNoise.GenerateNoise(seed);
-
-	// Geneate perlin noise based of Ken Perlins Permutation Vector
-	perlinNoise.GeneratePerlinNoise();
-
-	// The grounds colour Variable
-	glm::vec3 colour = glm::vec3(0,0,0);
-
-	int chunkSize = 600; // Max 700 squares ~3M
-	int noiseMax = 3;
-	int noiseMin = 0;
-	int y = 0;
-
-	// Amplification(the lower the number the higher the amplification)
-	float noiseAmplification = 100.0;
-
-	for (int x = 0; x < chunkSize; x++)
-	{
-		for (int z = 0; z < chunkSize; z++)
-		{
-			double perlinResult = perlinNoise.noise((x / noiseAmplification), (z / noiseAmplification), y);
-			
-			//Normalize values
-			perlinResult = (char)((perlinResult - noiseMin) * (255 / (noiseMax - noiseMin)));;
-
-			// Cube Colour
-			if (perlinResult > 0)
-			{
-				colour =
-
-					//glm::vec3(sin(perlinResult), cos(perlinResult), tan(perlinResult));
-					//glm::vec3(1, 0.5, 0), //Orange
-					//glm::vec3(sin(perlinResult), cos(perlinResult), tan(perlinResult)), //Rainbow Red/White
-					glm::vec3(perlinResult / 100, perlinResult / 50, perlinResult / 700); // Grassy texture
-					//glm::vec3(sin(perlinResult) / 80 ,sin(perlinResult / 35), sin(perlinResult) / 100 ), // Grassy texture
-					//glm::vec3(perlinResult / 10, perlinResult / 30, perlinResult / 75), // Grassy texture
-			}
-			else
-			{
-				colour = glm::vec3(-perlinResult / 7, -perlinResult / 10, -sin(perlinResult / 70));
-			}
-
-			float SquareSize = 0.5f;
-
-			glm::vec3 a(x - SquareSize, perlinResult + SquareSize, z + SquareSize);
-			glm::vec3 b(x + SquareSize, perlinResult + SquareSize, z + SquareSize);
-			glm::vec3 c(x + SquareSize, perlinResult + SquareSize, z - SquareSize);
-			glm::vec3 d(x - SquareSize, perlinResult + SquareSize, z - SquareSize);
-			glm::vec3 e(x - SquareSize, perlinResult - SquareSize, z + SquareSize);
-			glm::vec3 f(x - SquareSize, perlinResult - SquareSize, z - SquareSize);
-			glm::vec3 g(x + SquareSize, perlinResult - SquareSize, z - SquareSize);
-			glm::vec3 h(x + SquareSize, perlinResult - SquareSize, z + SquareSize);
-
-			mesh.addCube(a, b, c, d, e, f, g, h, colour);
-		}
-	}
 	mesh.createBuffers();
+	// Variables to be used in the shader
 	GLuint programID = loadShaders("vertex.glsl", "fragment.glsl");
 	GLuint mvpLocation = glGetUniformLocation(programID, "mvp");
-
 	GLuint lightDirectionLocation = glGetUniformLocation(programID, "lightDirection");
-
 	GLuint eyeDirectionLocation = glGetUniformLocation(programID, "eyeDirection");
 	GLuint specularIntensity = glGetUniformLocation(programID, "specularIntensity");
 	GLuint LightColor = glGetUniformLocation(programID, "LightColor");
 	GLuint ObjectColor = glGetUniformLocation(programID, "ObjectColor");
 	GLuint LightPower = glGetUniformLocation(programID, "LightPower");
 	GLuint distance = glGetUniformLocation(programID, "distance");
-
 	GLuint LightPos = glGetUniformLocation(programID, "LightPos");
 
 
@@ -267,8 +206,6 @@ int main(int argc, char* args[])
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	glEnable(GL_LIGHTING);
-	
-
 	glEnable(GL_CULL_FACE);
 
 	glm::vec4 playerPosition(50, 50, 50, 1);
@@ -343,7 +280,6 @@ int main(int argc, char* args[])
 			}
 		}
 
-
 		// For left and right movement
 		glm::vec4 playerRight(0, 0, -1, 0);
 		glm::mat4 playerRightRotation;
@@ -372,7 +308,6 @@ int main(int argc, char* args[])
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glUseProgram(programID);
 
-
 		glm::mat4 view = glm::lookAt(glm::vec3(playerPosition), glm::vec3(playerPosition + playerLook), glm::vec3(0, 1, 0));
 
 		// Render Distance
@@ -383,24 +318,27 @@ int main(int argc, char* args[])
 		glm::mat4 mvp = projection * view * transform;
 		glUniformMatrix4fv(mvpLocation, 1, GL_FALSE, glm::value_ptr(mvp));
 
-		// Lighting
 
 
-		// Changes specular value
+
+		////////////// Lighting Variables /////////////////
+
+		// Changes specular value and light power
 		float specularIntensityVal = 1000.0f;
-		float lightPower = 0.8f;
+		float lightPower = 0.5f;
 
 		// Changes the colour of the light
 		glm::vec3 lightColour(1, 1, 1);
 
+		// The grounds colour Variable
+		glm::vec3 colour = glm::vec3(1, sin(SDL_GetTicks() / 1000.0f), 1);
 		glm::vec3 objectColour(colour.r, colour.g, colour.b);
 
-		
-
-		//The position of the light
+		// The position of the light
 		glm::vec3 lightPos(1, 5, 1);
 
-		glUniform3f(lightDirectionLocation, 100 , 100, 0);
+		// Passing in the values to the fragment shader
+		glUniform3f(lightDirectionLocation, 100, 100, 0);
 		glUniform3f(eyeDirectionLocation, 100, 100, 0);
 		glUniform1f(LightPower, lightPower);
 		glUniform3f(LightColor, lightColour.r, lightColour.g, lightColour.b);
