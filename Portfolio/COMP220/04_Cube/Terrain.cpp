@@ -62,7 +62,7 @@ void Terrain::generateChunk(Mesh& grassMesh, Mesh& mountainMesh)
 				
 				grassMesh.addCube(a, b, c, d, e, f, g, h, colour);
 			}
-			else if (perlinResult > snowPeakHeight)
+			else if (perlinResult >= snowPeakHeight)
 			{
 				glm::vec3 a(x - SquareSize, perlinResult + SquareSize, z + SquareSize);
 				glm::vec3 b(x + SquareSize, perlinResult + SquareSize, z + SquareSize);

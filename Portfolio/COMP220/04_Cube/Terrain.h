@@ -19,9 +19,9 @@ public:
 	int y = 0;
 	float SquareSize = 0.5f;
 
-	float snowPeakHeight = 3.0f;
+	float snowPeakHeight = 2.0f;
 
-	float GoundAmplification = 0.15;
+	float GoundAmplification = 1;
 
 	// Amplification(the lower the number the higher the amplification)
 	float noiseAmplification = 150.0;

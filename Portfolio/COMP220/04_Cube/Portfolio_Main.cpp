@@ -324,7 +324,7 @@ int main(int argc, char* args[])
 		////////////// Lighting Variables /////////////////
 
 		// Changes specular value and light power
-		float specularIntensityVal = 100.0f;
+		float specularIntensityVal = 1000.0f;
 		float lightPower = 0.8f;
 
 		// Changes the colour of the light
@@ -335,10 +335,10 @@ int main(int argc, char* args[])
 		glm::vec3 objectColour(colour.r, colour.g, colour.b);
 
 		// The position of the light
-		glm::vec3 lightPos(1, 10, 1);
+		glm::vec3 lightPos(100, -10, 1);
 
 		// Passing in the values to the fragment shader
-		glUniform3f(lightDirectionLocation, 100, cos(SDL_GetTicks() / 1000.0f), 100);
+		glUniform3f(lightDirectionLocation, 100, -10, 1);
 		glUniform3f(eyeDirectionLocation, playerPosition.x, playerPosition.y, playerPosition.z);
 		glUniform1f(LightPower, lightPower);
 		glUniform3f(LightColor, lightColour.r, lightColour.g, lightColour.b);
