@@ -46,7 +46,7 @@ void Terrain::generateChunk(Mesh& grassMesh, Mesh& mountainMesh)
 			if (perlinResult > 0)
 				colour = glm::vec3(perlinResult / 100, perlinResult / 100, perlinResult / 100);
 			else
-				colour = glm::vec3(0.5, 0.75, 0.5);
+				colour = glm::vec3(0.01, 0.02, 0.01);
 			
 			// Reduce the incline of the slope if it is below 0
 			if (perlinResult <= snowPeakHeight)
@@ -62,6 +62,8 @@ void Terrain::generateChunk(Mesh& grassMesh, Mesh& mountainMesh)
 				
 				grassMesh.addCube(a, b, c, d, e, f, g, h, colour);
 			}
+
+			// If the perlin noise is above the snow peak, render a differnet cube texture
 			else if (perlinResult >= snowPeakHeight)
 			{
 				glm::vec3 a(x - SquareSize, perlinResult + SquareSize, z + SquareSize);
