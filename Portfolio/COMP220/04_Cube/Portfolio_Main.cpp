@@ -162,7 +162,7 @@ int main(int argc, char* args[])
 		return 1;
 	}
 
-	GLuint diceTexture = loadTexture("dice_texture_2.png");
+	GLuint diceTexture = loadTexture("GrassTex.png");
 
 	if (diceTexture == 0)
 	{
@@ -179,13 +179,10 @@ int main(int argc, char* args[])
 	Terrain terrain;
 
 	//////// Generate the terrain ///////////////
-	terrain.generateTerrain(mesh);
-	mesh.addCylinder(glm::vec3(0, 2, 0), 1, 24, 2, glm::vec3(1, 0, 0));
-
+	terrain.generateChunk(mesh);
+	mesh.createBuffers();
 
 	
-
-	mesh.createBuffers();
 	// Variables to be used in the shader
 	GLuint programID = loadShaders("vertex.glsl", "fragment.glsl");
 	GLuint mvpLocation = glGetUniformLocation(programID, "mvp");
@@ -304,7 +301,7 @@ int main(int argc, char* args[])
 		}
 
 
-		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+		glClearColor(0.1f, 0.2f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glUseProgram(programID);
 
@@ -320,34 +317,36 @@ int main(int argc, char* args[])
 
 
 
-
+		
 		////////////// Lighting Variables /////////////////
 
 		// Changes specular value and light power
-		float specularIntensityVal = 1000.0f;
-		float lightPower = 0.5f;
+		float specularIntensityVal = 10.0f;
+		float lightPower = 0.8f;
 
 		// Changes the colour of the light
 		glm::vec3 lightColour(1, 1, 1);
 
-		// The grounds colour Variable
-		glm::vec3 colour = glm::vec3(1, sin(SDL_GetTicks() / 1000.0f), 1);
+		// The grounds colour Variable for offset if needed
+		glm::vec3 colour = glm::vec3(0.5, 0.5, 0.5);
 		glm::vec3 objectColour(colour.r, colour.g, colour.b);
 
 		// The position of the light
 		glm::vec3 lightPos(1, 5, 1);
 
 		// Passing in the values to the fragment shader
-		glUniform3f(lightDirectionLocation, 100, 100, 0);
-		glUniform3f(eyeDirectionLocation, 100, 100, 0);
+		glUniform3f(lightDirectionLocation, 100, sin(SDL_GetTicks() /10000.0f) + 100, 100);
+		glUniform3f(eyeDirectionLocation, 100, 100 , 100);
 		glUniform1f(LightPower, lightPower);
 		glUniform3f(LightColor, lightColour.r, lightColour.g, lightColour.b);
 		glUniform3f(ObjectColor, objectColour.r, objectColour.g, objectColour.b);
 		glUniform1f(specularIntensity, specularIntensityVal);
 		glUniform3f(LightPos, lightPos.x, lightPos.y, lightPos.z);
 
+		
+		glBindTexture(GL_TEXTURE_2D, diceTexture);
 		mesh.draw();
-
+;
 		SDL_GL_SwapWindow(window);
 	}
 

@@ -45,9 +45,9 @@ void Terrain::generateChunk(Mesh& mesh)
 
 			// Cube Colour
 			if (perlinResult > 0)
-				colour = glm::vec3(perlinResult / 100, perlinResult / 50, perlinResult / 700);
+				colour = glm::vec3(perlinResult / 100, perlinResult / 100, perlinResult / 100);
 			else
-				colour = glm::vec3(-perlinResult / 7, -perlinResult / 10, perlinResult / 70);
+				colour = glm::vec3(perlinResult / 100, perlinResult / 100, perlinResult / 100);
 			
 			// Reduce the incline of the slope if it is below 0
 			if (perlinResult <= lastPerlinResult )
