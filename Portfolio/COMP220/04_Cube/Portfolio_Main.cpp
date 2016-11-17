@@ -162,9 +162,10 @@ int main(int argc, char* args[])
 		return 1;
 	}
 
-	GLuint diceTexture = loadTexture("GrassTex.png");
+	GLuint grassTexture = loadTexture("GrassTex.png");
+	GLuint mountainTexture = loadTexture("MountainTexture.png");
 
-	if (diceTexture == 0)
+	if (grassTexture == 0 || mountainTexture == 0)
 	{
 		showErrorMessage("loadTexture failed", ":(");
 		return 1;
@@ -175,12 +176,14 @@ int main(int argc, char* args[])
 	glBindVertexArray(VertexArrayID);
 
 	// Create an instance of the objects
-	Mesh Grassmesh;
+	Mesh grassMesh;
+	Mesh mountainMesh;
 	Terrain terrain;
 
 	//////// Generate the terrain ///////////////
-	terrain.generateChunk(Grassmesh);
-	Grassmesh.createBuffers();
+	terrain.generateChunk(grassMesh, mountainMesh);
+	grassMesh.createBuffers();
+	mountainMesh.createBuffers();
 
 	
 	// Variables to be used in the shader
@@ -344,8 +347,12 @@ int main(int argc, char* args[])
 		glUniform3f(LightPos, lightPos.x, lightPos.y, lightPos.z);
 
 		
-		glBindTexture(GL_TEXTURE_2D, diceTexture);
-		Grassmesh.draw();
+		// Bind Textures
+		glBindTexture(GL_TEXTURE_2D, grassTexture);
+		grassMesh.draw();
+
+		glBindTexture(GL_TEXTURE_2D, mountainTexture);
+		mountainMesh.draw();
 ;
 		SDL_GL_SwapWindow(window);
 	}

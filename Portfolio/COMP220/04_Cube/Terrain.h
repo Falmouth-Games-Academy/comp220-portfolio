@@ -9,7 +9,7 @@ public:
 	Terrain();
 	~Terrain();
 
-	void generateChunk(Mesh& mesh);
+	void generateChunk(Mesh& grassMesh, Mesh& mountainMesh);
 	void generateTerrain(Mesh& mesh);
 
 
@@ -18,6 +18,8 @@ public:
 	int noiseMin = 0;
 	int y = 0;
 	float SquareSize = 0.5f;
+
+	float snowPeakHeight = 3.0f;
 
 	float GoundAmplification = 0.15;
 

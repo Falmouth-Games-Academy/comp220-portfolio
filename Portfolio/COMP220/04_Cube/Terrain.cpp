@@ -13,9 +13,8 @@ Terrain::~Terrain()
 
 void Terrain::generateTerrain(Mesh& mesh)
 {
-	generateChunk(mesh);
 }
-void Terrain::generateChunk(Mesh& mesh)
+void Terrain::generateChunk(Mesh& grassMesh, Mesh& mountainMesh)
 {
 	//Create instance of class
 	PerlinNoise perlinNoise;
@@ -50,7 +49,7 @@ void Terrain::generateChunk(Mesh& mesh)
 				colour = glm::vec3(0.5, 0.75, 0.5);
 			
 			// Reduce the incline of the slope if it is below 0
-			if (perlinResult <= lastPerlinResult )
+			if (perlinResult <= snowPeakHeight)
 			{
 				glm::vec3 a(x - SquareSize, perlinResult * GoundAmplification + SquareSize, z + SquareSize);
 				glm::vec3 b(x + SquareSize, perlinResult * GoundAmplification + SquareSize, z + SquareSize);
@@ -61,9 +60,9 @@ void Terrain::generateChunk(Mesh& mesh)
 				glm::vec3 g(x + SquareSize, perlinResult * GoundAmplification - SquareSize, z - SquareSize);
 				glm::vec3 h(x + SquareSize, perlinResult * GoundAmplification - SquareSize, z + SquareSize);
 				
-				mesh.addCube(a, b, c, d, e, f, g, h, colour);
+				grassMesh.addCube(a, b, c, d, e, f, g, h, colour);
 			}
-			else if (perlinResult > lastPerlinResult)
+			else if (perlinResult > snowPeakHeight)
 			{
 				glm::vec3 a(x - SquareSize, perlinResult + SquareSize, z + SquareSize);
 				glm::vec3 b(x + SquareSize, perlinResult + SquareSize, z + SquareSize);
@@ -74,10 +73,8 @@ void Terrain::generateChunk(Mesh& mesh)
 				glm::vec3 g(x + SquareSize, perlinResult - SquareSize, z - SquareSize);
 				glm::vec3 h(x + SquareSize, perlinResult - SquareSize, z + SquareSize);
 
-				mesh.addCube(a, b, c, d, e, f, g, h, colour);
+				mountainMesh.addCube(a, b, c, d, e, f, g, h, colour);
 			}
-
-			lastPerlinResult = perlinResult;
 		}
 	}
 }
