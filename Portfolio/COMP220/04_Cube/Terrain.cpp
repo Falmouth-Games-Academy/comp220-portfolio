@@ -51,6 +51,7 @@ void Terrain::generateChunk(Mesh& grassMesh, Mesh& mountainMesh)
 			// Reduce the incline of the slope if it is below 0
 			if (perlinResult <= snowPeakHeight)
 			{
+				// TODO: Remove the unnessary squares to form a mesh
 				glm::vec3 a(x - SquareSize, perlinResult * GoundAmplification + SquareSize, z + SquareSize);
 				glm::vec3 b(x + SquareSize, perlinResult * GoundAmplification + SquareSize, z + SquareSize);
 				glm::vec3 c(x + SquareSize, perlinResult * GoundAmplification + SquareSize, z - SquareSize);
