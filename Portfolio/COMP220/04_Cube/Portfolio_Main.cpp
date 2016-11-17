@@ -175,12 +175,12 @@ int main(int argc, char* args[])
 	glBindVertexArray(VertexArrayID);
 
 	// Create an instance of the objects
-	Mesh mesh;
+	Mesh Grassmesh;
 	Terrain terrain;
 
 	//////// Generate the terrain ///////////////
-	terrain.generateChunk(mesh);
-	mesh.createBuffers();
+	terrain.generateChunk(Grassmesh);
+	Grassmesh.createBuffers();
 
 	
 	// Variables to be used in the shader
@@ -321,7 +321,7 @@ int main(int argc, char* args[])
 		////////////// Lighting Variables /////////////////
 
 		// Changes specular value and light power
-		float specularIntensityVal = 10.0f;
+		float specularIntensityVal = 100.0f;
 		float lightPower = 0.8f;
 
 		// Changes the colour of the light
@@ -332,11 +332,11 @@ int main(int argc, char* args[])
 		glm::vec3 objectColour(colour.r, colour.g, colour.b);
 
 		// The position of the light
-		glm::vec3 lightPos(1, 5, 1);
+		glm::vec3 lightPos(1, 10, 1);
 
 		// Passing in the values to the fragment shader
-		glUniform3f(lightDirectionLocation, 100, sin(SDL_GetTicks() /10000.0f) + 100, 100);
-		glUniform3f(eyeDirectionLocation, 100, 100 , 100);
+		glUniform3f(lightDirectionLocation, 100, cos(SDL_GetTicks() / 1000.0f), 100);
+		glUniform3f(eyeDirectionLocation, playerPosition.x, playerPosition.y, playerPosition.z);
 		glUniform1f(LightPower, lightPower);
 		glUniform3f(LightColor, lightColour.r, lightColour.g, lightColour.b);
 		glUniform3f(ObjectColor, objectColour.r, objectColour.g, objectColour.b);
@@ -345,7 +345,7 @@ int main(int argc, char* args[])
 
 		
 		glBindTexture(GL_TEXTURE_2D, diceTexture);
-		mesh.draw();
+		Grassmesh.draw();
 ;
 		SDL_GL_SwapWindow(window);
 	}

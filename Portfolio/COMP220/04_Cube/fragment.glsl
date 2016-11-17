@@ -47,7 +47,7 @@ void main()
 	MaterialAmbientColor + 
 
 	// Diffuse
-	colour * LightPower * LightColor * cosTheta  + 
+	colour * LightPower * LightColor * cosTheta / (distance * distance) + 
 
 	// Specular
 	lightIntensity * ObjectColor * LightPower, 1.0) * texture(textureSampler, uv);

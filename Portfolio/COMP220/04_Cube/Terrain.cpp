@@ -47,19 +47,19 @@ void Terrain::generateChunk(Mesh& mesh)
 			if (perlinResult > 0)
 				colour = glm::vec3(perlinResult / 100, perlinResult / 100, perlinResult / 100);
 			else
-				colour = glm::vec3(perlinResult / 100, perlinResult / 100, perlinResult / 100);
+				colour = glm::vec3(0.5, 0.75, 0.5);
 			
 			// Reduce the incline of the slope if it is below 0
 			if (perlinResult <= lastPerlinResult )
 			{
-				glm::vec3 a(x - SquareSize, perlinResult * 0.1 + SquareSize, z + SquareSize);
-				glm::vec3 b(x + SquareSize, perlinResult * 0.1 + SquareSize, z + SquareSize);
-				glm::vec3 c(x + SquareSize, perlinResult * 0.1 + SquareSize, z - SquareSize);
-				glm::vec3 d(x - SquareSize, perlinResult * 0.1 + SquareSize, z - SquareSize);
-				glm::vec3 e(x - SquareSize, perlinResult * 0.1 - SquareSize, z + SquareSize);
-				glm::vec3 f(x - SquareSize, perlinResult * 0.1 - SquareSize, z - SquareSize);
-				glm::vec3 g(x + SquareSize, perlinResult * 0.1 - SquareSize, z - SquareSize);
-				glm::vec3 h(x + SquareSize, perlinResult * 0.1 - SquareSize , z + SquareSize);
+				glm::vec3 a(x - SquareSize, perlinResult * GoundAmplification + SquareSize, z + SquareSize);
+				glm::vec3 b(x + SquareSize, perlinResult * GoundAmplification + SquareSize, z + SquareSize);
+				glm::vec3 c(x + SquareSize, perlinResult * GoundAmplification + SquareSize, z - SquareSize);
+				glm::vec3 d(x - SquareSize, perlinResult * GoundAmplification + SquareSize, z - SquareSize);
+				glm::vec3 e(x - SquareSize, perlinResult * GoundAmplification - SquareSize, z + SquareSize);
+				glm::vec3 f(x - SquareSize, perlinResult * GoundAmplification - SquareSize, z - SquareSize);
+				glm::vec3 g(x + SquareSize, perlinResult * GoundAmplification - SquareSize, z - SquareSize);
+				glm::vec3 h(x + SquareSize, perlinResult * GoundAmplification - SquareSize, z + SquareSize);
 				
 				mesh.addCube(a, b, c, d, e, f, g, h, colour);
 			}
