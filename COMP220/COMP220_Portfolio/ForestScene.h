@@ -4,6 +4,7 @@
 #include"Texture.h"
 #include"OBJLoader.h"
 #include"ParticleEffectManager.h"
+#include"Shader.h"
 
 class ForestScene
 {
@@ -13,12 +14,10 @@ public:
 	// Destructor
 	~ForestScene();
 
-	bool compileShader(GLuint shaderId, const std::string& shaderFileName);
-	GLuint loadShaders(const std::string& vertex_file_path, const std::string& fragment_file_path);
 	void run();
 
 	ErrorMessage errorSystem;
-
+	Shader shaders;
 
 private:
 	SDL_Window* window;
