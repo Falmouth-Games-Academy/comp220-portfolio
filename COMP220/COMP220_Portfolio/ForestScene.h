@@ -31,4 +31,5 @@ private:
 
 	float playerPitch = 0;
 	float playerYaw = 0;
+	int mouseX, mouseY;
 };

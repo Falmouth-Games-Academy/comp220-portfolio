@@ -64,21 +64,19 @@ void ForestScene::run()
 	GLuint VertexArrayID;
 	glGenVertexArrays(1, &VertexArrayID);
 	glBindVertexArray(VertexArrayID);
+
 	Floor floor(-1, 10, "Textures/mud.png");
 	
-	//loadModel();
+	loadModel();
 	
 	Particle particle(glm::vec3(0,5,0), glm::vec3(0, 0, 0), &floor);
 	particle.particleMesh.addSphere(particle.size , 1, glm::vec3(0.0, 1.0, 1.0));
 	particle.particleMesh.createBuffers();
-	particle.texture;
+	particle.texture.loadTexture("Textures/leaf.png");
 
 	GLuint programID = shaders.loadShaders("vertex.glsl", "fragment.glsl");
-
 	GLuint mvpLocation = glGetUniformLocation(programID, "mvp");
-
 	GLuint lightDirectionLocation = glGetUniformLocation(programID, "lightDirection");
-
 	GLuint cameraSpaceLocation = glGetUniformLocation(programID, "cameraSpace");
 
 	glEnable(GL_DEPTH_TEST);
@@ -90,8 +88,6 @@ void ForestScene::run()
 	glEnable(GL_CULL_FACE);
 
 	glm::vec4 playerPosition(0, 0, 5, 1);
-	float playerPitch = 0;
-	float playerYaw = 0;
 
 	SDL_SetRelativeMouseMode(SDL_TRUE);
 	SDL_GetRelativeMouseState(nullptr, nullptr);
@@ -119,7 +115,6 @@ void ForestScene::run()
 			}
 		}
 
-		int mouseX, mouseY;
 		SDL_GetRelativeMouseState(&mouseX, &mouseY);
 		playerYaw -= mouseX * mouseSensitivity;
 		playerPitch -= mouseY * mouseSensitivity;
@@ -182,7 +177,9 @@ void ForestScene::run()
 
 		glm::mat4 transform;
 		glUniform3f(lightDirectionLocation, 1, 1, 1);
+		glUniform3f(cameraSpaceLocation, playerPosition.x, playerPosition.y, playerPosition.z);
 
+		// Render particles
 		transform = glm::translate(transform, particle.position);
 		transform = glm::rotate(transform, sin(currentTime / 400.0f), glm::vec3(0, 0, 1));
 		transform = glm::rotate(transform, sin(currentTime / 400.0f), glm::vec3(1, 0, 0));		
@@ -192,18 +189,16 @@ void ForestScene::run()
 		particle.texture.bindTexture();
 		particle.particleMesh.draw();
 
+		// Render floor
 		transform = glm::mat4();
 		mvp = projection * view * transform;
 		glUniformMatrix4fv(mvpLocation, 1, GL_FALSE, glm::value_ptr(mvp));
-		
 		floor.texture.bindTexture();
 		floor.mesh.draw();
-
-		
-		glUniform3f(cameraSpaceLocation, playerPosition.x, playerPosition.y, playerPosition.z);
-		
-		/*transform = glm::translate(transform, treeModel.position);
-		transform = glm::scale(transform, glm::vec3(2, 2, 2));
+				
+		// Render trees
+		transform = glm::translate(transform, treeModel.position);
+		transform = glm::scale(transform, glm::vec3(4, 4, 4));
 		mvp = projection * view * transform;
 		glUniformMatrix4fv(mvpLocation, 1, GL_FALSE, glm::value_ptr(mvp));
 
@@ -211,7 +206,7 @@ void ForestScene::run()
 		{
 			treeModel.modelTextures[i].bindTexture();
 			treeModel.modelMeshes[i].draw();
-		}*/
+		}
 
 		SDL_GL_SwapWindow(window);
 	}
