@@ -1,0 +1,24 @@
+#include "stdafx.h"
+#include "Floor.h"
+
+
+
+Floor::Floor(int floorYPosition, int initialFloorSize, const std::string& floorTexture)
+	: floorY(floorYPosition), floorSize(initialFloorSize)
+{
+	texture.loadTexture(floorTexture);
+	glm::vec3 colour(1, 0, 1);
+	Vertex floorVertices[] = {
+		Vertex(glm::vec3(-floorSize, floorY, -floorSize), colour, glm::vec2(0,0)),
+		Vertex(glm::vec3(-floorSize, floorY, +floorSize), colour, glm::vec2(0,1)),
+		Vertex(glm::vec3(+floorSize, floorY, +floorSize), colour, glm::vec2(1,1)),
+		Vertex(glm::vec3(+floorSize, floorY, -floorSize), colour, glm::vec2(1,0)),
+	};
+
+	mesh.addSquare(floorVertices[0], floorVertices[1], floorVertices[2], floorVertices[3], colour);
+	mesh.createBuffers();
+}
+
+Floor::~Floor()
+{
+}
