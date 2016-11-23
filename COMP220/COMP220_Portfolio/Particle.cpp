@@ -25,7 +25,7 @@ void Particle::tick(float deltaTime)
 	// Apply collision response
 	if (position.y - size < floor->getY() && velocity.y < 0)
 	{
-		velocity.y *= -0.7f;
+		velocity.y *= -0.4f;
 	}
 
 	// Apply gravity

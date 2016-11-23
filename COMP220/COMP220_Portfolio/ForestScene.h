@@ -27,7 +27,7 @@ private:
 	SDL_GLContext glContext;
 
 	float mouseSensitivity = 0.01f;
-	float movementMultipler = 0.01f;
+	float movementMultipler = 0.05f;
 
 	float playerPitch = 0;
 	float playerYaw = 0;

@@ -66,10 +66,10 @@ void ForestScene::run()
 	glBindVertexArray(VertexArrayID);
 	Floor floor(-1, 10, "Textures/mud.png");
 	
-	loadModel();
+	//loadModel();
 	
 	Particle particle(glm::vec3(0,5,0), glm::vec3(0, 0, 0), &floor);
-	particle.particleMesh.addSphere(particle.size , 4, glm::vec3(0.0, 1.0, 1.0));
+	particle.particleMesh.addSphere(particle.size , 1, glm::vec3(0.0, 1.0, 1.0));
 	particle.particleMesh.createBuffers();
 	particle.texture;
 
@@ -141,10 +141,12 @@ void ForestScene::run()
 		if (keyboardState[SDL_SCANCODE_W])
 		{
 			playerPosition += playerForward * movementMultipler;
+			playerPosition.y = 0;
 		}
 		if (keyboardState[SDL_SCANCODE_S])
 		{
 			playerPosition -= playerForward * movementMultipler;
+			playerPosition.y = 0;
 		}
 
 		glm::vec4 playerRight(0, 0, -1, 0);
@@ -155,10 +157,12 @@ void ForestScene::run()
 		if (keyboardState[SDL_SCANCODE_A])
 		{
 			playerPosition -= playerRight * movementMultipler;
+			playerPosition.y = 0;
 		}
 		if (keyboardState[SDL_SCANCODE_D])
 		{
 			playerPosition += playerRight * movementMultipler;
+			playerPosition.y = 0;
 		}
 
 		// Calculate delta time
@@ -180,6 +184,7 @@ void ForestScene::run()
 		glUniform3f(lightDirectionLocation, 1, 1, 1);
 
 		transform = glm::translate(transform, particle.position);
+		
 		glm::mat4 mvp = projection * view * transform;
 		glUniformMatrix4fv(mvpLocation, 1, GL_FALSE, glm::value_ptr(mvp));
 		
@@ -196,7 +201,7 @@ void ForestScene::run()
 		
 		glUniform3f(cameraSpaceLocation, playerPosition.x, playerPosition.y, playerPosition.z);
 		
-		transform = glm::translate(transform, treeModel.position);
+		/*transform = glm::translate(transform, treeModel.position);
 		transform = glm::scale(transform, glm::vec3(2, 2, 2));
 		mvp = projection * view * transform;
 		glUniformMatrix4fv(mvpLocation, 1, GL_FALSE, glm::value_ptr(mvp));
@@ -205,7 +210,7 @@ void ForestScene::run()
 		{
 			treeModel.modelTextures[i].bindTexture();
 			treeModel.modelMeshes[i].draw();
-		}
+		}*/
 
 		SDL_GL_SwapWindow(window);
 	}
