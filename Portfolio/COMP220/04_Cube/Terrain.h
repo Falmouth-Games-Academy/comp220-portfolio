@@ -1,6 +1,7 @@
 #pragma once
 #include "Perlin_Noise.h"
 #include "Mesh.h"
+#include "Voxel.h"
 
 
 class Terrain
@@ -14,7 +15,13 @@ public:
 
 	std::vector<glm::vec3> VoxelPos;
 
+	// Vector of vectors of voxels
+	std::vector<std::vector<Voxel>> Voxels;
+
 	int chunkSize = 1000; // Max 700 squares ~3M
+	int terrainWidth = 10;
+	int terrainDepth = 15;
+
 	int noiseMax = 3;
 	int noiseMin = 0;
 	int y = 0;

@@ -25,19 +25,19 @@ void Terrain::generateTerrain(Mesh& mesh)
 
 	
 
-	for (float x = 0; x < chunkSize; x++)
+	for (float x = 0; x < terrainWidth; x++)
 	{
-		for (float z = 0; z < chunkSize; z++)
+		for (float z = 0; z < terrainDepth; z++)
 		{
-			float y = perlinNoise.noise((x / noiseAmplification), (z / noiseAmplification), 0);
-			y = (char)((y - noiseMin) * (255 / (noiseMax - noiseMin)));;
-			glm::vec3 pos(x, y, z);
+			float terrainHeight = perlinNoise.noise((x / noiseAmplification), (z / noiseAmplification), 0);
+			terrainHeight = (char)((terrainHeight - noiseMin) * (255 / (noiseMax - noiseMin)));;
+			glm::vec3 pos(x, terrainHeight, z);
 
-			VoxelPos.push_back(pos);
-
+			Voxels[x][z].setVoxelPosition(pos);
 		}
 	}
-	
+
+	/*
 	for (int i = 0; i < VoxelPos.size() - 10; i++)
 	{
 			glm::vec3 a(VoxelPos[i].x, VoxelPos[i].y, VoxelPos[i].z);
@@ -46,6 +46,7 @@ void Terrain::generateTerrain(Mesh& mesh)
 			glm::vec3 d(VoxelPos[i + 3].x, VoxelPos[i + 0.5 + 3].y, VoxelPos[i + 0.5 + 3].z);
 			mesh.addSquare(a, b, c, d, glm::vec3(10, 100, 30), 0, 0, 0, 0);
 	}
+	*/
 }
 
 void Terrain::generateChunk(Mesh& grassMesh, Mesh& mountainMesh)
