@@ -184,7 +184,8 @@ void ForestScene::run()
 		glUniform3f(lightDirectionLocation, 1, 1, 1);
 
 		transform = glm::translate(transform, particle.position);
-		
+		transform = glm::rotate(transform, sin(currentTime / 400.0f), glm::vec3(0, 0, 1));
+		transform = glm::rotate(transform, sin(currentTime / 400.0f), glm::vec3(1, 0, 0));		
 		glm::mat4 mvp = projection * view * transform;
 		glUniformMatrix4fv(mvpLocation, 1, GL_FALSE, glm::value_ptr(mvp));
 		
