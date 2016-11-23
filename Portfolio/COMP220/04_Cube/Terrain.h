@@ -2,6 +2,7 @@
 #include "Perlin_Noise.h"
 #include "Mesh.h"
 #include "Voxel.h"
+#include "stdafx.h"
 
 
 class Terrain
@@ -12,15 +13,14 @@ public:
 
 	void generateChunk(Mesh& grassMesh, Mesh& mountainMesh);
 	void generateTerrain(Mesh& mesh);
-
-	std::vector<glm::vec3> VoxelPos;
+	void makeGrid();
 
 	// Vector of vectors of voxels
 	std::vector<std::vector<Voxel>> Voxels;
-
+	
 	int chunkSize = 1000; // Max 700 squares ~3M
 	int terrainWidth = 10;
-	int terrainDepth = 15;
+	int terrainDepth = 10;
 
 	int noiseMax = 3;
 	int noiseMin = 0;

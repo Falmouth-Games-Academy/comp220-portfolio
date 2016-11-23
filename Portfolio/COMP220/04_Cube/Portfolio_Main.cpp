@@ -202,7 +202,6 @@ int main(int argc, char* args[])
 	GLuint distance = glGetUniformLocation(programID, "distance");
 	GLuint LightPos = glGetUniformLocation(programID, "LightPos");
 
-
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
 
