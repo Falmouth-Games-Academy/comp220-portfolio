@@ -180,11 +180,15 @@ int main(int argc, char* args[])
 	Mesh mountainMesh;
 	Terrain terrain;
 
-	//////// Generate the terrain ///////////////
+	/////// Generate the terrain ///////////////
+	terrain.generateTerrain(grassMesh);
+	grassMesh.createBuffers();
+	mountainMesh.createBuffers();
+	/*
 	terrain.generateChunk(grassMesh, mountainMesh);
 	grassMesh.createBuffers();
 	mountainMesh.createBuffers();
-
+	*/
 	
 	// Variables to be used in the shader
 	GLuint programID = loadShaders("vertex.glsl", "fragment.glsl");
@@ -206,7 +210,7 @@ int main(int argc, char* args[])
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	glEnable(GL_LIGHTING);
-	glEnable(GL_CULL_FACE);
+	//glEnable(GL_CULL_FACE);
 
 	glm::vec4 playerPosition(50, 50, 50, 1);
 	float playerPitch = 0;
