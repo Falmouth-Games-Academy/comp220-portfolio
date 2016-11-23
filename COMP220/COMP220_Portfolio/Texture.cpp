@@ -4,9 +4,9 @@
 
 Texture::Texture(const std::string& fileName)
 {
-	texture = loadTexture(fileName);
+	textureId = loadTexture(fileName);
 	
-	if (texture == 0)
+	if (textureId == 0)
 	{
 		errorSystem.showErrorMessage("loadTexture failed", "Error");
 	}
