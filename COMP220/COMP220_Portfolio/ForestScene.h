@@ -5,6 +5,7 @@
 #include"OBJLoader.h"
 #include"ParticleEffectManager.h"
 #include"Shader.h"
+#include"Floor.h"
 
 class ForestScene
 {
@@ -18,6 +19,8 @@ public:
 
 	ErrorMessage errorSystem;
 	Shader shaders;
+	OBJLoader treeModel;
+	void loadModel();
 
 private:
 	SDL_Window* window;

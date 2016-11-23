@@ -12,6 +12,8 @@ public:
 
 	//! Creates a triangle
 	void addTriangle(Vertex v1, Vertex v2, Vertex v3);
+	void addTriangle(Vertex v1, Vertex v2, Vertex v3, const glm::vec3& colour);
+	void addSquare(Vertex v1, Vertex v2, Vertex v3, Vertex v4, const glm::vec3& colour);
 	//! Creates a sphere
 	void addSphere(float radius, int quality, const glm::vec3& colour);
 	void addVertex(const Vertex& vertex);

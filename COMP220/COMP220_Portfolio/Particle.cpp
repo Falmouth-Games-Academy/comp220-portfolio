@@ -2,9 +2,10 @@
 #include "Particle.h"
 
 
-Particle::Particle(const glm::vec3& initialPosition, const glm::vec3& initialVelocity)
-	: position(initialPosition), velocity(initialVelocity)
+Particle::Particle(const glm::vec3& initialPosition, const glm::vec3& initialVelocity, Floor* levelFloor)
+	: position(initialPosition), velocity(initialVelocity), floor(levelFloor)
 {
+	texture.loadTexture("Textures/leaf.png");
 }
 
 
@@ -12,16 +13,19 @@ Particle::~Particle()
 {
 }
 
+void Particle::addMesh()
+{
+
+}
 
 void Particle::tick(float deltaTime)
 {
-	// Update position
 	position += deltaTime * velocity;
 
 	// Apply collision response
-	if (position.y - 1.0f < 0 && velocity.y < 0) // I'm lazy :(
+	if (position.y - size < floor->getY() && velocity.y < 0)
 	{
-		velocity.y *= -1.0f;
+		velocity.y *= -0.7f;
 	}
 
 	// Apply gravity

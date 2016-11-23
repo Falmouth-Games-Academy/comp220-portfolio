@@ -42,26 +42,36 @@ ForestScene::~ForestScene()
 }
 
 
-
-void ForestScene::run()
+void ForestScene::loadModel()
 {
-	GLuint VertexArrayID;
-	glGenVertexArrays(1, &VertexArrayID);
-	glBindVertexArray(VertexArrayID);
-	
-	OBJLoader treeModel;
 	bool tree = treeModel.loadOBJ("tree.obj", glm::vec3(1.0, 1.0, 1.0));
 	if (!tree)
 		errorSystem.showErrorMessage("Model loading failed.", "Error");
 
-	treeModel.loadTextures("tree_trunk.png");
-	treeModel.loadTextures("leaf.png");
+	treeModel.loadTextures("Textures/tree_trunk.png");
+	treeModel.loadTextures("Textures/leaf.png");
 
 	for (int i = 0; i < treeModel.modelMeshes.size(); i++)
 	{
 		treeModel.modelMeshes[i].createBuffers();
 	}
 	treeModel.checkTextures();
+	treeModel.position = glm::vec3(0, -1, 0);
+}
+
+void ForestScene::run()
+{
+	GLuint VertexArrayID;
+	glGenVertexArrays(1, &VertexArrayID);
+	glBindVertexArray(VertexArrayID);
+	Floor floor(-1, 10, "Textures/mud.png");
+	
+	loadModel();
+	
+	Particle particle(glm::vec3(0,5,0), glm::vec3(0, 0, 0), &floor);
+	particle.particleMesh.addSphere(particle.size , 4, glm::vec3(0.0, 1.0, 1.0));
+	particle.particleMesh.createBuffers();
+	particle.texture;
 
 	GLuint programID = shaders.loadShaders("vertex.glsl", "fragment.glsl");
 
@@ -85,6 +95,7 @@ void ForestScene::run()
 
 	SDL_SetRelativeMouseMode(SDL_TRUE);
 	SDL_GetRelativeMouseState(nullptr, nullptr);
+	Uint32 lastFrameTime = SDL_GetTicks();
 
 	bool running = true;
 	while (running)
@@ -124,10 +135,6 @@ void ForestScene::run()
 		playerRotation = glm::rotate(playerRotation, playerPitch, glm::vec3(1, 0, 0));
 		playerLook = playerRotation * playerLook;
 
-		/*glm::vec4 playerForward(0, 0, -1, 0);
-		glm::mat4 playerForwardRotation;
-		playerForwardRotation = glm::rotate(playerForwardRotation, playerYaw, glm::vec3(0, 1, 0));
-		playerForward = playerForwardRotation * playerForward;*/
 		glm::vec4 playerForward = playerLook;
 
 		const Uint8* keyboardState = SDL_GetKeyboardState(nullptr);
@@ -154,6 +161,13 @@ void ForestScene::run()
 			playerPosition += playerRight * movementMultipler;
 		}
 
+		// Calculate delta time
+		Uint32 currentTime = SDL_GetTicks();
+		float deltaTime = (currentTime - lastFrameTime) / 1000.0f;
+		lastFrameTime = currentTime;
+
+		particle.tick(deltaTime);
+
 		glClearColor(0.9f, 0.9f, 0.9f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -163,12 +177,29 @@ void ForestScene::run()
 		glm::mat4 projection = glm::perspective(glm::radians(45.0f), 1.0f, 0.1f, 100.0f);
 
 		glm::mat4 transform;
-		//transform = glm::rotate(transform, SDL_GetTicks() / 1000.0f, glm::vec3(0, 1, 0));
+		glUniform3f(lightDirectionLocation, 1, 1, 1);
+
+		transform = glm::translate(transform, particle.position);
 		glm::mat4 mvp = projection * view * transform;
 		glUniformMatrix4fv(mvpLocation, 1, GL_FALSE, glm::value_ptr(mvp));
+		
+		particle.texture.bindTexture();
+		particle.particleMesh.draw();
 
-		glUniform3f(lightDirectionLocation, 1, 1, 1);
+		transform = glm::mat4();
+		mvp = projection * view * transform;
+		glUniformMatrix4fv(mvpLocation, 1, GL_FALSE, glm::value_ptr(mvp));
+		
+		floor.texture.bindTexture();
+		floor.mesh.draw();
+
+		
 		glUniform3f(cameraSpaceLocation, playerPosition.x, playerPosition.y, playerPosition.z);
+		
+		transform = glm::translate(transform, treeModel.position);
+		transform = glm::scale(transform, glm::vec3(2, 2, 2));
+		mvp = projection * view * transform;
+		glUniformMatrix4fv(mvpLocation, 1, GL_FALSE, glm::value_ptr(mvp));
 
 		for (int i = 0; i < treeModel.modelTextures.size(); i++)
 		{

@@ -4,6 +4,7 @@ class Texture
 {
 public:
 	//! Constructor
+	Texture();
 	Texture(const std::string& fileName);
 	//! Destructor
 	~Texture();

@@ -26,7 +26,7 @@ public:
 	int currentMesh = 0;
 	std::vector<Mesh> modelMeshes;
 	std::vector<Texture> modelTextures;
-
+	glm::vec3 position;
 	void addtoVector();
 
 	unsigned int vertexIndex = 0, uvIndex = 0, normalIndex = 0;

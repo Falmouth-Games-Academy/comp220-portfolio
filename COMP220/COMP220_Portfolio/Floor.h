@@ -11,11 +11,11 @@ public:
 	Texture texture;
 	Mesh mesh;
 
-	int getFloorY() { return floorY; }
+	int getY() { return y; }
 	int getFloorSize() { return floorSize; }
 
 private:
-	const float floorY = -2;
+	const float y = -2;
 	const float floorSize = 10;
 };
 

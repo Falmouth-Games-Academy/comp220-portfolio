@@ -20,18 +20,40 @@ Mesh::~Mesh()
 		glDeleteBuffers(1, &m_normalBuffer);
 }
 
+void Mesh::addTriangle(Vertex v1, Vertex v2, Vertex v3, const glm::vec3& colour)
+{
+	glm::vec3 normal = glm::cross(v2.vertexPosition - v1.vertexPosition, v3.vertexPosition - v1.vertexPosition);
+	normal = glm::normalize(normal);
+
+	Vertex vertices[] = { v1,v2,v3 };
+
+	for (int i = 0; i < 3; i++)
+	{
+		vertices[i].vertexNormal = normal;
+		vertices[i].vertexColour = colour;
+		addVertex(vertices[i]);
+	}
+}
+
 void Mesh::addTriangle(Vertex v1, Vertex v2, Vertex v3)
 {
 	glm::vec3 normal = glm::cross(v2.vertexPosition - v1.vertexPosition, v3.vertexPosition - v1.vertexPosition);
 	normal = glm::normalize(normal);
 
-	v1.vertexNormal = normal;
-	v2.vertexNormal = normal;
-	v3.vertexNormal = normal;
+	Vertex vertices[] = { v1,v2,v3 };
 
-	addVertex(v1);
-	addVertex(v2);
-	addVertex(v3);
+	for (int i = 0; i < 3; i++)
+	{
+		vertices[i].vertexNormal = normal;
+		addVertex(vertices[i]);
+	}
+
+}
+
+void Mesh::addSquare(Vertex v1, Vertex v2, Vertex v3, Vertex v4, const glm::vec3& colour)
+{
+	addTriangle(v1, v2, v3, colour);
+	addTriangle(v1, v3, v4, colour);
 }
 
 void Mesh::addVertex(const Vertex& vertex)
