@@ -38,7 +38,7 @@ void main()
 	float lightIntensity = diffuseIntensity + pow(cosAlpha, specularIntensity);
 
 	// Calculate Attenuation
-	float distance = length(lightPos - normal);
+	float distance = length(lightPos - n);
 	
 	fragmentColour = vec4(
 
@@ -47,9 +47,9 @@ void main()
 	MaterialAmbientColor + 
 
 	// Diffuse
-	colour * LightPower * LightColor * cosTheta / (distance / distance) + 
+	colour * LightPower * LightColor * cosTheta / (distance * distance) + 
 
 	// Specular
-	lightIntensity * ObjectColor * LightPower, 1.0);      // * texture(textureSampler, uv);
+	lightIntensity * ObjectColor * LightPower, 1.0) * texture(textureSampler, uv);
 	//fragmentColour = vec4(colour, 1.0);
 }

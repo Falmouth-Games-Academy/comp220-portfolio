@@ -13,9 +13,42 @@ Terrain::~Terrain()
 
 void Terrain::generateTerrain(Mesh& mesh)
 {
-	generateChunk(mesh);
+	//Create instance of class
+	PerlinNoise perlinNoise;
+	
+	// Used for third dimension of perlin noise
+	int seed = SDL_GetTicks();
+
+	// Generate perlin noise based off a seed
+	perlinNoise.GenerateNoise(10);
+
+
+	
+
+	for (float x = 0; x < chunkSize; x++)
+	{
+		for (float z = 0; z < chunkSize; z++)
+		{
+			float y = perlinNoise.noise((x / noiseAmplification), (z / noiseAmplification), 0);
+			y = (char)((y - noiseMin) * (255 / (noiseMax - noiseMin)));;
+			glm::vec3 pos(x, y, z);
+
+			VoxelPos.push_back(pos);
+
+		}
+	}
+	
+	for (int i = 0; i < VoxelPos.size() - 10; i++)
+	{
+			glm::vec3 a(VoxelPos[i].x, VoxelPos[i].y, VoxelPos[i].z);
+			glm::vec3 b(VoxelPos[i + 0.5 + 1].x, VoxelPos[i + 0.5 + 1].y, VoxelPos[i + 1].z);
+			glm::vec3 c(VoxelPos[i + 0.5 + 2].x, VoxelPos[i + 0.5 + 2].y, VoxelPos[i + 0.5 + 2].z);
+			glm::vec3 d(VoxelPos[i + 3].x, VoxelPos[i + 0.5 + 3].y, VoxelPos[i + 0.5 + 3].z);
+			mesh.addSquare(a, b, c, d, glm::vec3(10, 100, 30), 0, 0, 0, 0);
+	}
 }
-void Terrain::generateChunk(Mesh& mesh)
+
+void Terrain::generateChunk(Mesh& grassMesh, Mesh& mountainMesh)
 {
 	//Create instance of class
 	PerlinNoise perlinNoise;
@@ -25,7 +58,7 @@ void Terrain::generateChunk(Mesh& mesh)
 
 
 	// Used for third dimension of perlin noise
-	int seed = SDL_GetTicks() / 100;
+	int seed = SDL_GetTicks();
 
 	// Generate perlin noise based off a seed
 	perlinNoise.GenerateNoise(seed);
@@ -45,25 +78,28 @@ void Terrain::generateChunk(Mesh& mesh)
 
 			// Cube Colour
 			if (perlinResult > 0)
-				colour = glm::vec3(perlinResult / 100, perlinResult / 50, perlinResult / 700);
+				colour = glm::vec3(perlinResult / 100, perlinResult / 100, perlinResult / 100);
 			else
-				colour = glm::vec3(-perlinResult / 7, -perlinResult / 10, perlinResult / 70);
+				colour = glm::vec3(0.01, 0.02, 0.01);
 			
 			// Reduce the incline of the slope if it is below 0
-			if (perlinResult <= lastPerlinResult )
+			if (perlinResult <= snowPeakHeight)
 			{
-				glm::vec3 a(x - SquareSize, perlinResult * 0.1 + SquareSize, z + SquareSize);
-				glm::vec3 b(x + SquareSize, perlinResult * 0.1 + SquareSize, z + SquareSize);
-				glm::vec3 c(x + SquareSize, perlinResult * 0.1 + SquareSize, z - SquareSize);
-				glm::vec3 d(x - SquareSize, perlinResult * 0.1 + SquareSize, z - SquareSize);
-				glm::vec3 e(x - SquareSize, perlinResult * 0.1 - SquareSize, z + SquareSize);
-				glm::vec3 f(x - SquareSize, perlinResult * 0.1 - SquareSize, z - SquareSize);
-				glm::vec3 g(x + SquareSize, perlinResult * 0.1 - SquareSize, z - SquareSize);
-				glm::vec3 h(x + SquareSize, perlinResult * 0.1 - SquareSize , z + SquareSize);
+				// TODO: Remove the unnessary squares to form a mesh
+				glm::vec3 a(x - SquareSize, perlinResult * GoundAmplification + SquareSize, z + SquareSize);
+				glm::vec3 b(x + SquareSize, perlinResult * GoundAmplification + SquareSize, z + SquareSize);
+				glm::vec3 c(x + SquareSize, perlinResult * GoundAmplification + SquareSize, z - SquareSize);
+				glm::vec3 d(x - SquareSize, perlinResult * GoundAmplification + SquareSize, z - SquareSize);
+				glm::vec3 e(x - SquareSize, perlinResult * GoundAmplification - SquareSize, z + SquareSize);
+				glm::vec3 f(x - SquareSize, perlinResult * GoundAmplification - SquareSize, z - SquareSize);
+				glm::vec3 g(x + SquareSize, perlinResult * GoundAmplification - SquareSize, z - SquareSize);
+				glm::vec3 h(x + SquareSize, perlinResult * GoundAmplification - SquareSize, z + SquareSize);
 				
-				mesh.addCube(a, b, c, d, e, f, g, h, colour);
+				grassMesh.addCube(a, b, c, d, e, f, g, h, colour);
 			}
-			else if (perlinResult > lastPerlinResult)
+
+			// If the perlin noise is above the snow peak, render a differnet cube texture
+			else if (perlinResult >= snowPeakHeight)
 			{
 				glm::vec3 a(x - SquareSize, perlinResult + SquareSize, z + SquareSize);
 				glm::vec3 b(x + SquareSize, perlinResult + SquareSize, z + SquareSize);
@@ -74,10 +110,8 @@ void Terrain::generateChunk(Mesh& mesh)
 				glm::vec3 g(x + SquareSize, perlinResult - SquareSize, z - SquareSize);
 				glm::vec3 h(x + SquareSize, perlinResult - SquareSize, z + SquareSize);
 
-				mesh.addCube(a, b, c, d, e, f, g, h, colour);
+				mountainMesh.addCube(a, b, c, d, e, f, g, h, colour);
 			}
-
-			lastPerlinResult = perlinResult;
 		}
 	}
 }
