@@ -30,6 +30,12 @@ void Terrain::makeGrid()
 		}
 	}
 }
+
+float Terrain::getHeight(float x, float z)
+{
+	float height = Voxels[x][z].getvoxelPosition().y;
+	return height;
+}
 void Terrain::generateTerrain(Mesh& groundTexture, Mesh& snowTexture)
 {
 	// Generate perlin noise from seed

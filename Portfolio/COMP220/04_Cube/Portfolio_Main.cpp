@@ -189,7 +189,7 @@ int main(int argc, char* args[])
 	grassMesh.createBuffers();
 	mountainMesh.createBuffers();
 	*/
-	
+
 	// Variables to be used in the shader
 	GLuint programID = loadShaders("vertex.glsl", "fragment.glsl");
 	GLuint mvpLocation = glGetUniformLocation(programID, "mvp");
@@ -262,7 +262,7 @@ int main(int argc, char* args[])
 
 		glm::vec4 playerForward = playerLook;
 
-		
+
 		const Uint8* keyboardState = SDL_GetKeyboardState(nullptr);
 		if (keyboardState[SDL_SCANCODE_W])
 		{
@@ -305,8 +305,10 @@ int main(int argc, char* args[])
 				playerPosition += playerRight * 2.0f;
 			}
 		}
+		// Random variable that changes over time (for testing)
+		float varyingPower = sin(SDL_GetTicks() / 5000.0f);
 
-
+		// Set the background to sky blue
 		glClearColor(0.1f, 0.2f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glUseProgram(programID);
@@ -321,14 +323,13 @@ int main(int argc, char* args[])
 		glm::mat4 mvp = projection * view * transform;
 		glUniformMatrix4fv(mvpLocation, 1, GL_FALSE, glm::value_ptr(mvp));
 
+		// Set player height to the floor height
+		if (playerPosition.x > 0 && playerPosition.x < terrain.getTerrainWidth() && playerPosition.z > 0 && playerPosition.z < terrain.getTerrainDepth())
+			playerPosition.y = terrain.getHeight(playerPosition.x, playerPosition.z) + 2;
 
-
-		
 		////////////// Lighting Variables /////////////////
-		float varyingPower = sin(SDL_GetTicks() / 5000.0f);
-
 		// Changes specular value and light power
-		float specularIntensityVal = 1000.0f;
+		float specularIntensityVal = 10000.0f;
 		float lightPower = 0.75f;
 
 		// Changes the colour of the light
@@ -350,14 +351,14 @@ int main(int argc, char* args[])
 		glUniform1f(specularIntensity, specularIntensityVal);
 		glUniform3f(LightPos, lightPos.x, lightPos.y, lightPos.z);
 
-		
+
 		// Bind Textures
 		glBindTexture(GL_TEXTURE_2D, grassTexture);
 		grassMesh.draw();
 
 		glBindTexture(GL_TEXTURE_2D, mountainTexture);
 		mountainMesh.draw();
-;
+		;
 		SDL_GL_SwapWindow(window);
 	}
 
