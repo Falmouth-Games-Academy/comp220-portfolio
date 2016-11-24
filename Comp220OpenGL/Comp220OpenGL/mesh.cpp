@@ -1,5 +1,6 @@
 #include "mesh.h"
 #include "objLoader.h"
+#include"vertex.h"
 #include <vector>
 
 //Sends data to the GPU.
@@ -60,7 +61,10 @@ void Mesh::InitMesh(const IndexedModel& model)
 	glBufferData(GL_ARRAY_BUFFER, model.normals.size() * sizeof(model.normals[0]), &model.normals[0], GL_STATIC_DRAW);
 
 	glEnableVertexAttribArray(2);//tells opengl theres going to be an atrtib
+	glEnableVertexAttribArray(3);
+
 	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 0, 0);
+	glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex),(GLvoid*)(sizeof(Vector3f) + sizeof(Vector2f)+ sizeof(Vector3f)));
 
 	//element array is an array that referecers an array in another array
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_vertexArrayBuffers[INDEX_VB]);
@@ -83,7 +87,7 @@ void Mesh::Draw()
 	glMaterialfv(GL_FRONT, GL_SPECULAR, qaWhite);
 	glMaterialf(GL_FRONT, GL_SHININESS, 60.0);**/
 
-	//glDrawArrays(GL_TRIANGLES, 0, m_drawCount);
+	glDrawArrays(GL_TRIANGLES, 0, m_drawCount);
 	glDrawElements(GL_TRIANGLES, m_drawCount, GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);
 }

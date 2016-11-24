@@ -25,6 +25,7 @@ int main(int arc, char ** argv)
 							Vertex(glm::vec3(0.0, 0.5, 0.0)	,glm::vec2(0.5,-1.0)),
 							Vertex(glm::vec3(0.5,-0.5, 0.0)	,glm::vec2(1.0,0.0)),
 						};
+
 	unsigned int indices[] = { 0,1,2 };
 
 	Mesh mesh(vertices, sizeof(vertices) / sizeof(vertices[0]),indices, sizeof(indices)/ sizeof(indices)[0]);
@@ -36,7 +37,7 @@ int main(int arc, char ** argv)
 
 	float counter = 0.0f;
 	glm::vec3 eyePosition(0, 0, 10);
-
+	
 	while(!display.IsClosed())
 	{
 		display.Clear(0.5f,0.15f, 0.5f, 1.0f);
@@ -65,9 +66,8 @@ int main(int arc, char ** argv)
 		mesh2.Draw();
 		
 		
-		
 		display.Update();
-
+		
 
 		counter += 0.001;
 
