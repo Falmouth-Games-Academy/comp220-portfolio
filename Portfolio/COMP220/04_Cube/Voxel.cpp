@@ -25,6 +25,7 @@ void Voxel::placeVoxel(Mesh& meshTexture, Mesh& snowTexture, glm::vec3 voxelPosi
 	// If the voxel height is below 0 then render ground texture cube
 	if (voxelPosition.y < 0)
 	{
+		float voxelSquared = voxelSize * voxelSize;
 		glm::vec3 a(voxelPosition.x - voxelSize, voxelPosition.y + voxelSize, voxelPosition.z + voxelSize);
 		glm::vec3 b(voxelPosition.x + voxelSize, voxelPosition.y + voxelSize, voxelPosition.z + voxelSize);
 		glm::vec3 c(voxelPosition.x + voxelSize, voxelPosition.y + voxelSize, voxelPosition.z - voxelSize);

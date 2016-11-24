@@ -53,14 +53,15 @@ void Terrain::generateTerrain(Mesh& groundTexture, Mesh& snowTexture)
 			// Calculate terrain height based of position
 			float terrainHeight = perlinNoise.noise((x / noiseAmplification), (z / noiseAmplification), 0);
 			terrainHeight = (char)((terrainHeight - noiseMin) * (255 / (noiseMax - noiseMin)));
-			glm::vec3 voxelPos(x + voxelSize, terrainHeight + voxelSize, z + voxelSize);
+			glm::vec3 voxelPos(x + voxelSize + voxelSize, terrainHeight + voxelSize + voxelSize, z + voxelSize + voxelSize);
 
 
-			// TODO: Calculate neighbouring voxels and remove unnessary triangles
+			/* TODO: Calculate neighbouring voxels and remove unnessary triangles
 			for each (auto voxel in getNeighbourVoxels(voxelPos, Voxels))
 			{
 				// Code to only place the right cube faces goes here
 			}
+			*/
 
 			// Place the voxel
 			Voxels[x][z].placeVoxel(groundTexture, snowTexture, voxelPos);
