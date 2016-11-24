@@ -51,5 +51,7 @@ void main()
 
 	// Specular
 	lightIntensity * ObjectColor * LightPower, 1.0) * texture(textureSampler, uv);
+
+	// Uncomment to change to solid colour
 	//fragmentColour = vec4(colour, 1.0);
 }
