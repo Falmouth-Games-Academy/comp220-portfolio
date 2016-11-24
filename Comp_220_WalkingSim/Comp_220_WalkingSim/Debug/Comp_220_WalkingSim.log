@@ -1,0 +1,5 @@
+﻿  Mesh.cpp
+d:\james\github\comp220-portfolio\comp_220_walkingsim\comp_220_walkingsim\mesh.cpp(105): warning C4018: '<': signed/unsigned mismatch
+d:\james\github\comp220-portfolio\comp_220_walkingsim\comp_220_walkingsim\mesh.cpp(192): warning C4715: 'Mesh::LoadObj': not all control paths return a value
+  Comp_220_WalkingSim.vcxproj -> D:\James\GitHub\comp220-portfolio\Comp_220_WalkingSim\Debug\Comp_220_WalkingSim.exe
+  Comp_220_WalkingSim.vcxproj -> D:\James\GitHub\comp220-portfolio\Comp_220_WalkingSim\Debug\Comp_220_WalkingSim.pdb (Full PDB)
