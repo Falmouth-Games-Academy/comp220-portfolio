@@ -38,6 +38,6 @@ public:
 	float GoundAmplification = 1.0f;
 
 	// Amplification(the lower the number the higher the amplification)
-	float noiseAmplification = 300.0;
+	float noiseAmplification = 180.0;
 };
 

@@ -314,7 +314,7 @@ int main(int argc, char* args[])
 		glm::mat4 view = glm::lookAt(glm::vec3(playerPosition), glm::vec3(playerPosition + playerLook), glm::vec3(0, 1, 0));
 
 		// Render Distance
-		glm::mat4 projection = glm::perspective(glm::radians(45.0f), 1.0f, 0.1f, 100.0f);
+		glm::mat4 projection = glm::perspective(glm::radians(45.0f), 1.0f, 0.1f, 1000.0f);
 
 		glm::mat4 transform;
 		//transform = glm::rotate(transform, glm::radians(-90.0f), glm::vec3(1, 0, 0)); 
@@ -329,7 +329,7 @@ int main(int argc, char* args[])
 
 		// Changes specular value and light power
 		float specularIntensityVal = 1000.0f;
-		float lightPower = 0.8f;
+		float lightPower = 0.75f;
 
 		// Changes the colour of the light
 		glm::vec3 lightColour(1, 1, 1);
@@ -339,10 +339,10 @@ int main(int argc, char* args[])
 		glm::vec3 objectColour(colour.r, colour.g, colour.b);
 
 		// The position of the light
-		glm::vec3 lightPos(100, -10, 1);
+		glm::vec3 lightPos(100, -5, 1);
 
 		// Passing in the values to the fragment shader
-		glUniform3f(lightDirectionLocation, 100, -10, 1);
+		glUniform3f(lightDirectionLocation, 100, -5, 1);
 		glUniform3f(eyeDirectionLocation, playerPosition.x, playerPosition.y, playerPosition.z);
 		glUniform1f(LightPower, lightPower);
 		glUniform3f(LightColor, lightColour.r, lightColour.g, lightColour.b);
