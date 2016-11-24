@@ -20,7 +20,7 @@ void Particle::addMesh()
 
 void Particle::tick(float deltaTime)
 {
-	position += deltaTime * velocity;
+	
 
 	// Apply collision response
 	if (position.y - size < floor->getY() && velocity.y < 0)
@@ -28,9 +28,11 @@ void Particle::tick(float deltaTime)
 		velocity.y *= -0.4f;
 	}
 
+	position += deltaTime * velocity;
 	// Apply gravity
 	glm::vec3 acceleration(0, -9.81f, 0);
 
 	// Update velocity
 	velocity += deltaTime * acceleration;
+
 }

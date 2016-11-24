@@ -197,6 +197,7 @@ void ForestScene::run()
 		floor.mesh.draw();
 				
 		// Render trees
+		transform = glm::mat4();
 		transform = glm::translate(transform, treeModel.position);
 		transform = glm::scale(transform, glm::vec3(4, 4, 4));
 		mvp = projection * view * transform;
