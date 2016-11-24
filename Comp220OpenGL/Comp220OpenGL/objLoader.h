@@ -1,4 +1,4 @@
-//Fork 65 BennyQBD / ModernOpenGLTutorial
+//Fork 65 BennyQBD // ModernOpenGLTutorial
 
 #ifndef OBJ_LOADER_H_INCLUDED
 #define OBJ_LOADER_H_INCLUDED

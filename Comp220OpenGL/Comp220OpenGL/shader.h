@@ -8,7 +8,7 @@
 class Shader
 {
 public:
-	Shader(const std::string& fileName);
+	Shader(const std::string& fileName);//loads shader from "file"
 	
 	void Bind();//set the gpu in a state so its using the shaders thats part of this parrticual class
 	void Update(const Transform& transform,const Camera& camera);//update all the uniforms in our array to some new set of values
@@ -25,6 +25,7 @@ private:
 	//will help in future when needing to add more uniforms.(numbers to help to our uniforms)
 	enum
 	{
+		//storing
 		TRANSFORM_U,
 
 
@@ -32,7 +33,7 @@ private:
 	};
 
 
-	GLuint m_program;//refers to the shader
+	GLuint m_program;				//refers to the shader
 	GLuint m_shaders[NUM_SHADER];
 	GLuint m_uniforms[NUM_UNIFORMS]; //GLuint is a handle
 

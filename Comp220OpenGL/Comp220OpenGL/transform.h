@@ -14,15 +14,15 @@ public:
 
 	inline glm::mat4 GetModel() const
 	{
-		glm::mat4 posMatrix = glm::translate(m_pos); //Generates a 4x4
-		glm::mat4 rotXMatrix = glm::rotate(m_rot.x, glm::vec3(1, 0, 0));
-		glm::mat4 rotYMatrix = glm::rotate(m_rot.y, glm::vec3(0, 1, 0));
-		glm::mat4 rotZMatrix = glm::rotate(m_rot.z, glm::vec3(0, 0, 1));
+		glm::mat4 positionMatrix = glm::translate(m_pos); //Generates a 4x4
+		glm::mat4 rotationXMatrix = glm::rotate(m_rot.x, glm::vec3(1, 0, 0));//roation of the X matrix
+		glm::mat4 rotationYMatrix = glm::rotate(m_rot.y, glm::vec3(0, 1, 0));//roation of the Y matrix
+		glm::mat4 rotationZMatrix = glm::rotate(m_rot.z, glm::vec3(0, 0, 1));//roation of the Z matrix
 		glm::mat4 scaleMatrix = glm::scale(m_scale);
 
-		glm::mat4 rotMatrix = rotZMatrix * rotYMatrix * rotXMatrix; //you have to do this backwards
+		glm::mat4 rotionMatrix = rotationZMatrix * rotationYMatrix * rotationXMatrix; //you have to do this backwards
 
-		return posMatrix * rotMatrix * scaleMatrix;					//you have to do this backwards(will affect differently otherwise)
+		return positionMatrix * rotionMatrix * scaleMatrix;					//you have to do this backwards(will affect differently otherwise)
 	}
 
 

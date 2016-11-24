@@ -3,7 +3,7 @@
 
 #include <SDL2/SDL.h>
 #include <string>
-
+//display class
 class Display
 {
 public:

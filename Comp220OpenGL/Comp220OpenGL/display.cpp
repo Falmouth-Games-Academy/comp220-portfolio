@@ -30,7 +30,7 @@ Display::Display(int width, int height, const std::string& title)
 		std::cerr << "Glew Initialize fail" << std::endl;	//Error report if Glew fails to initialize
 	}
 
-	m_isClosed = false;
+	m_isClosed = false; //set boolean of is closed to false 
 
 	/*the z buffer, at ever pixel your going to store how far way it is from cammera,
 	and what it does when it draws it compares with any close and if it sitn there then draw it*/
@@ -59,7 +59,7 @@ void Display::Clear(float r, float g, float b, float a) {
 
 	
 }
-//set an IsCLosed boolean.
+//returns an IsCLosed boolean.
 bool Display::IsClosed() {
 	return m_isClosed;
 }
@@ -73,7 +73,7 @@ void  Display::Update()
 	while(SDL_PollEvent(&e))
 	{
 		if (e.type == SDL_QUIT)
-			m_isClosed = true;
+			m_isClosed = true; //set is closed to true
 	}
 }
 void Display::light()

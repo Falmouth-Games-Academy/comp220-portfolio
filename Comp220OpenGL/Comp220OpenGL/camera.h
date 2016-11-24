@@ -3,11 +3,12 @@
 
 #include <glm/glm.hpp>
 #include <glm/gtx/transform.hpp>
-
+//this is the camera class to set up where the viewport will be for the user.
 class Camera
 {
 public:
-	Camera(const glm::vec3& pos, float fov, float aspect, float zNear, float zFar)// Z-near and far -closetest distance we can see and to furthest
+	// Z-near and far -closetest distance we can see and to furthest
+	Camera(const glm::vec3& pos, float fov, float aspect, float zNear, float zFar)
 	{
 		m_perspective = glm::perspective(fov, aspect, zNear, zFar);
 		m_position = pos;
@@ -15,7 +16,6 @@ public:
 		m_up = glm::vec3(0, 1, 0);	//harcoding this 
 	}
 	//set up giders for rotating with forward and up 
-
 
 	inline glm::mat4 GetViewProjection()const
 	{

@@ -60,6 +60,7 @@ void Shader::Update(const Transform& transform,const Camera& camera)
 
 static GLuint CreateShader(const std::string& text, GLenum shaderType)
 {
+	//check shader is working if not print fail.
 	GLuint shader = glCreateShader(shaderType);
 	if (shader == 0) {
 		std::cerr << "Shader creation Fail" << std::endl;
@@ -91,6 +92,7 @@ static std::string LoadShader(const std::string& fileName) //Loads a file off th
 			output.append(line + "\n");
 		}
 	}
+	//if doesnt work print unable to load "filename"
 	else {
 		std::cerr << "unable to load shader: " << fileName << std::endl;
 	}
@@ -98,7 +100,7 @@ static std::string LoadShader(const std::string& fileName) //Loads a file off th
 
 
 }
-
+//check the shaders to see if they work if not print the error info log
 static void CheckShaderError(GLuint shader, GLuint flag, bool isProgram, const std::string& errorMessage)//checks for shader errors
 {
 	GLint success = 0;

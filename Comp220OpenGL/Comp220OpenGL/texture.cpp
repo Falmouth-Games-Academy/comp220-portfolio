@@ -7,7 +7,7 @@ Texture::Texture(const std::string& fileName)
 	
 	int width, height, numComponents;
 	unsigned char* imageData = stbi_load(fileName.c_str(), &width, &height, &numComponents, 4);		//load texture data
-
+	//if texture doesnt load print error message.
 	if (imageData == NULL)
 	{
 		std::cerr << "Texture loading fail texture (Texture.cpp) " << fileName << std::endl;

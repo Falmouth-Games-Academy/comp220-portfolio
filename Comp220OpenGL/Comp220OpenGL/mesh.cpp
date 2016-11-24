@@ -5,8 +5,8 @@
 //Sends data to the GPU.
 Mesh::Mesh(const std::string& fileName)
 {
-	IndexedModel model = OBJModel(fileName).ToIndexedModel();
-	InitMesh(model);
+	IndexedModel model = OBJModel(fileName).ToIndexedModel();	//sets the filename of obj to model
+	InitMesh(model);											//initializes mesh of model
 }
 Mesh::Mesh(Vertex* vertices, unsigned int numVertices, unsigned int* indices, unsigned int numIndices)
 {
@@ -74,7 +74,7 @@ void Mesh::Draw()
 {
 	glBindVertexArray(m_vertexArrayObject);
 
-	/** Set material properties - attempting different lightng
+	/* Set material properties - attempting different lightng
 	GLfloat qaBlack[] = { 0.0, 0.0, 0.0, 1.0 };
 	GLfloat qaGreen[] = { 0.0, 1.0, 0.0, 1.0 };
 	GLfloat qaWhite[] = { 1.0, 1.0, 1.0, 1.0 };

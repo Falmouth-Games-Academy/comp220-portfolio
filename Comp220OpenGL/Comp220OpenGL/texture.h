@@ -7,7 +7,7 @@ class Texture
 {
 
 public:
-	Texture(const std::string& fileName);
+	Texture(const std::string& fileName);//loads texture from "file"
 
 	void Bind(unsigned int unit); //Unsigned because you can bind multiple textures at once(31)
 
