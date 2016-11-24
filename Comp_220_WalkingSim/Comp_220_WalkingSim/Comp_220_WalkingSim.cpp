@@ -5,11 +5,6 @@
 #include "Comp_220_WalkingSim.h"
 #include "Mesh.h"
 
-// NOTE: this code is intended to illustrate usage of OpenGL.
-// It is NOT intended to illustrate good coding style or naming conventions!
-// Code has been copied and pasted from tutorials which use different conventions.
-// In your own projects, make sure you rename identifiers to follow a consistent style.
-
 void showErrorMessage(const char* message, const char* title)
 {
 	// Note: this is specific to Windows, and would need redefining to work on Mac or Linux
@@ -163,9 +158,9 @@ int main(int argc, char* args[])
 		return 1;
 	}
 
-	GLuint diceTexture = loadTexture("dice_texture_2.png");
+	GLuint Texture = loadTexture("Bouldershader_BaseColor.png");
 
-	if (diceTexture == 0)
+	if (Texture == 0)
 	{
 		showErrorMessage("loadTexture failed", ":(");
 		return 1;
@@ -176,28 +171,18 @@ int main(int argc, char* args[])
 	glBindVertexArray(VertexArrayID);
 
 	Mesh mesh;
-	glm::vec3 a(-1, +1, +1);
-	glm::vec3 b(+1, +1, +1);
-	glm::vec3 c(+1, +1, -1);
-	glm::vec3 d(-1, +1, -1);
-	glm::vec3 e(-1, -1, +1);
-	glm::vec3 f(-1, -1, -1);
-	glm::vec3 g(+1, -1, -1);
-	glm::vec3 h(+1, -1, +1);
 
-	/*mesh.addSquare(a, b, c, d, glm::vec3(1, 0, 0), 0.25f, 0.5f, 0.0f, 0.25f);
-	mesh.addSquare(b, h, g, c, glm::vec3(1, 1, 0), 0.5f, 0.75f, 0.25f, 0.5f);
-	mesh.addSquare(a, e, h, b, glm::vec3(0, 1, 0), 0.25f, 0.5f, 0.25f, 0.5f);
-	mesh.addSquare(d, f, e, a, glm::vec3(0, 0, 1), 0.75f, 1.0f, 0.25f, 0.5f);
-	mesh.addSquare(e, f, g, h, glm::vec3(1, 0.5f, 0), 0.0f, 0.25f, 0.25f, 0.5f);
-	mesh.addSquare(d, c, g, f, glm::vec3(1, 0, 1), 0.25f, 0.5f, 0.5f, 0.75f);*/
+	mesh.addSphere(1, 80, glm::vec4(1, 1, 1, 1));
 
-	mesh.addCircle(glm::vec3(0, -2, 0), 1, 500, glm::vec3(1, 1, 0));
 	mesh.createBuffers();
+
+	//mesh.LoadObj();
 
 	GLuint programID = loadShaders("vertex.glsl", "fragment.glsl");
 
 	GLuint mvpLocation = glGetUniformLocation(programID, "mvp");
+
+	GLuint lightDirectionLocation = glGetUniformLocation(programID, "lightDirection");
 
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
@@ -205,7 +190,7 @@ int main(int argc, char* args[])
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	//glEnable(GL_CULL_FACE);
+	glEnable(GL_CULL_FACE);
 
 	glm::vec4 playerPosition(0, 0, 5, 1);
 	float playerPitch = 0;
@@ -261,11 +246,11 @@ int main(int argc, char* args[])
 		const Uint8* keyboardState = SDL_GetKeyboardState(nullptr);
 		if (keyboardState[SDL_SCANCODE_W])
 		{
-			playerPosition += playerForward * 0.001f;
+			playerPosition += playerForward * 0.1f;
 		}
 		if (keyboardState[SDL_SCANCODE_S])
 		{
-			playerPosition -= playerForward * 0.001f;
+			playerPosition -= playerForward * 0.1f;
 		}
 
 		glm::vec4 playerRight(0, 0, -1, 0);
@@ -275,14 +260,14 @@ int main(int argc, char* args[])
 
 		if (keyboardState[SDL_SCANCODE_A])
 		{
-			playerPosition -= playerRight * 0.001f;
+			playerPosition -= playerRight * 0.1f;
 		}
 		if (keyboardState[SDL_SCANCODE_D])
 		{
-			playerPosition += playerRight * 0.001f;
+			playerPosition += playerRight * 0.1f;
 		}
 
-		glClearColor(0.0f, 0.5f, 1.0f, 1.0f);
+		glClearColor(0.0f, 0.0f, 0.2f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		glUseProgram(programID);
@@ -294,6 +279,9 @@ int main(int argc, char* args[])
 		//transform = glm::rotate(transform, SDL_GetTicks() / 1000.0f, glm::vec3(0, 1, 0));
 		glm::mat4 mvp = projection * view * transform;
 		glUniformMatrix4fv(mvpLocation, 1, GL_FALSE, glm::value_ptr(mvp));
+
+		//Adding Lighting
+		glUniform3f(lightDirectionLocation, 1, 1, 1);
 
 		mesh.draw();
 

@@ -1,13 +1,5 @@
-﻿  ObjLoader.cpp
-c:\users\james\documents\github\comp220-portfolio\comp_220_walkingsim\comp_220_walkingsim\objloader.cpp(30): error C4996: 'fopen': This function or variable may be unsafe. Consider using fopen_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
-  c:\program files (x86)\windows kits\10\include\10.0.10240.0\ucrt\stdio.h(205): note: see declaration of 'fopen'
-c:\users\james\documents\github\comp220-portfolio\comp_220_walkingsim\comp_220_walkingsim\objloader.cpp(41): error C4996: 'fscanf': This function or variable may be unsafe. Consider using fscanf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
-  c:\program files (x86)\windows kits\10\include\10.0.10240.0\ucrt\stdio.h(1193): note: see declaration of 'fscanf'
-c:\users\james\documents\github\comp220-portfolio\comp_220_walkingsim\comp_220_walkingsim\objloader.cpp(50): error C4996: 'fscanf': This function or variable may be unsafe. Consider using fscanf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
-  c:\program files (x86)\windows kits\10\include\10.0.10240.0\ucrt\stdio.h(1193): note: see declaration of 'fscanf'
-c:\users\james\documents\github\comp220-portfolio\comp_220_walkingsim\comp_220_walkingsim\objloader.cpp(56): error C4996: 'fscanf': This function or variable may be unsafe. Consider using fscanf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
-  c:\program files (x86)\windows kits\10\include\10.0.10240.0\ucrt\stdio.h(1193): note: see declaration of 'fscanf'
-c:\users\james\documents\github\comp220-portfolio\comp_220_walkingsim\comp_220_walkingsim\objloader.cpp(62): error C4996: 'fscanf': This function or variable may be unsafe. Consider using fscanf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
-  c:\program files (x86)\windows kits\10\include\10.0.10240.0\ucrt\stdio.h(1193): note: see declaration of 'fscanf'
-c:\users\james\documents\github\comp220-portfolio\comp_220_walkingsim\comp_220_walkingsim\objloader.cpp(69): error C4996: 'fscanf': This function or variable may be unsafe. Consider using fscanf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
-  c:\program files (x86)\windows kits\10\include\10.0.10240.0\ucrt\stdio.h(1193): note: see declaration of 'fscanf'
+﻿  Mesh.cpp
+d:\james\github\comp220-portfolio\comp_220_walkingsim\comp_220_walkingsim\mesh.cpp(105): warning C4018: '<': signed/unsigned mismatch
+d:\james\github\comp220-portfolio\comp_220_walkingsim\comp_220_walkingsim\mesh.cpp(192): warning C4715: 'Mesh::LoadObj': not all control paths return a value
+  Comp_220_WalkingSim.vcxproj -> D:\James\GitHub\comp220-portfolio\Comp_220_WalkingSim\Debug\Comp_220_WalkingSim.exe
+  Comp_220_WalkingSim.vcxproj -> D:\James\GitHub\comp220-portfolio\Comp_220_WalkingSim\Debug\Comp_220_WalkingSim.pdb (Full PDB)
