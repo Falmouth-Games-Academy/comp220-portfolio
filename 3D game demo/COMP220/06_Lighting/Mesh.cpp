@@ -1,14 +1,14 @@
 #include "stdafx.h"
-#include "Mesh.h"
+#include "mesh.h"
 
-Mesh::Mesh()
+mesh::mesh()
 {
 }
 
-Mesh::~Mesh()
+mesh::~mesh()
 {
-	if (m_positionBuffer != 0)
-		glDeleteBuffers(1, &m_positionBuffer);
+	if (m_posBuffer != 0)
+		glDeleteBuffers(1, &m_posBuffer);
 
 	if (m_colourBuffer != 0)
 		glDeleteBuffers(1, &m_colourBuffer);
@@ -20,7 +20,7 @@ Mesh::~Mesh()
 		glDeleteBuffers(1, &m_normalBuffer);
 }
 
-void Mesh::addTriangle(Vertex v1, Vertex v2, Vertex v3)
+void mesh::triangle(Vertex v1, Vertex v2, Vertex v3)
 {
 	glm::vec3 normal = glm::cross(v2.m_position - v1.m_position, v3.m_position - v1.m_position);
 	normal = glm::normalize(normal);
@@ -29,14 +29,32 @@ void Mesh::addTriangle(Vertex v1, Vertex v2, Vertex v3)
 	v2.m_normal = normal;
 	v3.m_normal = normal;
 
-	addVertex(v1);
-	addVertex(v2);
-	addVertex(v3);
+	vertex(v1);
+	vertex(v2);
+	vertex(v3);
 }
 
-void Mesh::addVertex(const Vertex& vertex)
+void mesh::nonWall()
 {
-	if (m_positionBuffer != 0)
+	int nonWall = 0;
+}
+
+void mesh::wall(const glm::vec3& a, const glm::vec3& b,
+	const glm::vec3& c, const glm::vec3& d, const glm::vec3& colour,
+	float u1, float u2, float v1, float v2)
+{
+	glm::vec2 ta(u1, v1);
+	glm::vec2 tb(u1, v2);
+	glm::vec2 tc(u2, v2);
+	glm::vec2 td(u2, v1);
+
+	triangle(a, b, d);
+	triangle(d, b, c);
+}
+
+void mesh::vertex(const Vertex& vertex)
+{
+	if (m_posBuffer != 0)
 	{
 		throw std::exception("Cannot add vertices after createBuffers() has been called");
 	}
@@ -47,78 +65,17 @@ void Mesh::addVertex(const Vertex& vertex)
 	m_vertexNormals.push_back(vertex.m_normal);
 }
 
-Vertex Mesh::createSphereVertex(float radius, float longitude, float latitude, const glm::vec3& colour)
+
+void mesh::createBuffers()
 {
-	glm::vec3 unitPos(
-		cos(latitude) * cos(longitude),
-		sin(latitude),
-		cos(latitude) * sin(longitude));
-
-	glm::vec2 textureCoords(
-		-longitude / glm::radians(360.0f),
-		latitude / glm::radians(180.0f) + 0.5f);
-
-	return Vertex(radius * unitPos,
-		colour,
-		textureCoords);
-}
-
-void Mesh::addSphere(float radius, int quality, const glm::vec3& colour)
-{
-	float angleStep = glm::radians(90.0f) / quality;
-
-	std::vector<Vertex> lastRingPoints, ringPoints;
-	
-	// Top cap
-	float latitude = angleStep * (quality - 1);
-	for (int i = 0; i <= quality * 4; i++)
-	{
-		float longitude = i * angleStep;
-		ringPoints.push_back(createSphereVertex(radius, longitude, latitude, colour));
-		if (ringPoints.size() > 1)
-		{
-			Vertex pole = createSphereVertex(radius, longitude - 0.5f*angleStep, glm::radians(90.0f), colour);
-			addTriangle(pole, ringPoints[i], ringPoints[i - 1]);
-		}
-	}
-
-	// Rings
-	for (int j = quality - 2; j > -quality; j--)
-	{
-		lastRingPoints.clear();
-		std::swap(lastRingPoints, ringPoints);
-
-		float latitude = angleStep * j;
-		for (int i = 0; i <= quality * 4; i++)
-		{
-			float longitude = i * angleStep;
-			ringPoints.push_back(createSphereVertex(radius, longitude, latitude, colour));
-			if (ringPoints.size() > 1)
-			{
-				addTriangle(lastRingPoints[i], ringPoints[i], ringPoints[i - 1]);
-				addTriangle(lastRingPoints[i - 1], lastRingPoints[i], ringPoints[i - 1]);
-			}
-		}
-	}
-
-	// Bottom cap
-	for (int i = 1; i < ringPoints.size(); i++)
-	{
-		Vertex pole = createSphereVertex(radius, (i - 0.5f)*angleStep, glm::radians(-90.0f), colour);
-		addTriangle(pole, ringPoints[i - 1], ringPoints[i]);
-	}
-}
-
-void Mesh::createBuffers()
-{
-	if (m_positionBuffer != 0)
+	if (m_posBuffer != 0)
 	{
 		throw std::exception("createBuffers() has already been called");
 	}
 
 	// Create and fill the position buffer
-	glGenBuffers(1, &m_positionBuffer);
-	glBindBuffer(GL_ARRAY_BUFFER, m_positionBuffer);
+	glGenBuffers(1, &m_posBuffer);
+	glBindBuffer(GL_ARRAY_BUFFER, m_posBuffer);
 	glBufferData(GL_ARRAY_BUFFER, m_vertexPositions.size() * sizeof(glm::vec3), m_vertexPositions.data(), GL_STATIC_DRAW);
 
 	// Create and fill the colour buffer
@@ -137,16 +94,16 @@ void Mesh::createBuffers()
 	glBufferData(GL_ARRAY_BUFFER, m_vertexNormals.size() * sizeof(glm::vec3), m_vertexNormals.data(), GL_STATIC_DRAW);
 }
 
-void Mesh::draw()
+void mesh::draw()
 {
-	if (m_positionBuffer == 0)
+	if (m_posBuffer == 0)
 	{
 		throw std::exception("createBuffers() must be called before draw()");
 	}
 
 	// Bind the position buffer to vertex attribute 0
 	glEnableVertexAttribArray(0);
-	glBindBuffer(GL_ARRAY_BUFFER, m_positionBuffer);
+	glBindBuffer(GL_ARRAY_BUFFER, m_posBuffer);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
 
 	// Bind the colour buffer to vertex attribute 1

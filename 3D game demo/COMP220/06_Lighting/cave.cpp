@@ -3,15 +3,13 @@
 #include "Mesh.h"
 
 
-void showErrorMessage(const char* message, const char* title)
+void showError(const char* message, const char* title)
 {
-	// Note: this is specific to Windows, and would need redefining to work on Mac or Linux
 	MessageBoxA(nullptr, message, title, MB_OK | MB_ICONERROR);
 }
 
 bool compileShader(GLuint shaderId, const std::string& shaderFileName)
 {
-	// Read the source code from the file
 	std::string shaderSource;
 	std::ifstream sourceStream(shaderFileName, std::ios::in);
 	if (sourceStream.is_open())
@@ -23,26 +21,23 @@ bool compileShader(GLuint shaderId, const std::string& shaderFileName)
 	}
 	else
 	{
-		showErrorMessage(shaderFileName.c_str(), "File not found");
+		showError(shaderFileName.c_str(), "File not found");
 		return false;
 	}
 
-	// Compile the shader
 	const char* sourcePointer = shaderSource.c_str();
 	glShaderSource(shaderId, 1, &sourcePointer, NULL);
 	glCompileShader(shaderId);
 
-	// Check the results of compilation
 	GLint result = GL_FALSE;
 	int infoLogLength = 0;
 	glGetShaderiv(shaderId, GL_COMPILE_STATUS, &result);
 	glGetShaderiv(shaderId, GL_INFO_LOG_LENGTH, &infoLogLength);
 	if (infoLogLength > 1)
 	{
-		// Display the compilation log
 		std::vector<char> errorMessage(infoLogLength + 1);
 		glGetShaderInfoLog(shaderId, infoLogLength, NULL, errorMessage.data());
-		showErrorMessage(errorMessage.data(), shaderFileName.c_str());
+		showError(errorMessage.data(), shaderFileName.c_str());
 	}
 
 	return (result != GL_FALSE);
@@ -50,20 +45,17 @@ bool compileShader(GLuint shaderId, const std::string& shaderFileName)
 
 GLuint loadShaders(const std::string& vertex_file_path, const std::string& fragment_file_path) {
 
-	// Create the shaders
 	GLuint vertexShaderId = glCreateShader(GL_VERTEX_SHADER);
 	compileShader(vertexShaderId, vertex_file_path);
 
 	GLuint fragmentShaderId = glCreateShader(GL_FRAGMENT_SHADER);
 	compileShader(fragmentShaderId, fragment_file_path);
 
-	// Link the program
 	GLuint programId = glCreateProgram();
 	glAttachShader(programId, vertexShaderId);
 	glAttachShader(programId, fragmentShaderId);
 	glLinkProgram(programId);
 
-	// Check the program
 	GLint result = GL_FALSE;
 	int infoLogLength = 0;
 	glGetProgramiv(programId, GL_LINK_STATUS, &result);
@@ -71,7 +63,7 @@ GLuint loadShaders(const std::string& vertex_file_path, const std::string& fragm
 	if (infoLogLength > 1) {
 		std::vector<char> errorMessage(infoLogLength + 1);
 		glGetProgramInfoLog(programId, infoLogLength, NULL, errorMessage.data());
-		showErrorMessage(errorMessage.data(), "glLinkProgram error");
+		showError(errorMessage.data(), "glLinkProgram error");
 	}
 
 	glDetachShader(programId, vertexShaderId);
@@ -83,13 +75,22 @@ GLuint loadShaders(const std::string& vertex_file_path, const std::string& fragm
 	return programId;
 }
 
-GLuint loadTexture(const std::string& fileName)
+/*Lighting for the demo*/
+int light()
 {
-	SDL_Surface* textureSurface = IMG_Load(fileName.c_str());
+	GLuint programID = loadShaders("vertex.glsl", "fragment.glsl");
+	GLuint lighting = glGetUniformLocation(programID, "lightDirection");
+	glUniform3f(lighting, 1, 1, 1);
+}
 
-	if (textureSurface == nullptr)
+/*Loading textures to texture the walls*/
+GLuint getTexture(const std::string& fileName)
+{
+	SDL_Surface* textureImage = IMG_Load(fileName.c_str());
+
+	if (textureImage == nullptr)
 	{
-		showErrorMessage(SDL_GetError(), "IMG_Load failed");
+		showError(SDL_GetError(), "IMG_Load failed");
 		return 0;
 	}
 
@@ -97,35 +98,71 @@ GLuint loadTexture(const std::string& fileName)
 	glGenTextures(1, &textureId);
 	glBindTexture(GL_TEXTURE_2D, textureId);
 
-	int format;
-	if (textureSurface->format->BytesPerPixel == 3)
+	int form;
+	if (textureImage->form->BytesPerPixel == 3)
 	{
-		format = GL_RGB;
+		form = GL_RGB;
 	}
-	else if (textureSurface->format->BytesPerPixel == 4)
+	else if (textureImage->form->BytesPerPixel == 4)
 	{
-		format = GL_RGBA;
+		form = GL_RGBA;
 	}
 	else
 	{
-		showErrorMessage("Invalid pixel format", ":(");
+		showError("Invalid pixel form", ":(");
 		return 0;
 	}
 
-	glTexImage2D(GL_TEXTURE_2D, 0, format, textureSurface->w, textureSurface->h, 0, format, GL_UNSIGNED_BYTE, textureSurface->pixels);
+	glTexImage2D(GL_TEXTURE_2D, 0, form, textureImage->w, textureImage->h, 0, form, GL_UNSIGNED_BYTE, textureImage->pixels);
 
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-	SDL_FreeSurface(textureSurface);
+	SDL_FreeSurface(textureImage);
 	return textureId;
 }
 
+/*This is me using cellular automata to go through a grid and define is a cell is a wall if so it will load a mesh*/
+int caveGen(wall, nonWall)
+{
+	for (int x = 0; x < 10; x++)
+	{
+		x = 1 + (int)(10.0 * (rand() / (RAND_MAX + 1.0)));
+		if (x > 5)
+		{
+			mesh mesh;
+			mesh.wall(glm::vec3(0, 0, 0), glm::vec3(1, 0, 0), glm::vec3(1, 1, 0), glm::vec3(0, 1, 0), glm::vec3(1, 0, 0), 0, 0, 0, 0);
+			mesh.createBuffers();
+		}
+		else
+		{
+			int nonWall;
+		}
+
+		for (int y = 0; y < 10; y++) //creating a grid
+		{
+			y = 1 + (int)(10.0 * (rand() / (RAND_MAX + 1.0)));
+			if (y > 5)
+			{
+				mesh mesh;
+				mesh.wall(glm::vec3(0, 0, 0), glm::vec3(1, 0, 0), glm::vec3(1, 1, 0), glm::vec3(0, 1, 0), glm::vec3(1, 0, 0), 0, 0, 0, 0);
+				mesh.createBuffers();
+			}
+			else
+			{
+				int nonWall;
+			}
+
+		}
+	}
+}
+
+/*main function which currently still has played movement*/
 int main(int argc, char* args[])
 {
 	if (SDL_Init(SDL_INIT_VIDEO) < 0)
 	{
-		showErrorMessage(SDL_GetError(), "SDL_Init failed");
+		showError(SDL_GetError(), "SDL_Init did not work");
 		return 1;
 	}
 
@@ -138,7 +175,7 @@ int main(int argc, char* args[])
 
 	if (window == nullptr)
 	{
-		showErrorMessage(SDL_GetError(), "SDL_CreateWindow failed");
+		showError(SDL_GetError(), "SDL_CreateWindow did not work");
 		return 1;
 	}
 
@@ -146,21 +183,13 @@ int main(int argc, char* args[])
 
 	if (glContext == nullptr)
 	{
-		showErrorMessage(SDL_GetError(), "SDL_GL_CreateContext failed");
+		showError(SDL_GetError(), "SDL_GL_CreateContext did not work");
 		return 1;
 	}
 
 	if (glewInit() != GLEW_OK)
 	{
-		showErrorMessage("glewInit failed", ":(");
-		return 1;
-	}
-
-	GLuint texture = loadTexture("earth.jpg");
-
-	if (texture == 0)
-	{
-		showErrorMessage("loadTexture failed", ":(");
+		showError(":(", "Invalid pixel form");
 		return 1;
 	}
 
@@ -168,15 +197,9 @@ int main(int argc, char* args[])
 	glGenVertexArrays(1, &VertexArrayID);
 	glBindVertexArray(VertexArrayID);
 
-	Mesh mesh;
-	mesh.addSphere(1, 16, glm::vec4(1, 1, 1, 1));
-	mesh.createBuffers();
-
 	GLuint programID = loadShaders("vertex.glsl", "fragment.glsl");
 
-	GLuint mvpLocation = glGetUniformLocation(programID, "mvp");
-
-	GLuint lightDirectionLocation = glGetUniformLocation(programID, "lightDirection");
+	GLuint mvpPosition = glGetUniformLocation(programID, "mvp");
 
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
@@ -186,9 +209,9 @@ int main(int argc, char* args[])
 
 	glEnable(GL_CULL_FACE);
 
-	glm::vec4 playerPosition(0, 0, 5, 1);
-	float playerPitch = 0;
-	float playerYaw = 0;
+	glm::vec4 plyrPos(0, 0, 4, 1);
+	float plyrPitch = 0;
+	float plyrYaw = 0;
 
 	SDL_SetRelativeMouseMode(SDL_TRUE);
 	SDL_GetRelativeMouseState(nullptr, nullptr);
@@ -215,50 +238,45 @@ int main(int argc, char* args[])
 			}
 		}
 
-		int mouseX, mouseY;
-		SDL_GetRelativeMouseState(&mouseX, &mouseY);
-		playerYaw -= mouseX * 0.005f;
-		playerPitch -= mouseY * 0.005f;
+		int Xmouse, Ymouse;
+		SDL_GetRelativeMouseState(&Xmouse, &Ymouse);
+		plyrYaw -= Xmouse * 0.005f;
+		plyrPitch -= Ymouse * 0.005f;
 		const float maxPitch = glm::radians(89.0f);
-		if (playerPitch > maxPitch)
-			playerPitch = maxPitch;
-		if (playerPitch < -maxPitch)
-			playerPitch = -maxPitch;
+		if (plyrPitch > maxPitch)
+			plyrPitch = maxPitch;
+		if (plyrPitch < -maxPitch)
+			plyrPitch = -maxPitch;
 
-		glm::vec4 playerLook(0, 0, -1, 0);
-		glm::mat4 playerRotation;
-		playerRotation = glm::rotate(playerRotation, playerYaw, glm::vec3(0, 1, 0));
-		playerRotation = glm::rotate(playerRotation, playerPitch, glm::vec3(1, 0, 0));
-		playerLook = playerRotation * playerLook;
+		glm::vec4 plyrView(0, 0, -1, 0);
+		glm::mat4 plyrRotation;
+		plyrRotation = glm::rotate(plyrRotation, plyrYaw, glm::vec3(0, 1, 0));
+		plyrRotation = glm::rotate(plyrRotation, plyrPitch, glm::vec3(1, 0, 0));
+		plyrView = plyrRotation * plyrView;
+		glm::vec4 plyrFwrd = plyrView;
 
-		/*glm::vec4 playerForward(0, 0, -1, 0);
-		glm::mat4 playerForwardRotation;
-		playerForwardRotation = glm::rotate(playerForwardRotation, playerYaw, glm::vec3(0, 1, 0));
-		playerForward = playerForwardRotation * playerForward;*/
-		glm::vec4 playerForward = playerLook;
-
-		const Uint8* keyboardState = SDL_GetKeyboardState(nullptr);
-		if (keyboardState[SDL_SCANCODE_W])
+		const Uint8* keyState = SDL_GetKeyboardState(nullptr);
+		if (keyState[SDL_SCANCODE_W])
 		{
-			playerPosition += playerForward * 0.001f;
+			plyrPos += plyrFwrd * 0.001f;
 		}
-		if (keyboardState[SDL_SCANCODE_S])
+		if (keyState[SDL_SCANCODE_S])
 		{
-			playerPosition -= playerForward * 0.001f;
+			plyrPos -= plyrFwrd * 0.001f;
 		}
 
-		glm::vec4 playerRight(0, 0, -1, 0);
-		glm::mat4 playerRightRotation;
-		playerRightRotation = glm::rotate(playerRightRotation, playerYaw - glm::radians(90.0f), glm::vec3(0, 1, 0));
-		playerRight = playerRightRotation * playerRight;
+		glm::vec4 plyrRight(0, 0, -1, 0);
+		glm::mat4 plyrRightRotation;
+		plyrRightRotation = glm::rotate(plyrRightRotation, plyrYaw - glm::radians(90.0f), glm::vec3(0, 1, 0));
+		plyrRight = plyrRightRotation * plyrRight;
 
-		if (keyboardState[SDL_SCANCODE_A])
+		if (keyState[SDL_SCANCODE_A])
 		{
-			playerPosition -= playerRight * 0.001f;
+			plyrPos -= plyrRight * 0.001f;
 		}
-		if (keyboardState[SDL_SCANCODE_D])
+		if (keyState[SDL_SCANCODE_D])
 		{
-			playerPosition += playerRight * 0.001f;
+			plyrPos += plyrRight * 0.001f;
 		}
 
 		glClearColor(0.0f, 0.0f, 0.2f, 1.0f);
@@ -266,17 +284,21 @@ int main(int argc, char* args[])
 
 		glUseProgram(programID);
 
-		glm::mat4 view = glm::lookAt(glm::vec3(playerPosition), glm::vec3(playerPosition + playerLook), glm::vec3(0, 1, 0));
-		glm::mat4 projection = glm::perspective(glm::radians(45.0f), 1.0f, 0.1f, 100.0f);
+		glm::mat4 sight = glm::lookAt(glm::vec3(plyrPos), glm::vec3(plyrPos + plyrView), glm::vec3(0, 1, 0));
+		glm::mat4 project = glm::perspective(glm::radians(45.0f), 1.0f, 0.1f, 100.0f);
 
 		glm::mat4 transform;
-		//transform = glm::rotate(transform, SDL_GetTicks() / 1000.0f, glm::vec3(0, 1, 0));
-		glm::mat4 mvp = projection * view * transform;
-		glUniformMatrix4fv(mvpLocation, 1, GL_FALSE, glm::value_ptr(mvp));
+		glm::mat4 mvp = project * sight * transform;
+		glUniformMatrix4fv(mvpPosition, 1, GL_FALSE, glm::value_ptr(mvp));
 
-		glUniform3f(lightDirectionLocation, 1, 1, 1);
+		GLuint wallTexture = getTexture("floor.jpg");
 
-		mesh.draw();
+		if (wallTexture)
+		{
+			showError("getTexture did not work", ":(");
+			return 1;
+		}
+
 
 		SDL_GL_SwapWindow(window);
 	}

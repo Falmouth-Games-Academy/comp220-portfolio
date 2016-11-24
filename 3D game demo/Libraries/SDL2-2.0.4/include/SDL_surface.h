@@ -69,7 +69,7 @@ extern "C" {
 typedef struct SDL_Surface
 {
     Uint32 flags;               /**< Read-only */
-    SDL_PixelFormat *format;    /**< Read-only */
+    SDL_PixelFormat *form;    /**< Read-only */
     int w, h;                   /**< Read-only */
     int pitch;                  /**< Read-only */
     void *pixels;               /**< Read-write */
