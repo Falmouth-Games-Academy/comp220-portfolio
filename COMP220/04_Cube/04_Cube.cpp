@@ -8,6 +8,7 @@
 #include "LoadShader.h"
 #include "texture.h"
 #include "PlayerMovement.h"
+#include "Terrain.h"
 
 // NOTE: this code is intended to illustrate usage of OpenGL.
 // It is NOT intended to illustrate good coding style or naming conventions!
@@ -67,7 +68,10 @@ int main(int argc, char* args[])
 	PlayerMovement player;
 
 	Mesh mesh;
-	mesh.generateTerrain(100, 100, 15, 15);
+
+	Terrain terrain(4, mesh);
+
+	terrain.generateTerrain(100, 100, 15, 15);
 	/*
 	noise::Perlin perlinNoise;
 	glm::vec3 a(+1, perlinNoise.noise(1, -1, 0), -1);
