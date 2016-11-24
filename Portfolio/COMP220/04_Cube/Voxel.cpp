@@ -11,23 +11,39 @@ Voxel::~Voxel()
 {
 }
 
-Voxel::Voxel(int x, int z)
+Voxel::Voxel(int x, int y, int z)
 {
 	setVoxelPosition(glm::vec3(x, 0, z));
 }
 
-void Voxel::placeVoxel(Mesh& meshTexture, glm::vec3 voxelPosition)
+void Voxel::placeVoxel(Mesh& meshTexture, Mesh& snowTexture, glm::vec3 voxelPosition)
 {
 	setVoxelPosition(voxelPosition);
-
-	glm::vec3 a(voxelPosition.x - 0.5, voxelPosition.y + 0.5, voxelPosition.z + 0.5);
-	glm::vec3 b(voxelPosition.x + 0.5, voxelPosition.y + 0.5, voxelPosition.z + 0.5);
-	glm::vec3 c(voxelPosition.x + 0.5, voxelPosition.y + 0.5, voxelPosition.z - 0.5);
-	glm::vec3 d(voxelPosition.x - 0.5, voxelPosition.y + 0.5, voxelPosition.z - 0.5);
-	glm::vec3 e(voxelPosition.x - 0.5, voxelPosition.y - 0.5, voxelPosition.z + 0.5);
-	glm::vec3 f(voxelPosition.x - 0.5, voxelPosition.y - 0.5, voxelPosition.z - 0.5);
-	glm::vec3 g(voxelPosition.x + 0.5, voxelPosition.y - 0.5, voxelPosition.z - 0.5);
-	glm::vec3 h(voxelPosition.x + 0.5, voxelPosition.y - 0.5, voxelPosition.z + 0.5);
-	glm::vec3 colour(1, 1, 1);
-	meshTexture.addCube(a, b, c, d, e, f, g, h, colour);
+	
+	if (voxelPosition.y < 0)
+	{
+		glm::vec3 a(voxelPosition.x - voxelSize, voxelPosition.y + voxelSize, voxelPosition.z + voxelSize);
+		glm::vec3 b(voxelPosition.x + voxelSize, voxelPosition.y + voxelSize, voxelPosition.z + voxelSize);
+		glm::vec3 c(voxelPosition.x + voxelSize, voxelPosition.y + voxelSize, voxelPosition.z - voxelSize);
+		glm::vec3 d(voxelPosition.x - voxelSize, voxelPosition.y + voxelSize, voxelPosition.z - voxelSize);
+		glm::vec3 e(voxelPosition.x - voxelSize, voxelPosition.y - voxelSize, voxelPosition.z + voxelSize);
+		glm::vec3 f(voxelPosition.x - voxelSize, voxelPosition.y - voxelSize, voxelPosition.z - voxelSize);
+		glm::vec3 g(voxelPosition.x + voxelSize, voxelPosition.y - voxelSize, voxelPosition.z - voxelSize);
+		glm::vec3 h(voxelPosition.x + voxelSize, voxelPosition.y - voxelSize, voxelPosition.z + voxelSize);
+		glm::vec3 colour(1, 1, 1);
+		meshTexture.addCube(a, b, c, d, e, f, g, h, colour);
+	}
+	else
+	{
+		glm::vec3 a(voxelPosition.x - voxelSize, voxelPosition.y + voxelSize, voxelPosition.z + voxelSize);
+		glm::vec3 b(voxelPosition.x + voxelSize, voxelPosition.y + voxelSize, voxelPosition.z + voxelSize);
+		glm::vec3 c(voxelPosition.x + voxelSize, voxelPosition.y + voxelSize, voxelPosition.z - voxelSize);
+		glm::vec3 d(voxelPosition.x - voxelSize, voxelPosition.y + voxelSize, voxelPosition.z - voxelSize);
+		glm::vec3 e(voxelPosition.x - voxelSize, voxelPosition.y - voxelSize, voxelPosition.z + voxelSize);
+		glm::vec3 f(voxelPosition.x - voxelSize, voxelPosition.y - voxelSize, voxelPosition.z - voxelSize);
+		glm::vec3 g(voxelPosition.x + voxelSize, voxelPosition.y - voxelSize, voxelPosition.z - voxelSize);
+		glm::vec3 h(voxelPosition.x + voxelSize, voxelPosition.y - voxelSize, voxelPosition.z + voxelSize);
+		glm::vec3 colour(1, 1, 1);
+		snowTexture.addCube(a, b, c, d, e, f, g, h, colour);
+	}
 }

@@ -181,7 +181,7 @@ int main(int argc, char* args[])
 	Terrain terrain;
 
 	/////// Generate the terrain ///////////////
-	terrain.generateTerrain(grassMesh);
+	terrain.generateTerrain(grassMesh, mountainMesh);
 	grassMesh.createBuffers();
 	mountainMesh.createBuffers();
 	/*
@@ -314,7 +314,7 @@ int main(int argc, char* args[])
 		glm::mat4 view = glm::lookAt(glm::vec3(playerPosition), glm::vec3(playerPosition + playerLook), glm::vec3(0, 1, 0));
 
 		// Render Distance
-		glm::mat4 projection = glm::perspective(glm::radians(45.0f), 1.0f, 0.1f, 10000.0f);
+		glm::mat4 projection = glm::perspective(glm::radians(45.0f), 1.0f, 0.1f, 100.0f);
 
 		glm::mat4 transform;
 		//transform = glm::rotate(transform, glm::radians(-90.0f), glm::vec3(1, 0, 0)); 
@@ -325,6 +325,7 @@ int main(int argc, char* args[])
 
 		
 		////////////// Lighting Variables /////////////////
+		float varyingPower = sin(SDL_GetTicks() / 5000.0f);
 
 		// Changes specular value and light power
 		float specularIntensityVal = 1000.0f;

@@ -13,6 +13,8 @@ Terrain::~Terrain()
 
 void Terrain::makeGrid()
 {
+	// Temp y value before perlin noise
+	float y = 0;
 	for (int x = 0; x < terrainWidth; x++)
 	{
 		std::vector<Voxel> column;
@@ -20,17 +22,19 @@ void Terrain::makeGrid()
 
 		for (int z = 0; z < terrainDepth; z++)
 		{
-			Voxel voxel(x, z);
+			Voxel voxel(x, y, z);
 			Voxels[x].push_back(voxel);
 		}
 	}
 }
-void Terrain::generateTerrain(Mesh& mesh)
+void Terrain::generateTerrain(Mesh& groundTexture, Mesh& snowTexture)
 {
 	// Generate perlin noise from seed
 	PerlinNoise perlinNoise;
 	int seed = SDL_GetTicks();
 	perlinNoise.GenerateNoise(seed);
+
+	std::string face = "test";
 
 	//Makes the grid of voxels
 	makeGrid();
@@ -39,14 +43,51 @@ void Terrain::generateTerrain(Mesh& mesh)
 	{
 		for (float z = 0; z < terrainDepth; z++)
 		{
+			// Calculate terrain height based of position
 			float terrainHeight = perlinNoise.noise((x / noiseAmplification), (z / noiseAmplification), 0);
 			terrainHeight = (char)((terrainHeight - noiseMin) * (255 / (noiseMax - noiseMin)));
-			glm::vec3 voxelPos(x, terrainHeight, z);
+			glm::vec3 voxelPos(x + voxelSize, terrainHeight + voxelSize, z + voxelSize);
+			
+			
+			// Calculate neighbouring voxels and remove unnessary triangles
+			for each (auto voxel in getNeighbourVoxels(voxelPos, Voxels))
+			{
+				if (voxel.isVoxel)
+				{
+					Voxels[x][z].placeVoxel(groundTexture, snowTexture, voxelPos);
+				}
+			}
 
-			//Voxels[x][z].setVoxelPosition(pos);
-			Voxels[x][x].placeVoxel(mesh, voxelPos);
+			
+			
+
+
 		}
+
 	}
+}
+
+std::vector<Voxel> Terrain::getNeighbourVoxels(glm::vec3& voxelPosition, std::vector<std::vector<Voxel>>& Voxels)
+{
+	// Vector to return
+	std::vector<Voxel> result;
+	float xPos = Voxels[voxelPosition.x][voxelPosition.z].getvoxelPosition().x;
+	float zPos = Voxels[voxelPosition.x][voxelPosition.z].getvoxelPosition().z;
+
+	Voxel northVoxel(xPos, voxelPosition.y, zPos + voxelSize);
+	Voxel eastVoxel(voxelPosition.x + voxelSize, voxelPosition.y, voxelPosition.z);
+	Voxel southVoxel(voxelPosition.x, voxelPosition.y, voxelPosition.z - voxelSize);
+	Voxel westVoxel(voxelPosition.x - voxelSize, voxelPosition.y, voxelPosition.z);
+	Voxel topVoxel(voxelPosition.x, voxelPosition.y + voxelSize, voxelPosition.z);
+	Voxel bottomVoxel(voxelPosition.x, voxelPosition.y - voxelSize, voxelPosition.z);
+
+	result.push_back(northVoxel);
+	result.push_back(eastVoxel);
+	result.push_back(southVoxel);
+	result.push_back(westVoxel);
+	result.push_back(topVoxel);
+	result.push_back(bottomVoxel);
+	return result;
 }
 
 void Terrain::generateChunk(Mesh& grassMesh, Mesh& mountainMesh)
@@ -67,9 +108,9 @@ void Terrain::generateChunk(Mesh& grassMesh, Mesh& mountainMesh)
 	// The grounds colour Variable
 	glm::vec3 colour = glm::vec3(0, 0, 0);
 
-	for (int x = 0; x < chunkSize; x++)
+	for (int x = 0; x < terrainWidth; x++)
 	{
-		for (int z = 0; z < chunkSize; z++)
+		for (int z = 0; z < terrainDepth; z++)
 		{
 			double perlinResult = perlinNoise.noise((x / noiseAmplification), (z / noiseAmplification), y);
 			double lastPerlinResult = perlinResult;

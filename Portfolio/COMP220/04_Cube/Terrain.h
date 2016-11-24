@@ -12,15 +12,19 @@ public:
 	~Terrain();
 
 	void generateChunk(Mesh& grassMesh, Mesh& mountainMesh);
-	void generateTerrain(Mesh& mesh);
+	void generateTerrain(Mesh& mesh, Mesh& snowTexture);
 	void makeGrid();
+	std::vector<Voxel> getNeighbourVoxels(glm::vec3& voxelPosition, std::vector<std::vector<Voxel>>& Voxels);
 
 	// Vector of vectors of voxels
 	std::vector<std::vector<Voxel>> Voxels;
+
+	// Get voxel size
+	Voxel voxel;
+	float voxelSize = voxel.getVoxelSize();
 	
-	int chunkSize = 1000; // Max 700 squares ~3M
-	int terrainWidth = 10;
-	int terrainDepth = 10;
+	int terrainWidth = 600;
+	int terrainDepth = 600;
 
 	int noiseMax = 3;
 	int noiseMin = 0;
@@ -34,6 +38,6 @@ public:
 	float GoundAmplification = 1.0f;
 
 	// Amplification(the lower the number the higher the amplification)
-	float noiseAmplification = 150.0;
+	float noiseAmplification = 300.0;
 };
 
