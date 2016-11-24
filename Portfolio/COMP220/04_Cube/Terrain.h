@@ -39,8 +39,8 @@ public:
 	int getGroundAmplification() { return GoundAmplification; }
 
 private:
-	int terrainWidth = 600;
-	int terrainDepth = 400;
+	int terrainWidth = 500;
+	int terrainDepth = 1000;
 	int noiseMax = 3;
 	int noiseMin = 0;
 	float SquareSize = 0.5f;

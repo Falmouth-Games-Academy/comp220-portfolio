@@ -74,7 +74,7 @@ void Mesh::addCube(const glm::vec3& a, const glm::vec3& b,const glm::vec3& c,con
 	addSquare(b, h, g, c, colour, 0.5f, 0.75f, 0.25f, 0.5f);
 	addSquare(a, e, h, b, colour, 0.25f, 0.5f, 0.25f, 0.5f);
 	addSquare(d, f, e, a, colour, 0.75f, 1.0f, 0.25f, 0.5f);
-	addSquare(e, f, g, h, colour, 0.0f, 0.25f, 0.25f, 0.5f); // Removed bottom square
+	//addSquare(e, f, g, h, colour, 0.0f, 0.25f, 0.25f, 0.5f); // Removed bottom square
 	addSquare(d, c, g, f, colour, 0.25f, 0.5f, 0.5f, 0.75f);
 }
 
