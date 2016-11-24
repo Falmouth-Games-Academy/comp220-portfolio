@@ -1,11 +1,12 @@
 #pragma once
 
+#include "Terrain.h"
 //this class handles player input and translates the world where necessary
 class PlayerMovement
 {
 public:
 	//initialise with a pointer to the final value to be used in render
-	PlayerMovement();
+	PlayerMovement(Terrain &passedTerrain);
 	
 	~PlayerMovement();
 
@@ -28,5 +29,13 @@ private:
 
 	// stores the camera position
 	glm::mat4 MVP;
+
+	//links to the terrain
+	Terrain *terrain;
+
+	//gets z height
+	glm::vec4 height(glm::vec4 playerPosition);
+
+
 
 };

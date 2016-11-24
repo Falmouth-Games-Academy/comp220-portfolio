@@ -5,12 +5,11 @@
 having the mvp be a pointer allows for dynamic manipulation of the value without having
 to set it to a new value every tick
 */
-PlayerMovement::PlayerMovement()
-{
-	// gives the player an initial position
-	glm::vec4 playerPosition(0, 0, 5, 1);
-}
 
+PlayerMovement::PlayerMovement(Terrain &passedTerrain)
+{
+	terrain = &passedTerrain;
+}
 
 PlayerMovement::~PlayerMovement()
 {
@@ -33,6 +32,9 @@ void PlayerMovement::tick()
 	playerRotation = glm::rotate(playerRotation, playerYaw, glm::vec3(0, 1, 0));
 	playerRotation = glm::rotate(playerRotation, playerPitch, glm::vec3(1, 0, 0));
 	playerLook = playerRotation * playerLook;
+
+	glm::vec4 yHeight = height(playerPosition);
+	playerPosition = glm::vec4(playerPosition.x, yHeight.y, playerPosition.z, playerPosition.w);
 
 	const Uint8* keyboardState = SDL_GetKeyboardState(nullptr);
 	if (keyboardState[SDL_SCANCODE_W])
@@ -63,9 +65,22 @@ void PlayerMovement::tick()
 
 	glm::mat4 transform;
 	MVP = projection * view * transform;
+
 }
 
 glm::mat4 PlayerMovement::getMVP()
 {
 	return MVP;
+}
+
+glm::vec4 PlayerMovement::height(glm::vec4 playerPosition)
+{
+	float nx = playerPosition.x / terrain->getXMax() * terrain->getNoiseAmp();
+	float ny = playerPosition.z / terrain->getYMax() * terrain->getNoiseAmp();
+
+	float height = terrain->getLayeredNoise(nx,ny);
+	height = height * terrain->getHeightAmp();
+	height += 1;
+
+	return glm::vec4(0, height, 0, 0);
 }

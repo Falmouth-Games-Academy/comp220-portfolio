@@ -14,8 +14,6 @@ Terrain::Terrain(int iterations, Mesh &passedMesh)
 
 void Terrain::generateTerrain(int maxX, int maxY, float noiseAmplification, float heightAmplification)
 {
-	uint32_t seed = time(0);
-	const noise::Perlin perlin(seed);
 	double previousNx = 0, previousNy = 0;
 	for (double x = 1; x < maxX; x++)
 	{
@@ -39,6 +37,10 @@ void Terrain::generateTerrain(int maxX, int maxY, float noiseAmplification, floa
 
 		previousNx = nx;
 	}
+	xMax = maxX;
+	yMax = maxY;
+	noiseAmp = noiseAmplification;
+	heightAmp = heightAmplification;
 }
 
 // Layers higher frequencys of noise over original generation for more varience

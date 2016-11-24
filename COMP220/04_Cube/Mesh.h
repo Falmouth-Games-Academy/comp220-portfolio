@@ -8,8 +8,6 @@ public:
 	Mesh();
 	~Mesh();
 
-	void generateTerrain(int maxX, int maxY, float noiseAmplification, float heightAmplification);
-
 	void addTriangle(const glm::vec3& p1, const glm::vec3& p2, const glm::vec3& p3,
 		const glm::vec3& colour,
 		const glm::vec2& t1, const glm::vec2& t2, const glm::vec2& t3);
@@ -26,8 +24,6 @@ public:
 	noise::Perlin getNoise() { return *perlin; }
 
 private:
-
-	double getLayeredNoise(double nx, double ny, noise::Perlin noise, int numberOfIterations);
 
 	std::vector<glm::vec3> m_vertexPositions, m_vertexColours;
 	std::vector<glm::vec2> m_vertexUVs;

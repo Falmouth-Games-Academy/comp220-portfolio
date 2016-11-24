@@ -64,29 +64,16 @@ int main(int argc, char* args[])
 	GLuint VertexArrayID;
 	glGenVertexArrays(1, &VertexArrayID);
 	glBindVertexArray(VertexArrayID);
-
-	PlayerMovement player;
-
+	
+	//set up mesh
 	Mesh mesh;
 
+	//set up terrain
 	Terrain terrain(4, mesh);
+	terrain.generateTerrain(300, 300, 10, 15);
 
-	terrain.generateTerrain(100, 100, 15, 15);
-	/*
-	noise::Perlin perlinNoise;
-	glm::vec3 a(+1, perlinNoise.noise(1, -1, 0), -1);
-	glm::vec3 b(+1, perlinNoise.noise(1, 1, 0), 1);
-	glm::vec3 c(-1, perlinNoise.noise(-1, -1, 0), -1);
-	glm::vec3 d(-1, perlinNoise.noise(-1, 1, 0), 1);
-	srand(9385746);
-	float random1 = float(rand() % 255) / 255.0f;
-	float random2 = float(rand() % 255) / 255.0f;
-	float random3 = float(rand() % 255) / 255.0f;
-	glm::vec3 colour(random1, random2, random3);
-	glm::vec2 texture1(0,0);
-	mesh.addTriangle(a, c, b, colour, texture1, texture1, texture1);
-	*/
-
+	//set up player movement
+	PlayerMovement player(terrain);
 
 	mesh.addCircle(glm::vec3(0, -2, 0), 1, 500, glm::vec3(1, 1, 0));
 	mesh.createBuffers();
