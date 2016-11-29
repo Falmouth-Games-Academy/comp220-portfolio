@@ -3,7 +3,7 @@
 
 
 
-Plane::Plane(int floorYPosition, int initialFloorSize, const std::string& floorTexture)
+Plane::Plane(float floorYPosition, float initialFloorSize, const std::string& floorTexture)
 	: y(floorYPosition), floorSize(initialFloorSize)
 {
 	texture.loadTexture(floorTexture);

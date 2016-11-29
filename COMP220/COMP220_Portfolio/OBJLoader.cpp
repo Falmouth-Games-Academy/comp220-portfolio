@@ -74,12 +74,12 @@ bool OBJLoader::loadOBJ(const char * path, glm::vec3 modelColour)
 
 
 	} //End while
-	for (int i = 0; i < modelMeshes.size(); i++)
+	for (unsigned int i = 0; i < modelMeshes.size(); i++)
 	{
 		currentMesh = i;
 		addtoVector();
 	}
-
+	return true;
 }// End loadOBJ
 
 void OBJLoader::addtoVector()
@@ -88,20 +88,20 @@ void OBJLoader::addtoVector()
 	uvIndex = 0;
 	normalIndex = 0;
 
-	for (int i = 0; i < modelMeshes[currentMesh].vertexIndices.size(); i++) {
+	for (unsigned int i = 0; i < modelMeshes[currentMesh].vertexIndices.size(); i++) {
 		vertexIndex = modelMeshes[currentMesh].vertexIndices[i];
 		glm::vec3 vertex = temporaryVertices[vertexIndex - 1];
 		modelMeshes[currentMesh].m_vertexPositions.push_back(vertex);
 	}
-	for (int i = 0; i < modelMeshes[currentMesh].vertexIndices.size(); i++) {
+	for (unsigned int i = 0; i < modelMeshes[currentMesh].vertexIndices.size(); i++) {
 		modelMeshes[currentMesh].m_vertexColours.push_back(colour);
 	}
-	for (int i = 0; i < modelMeshes[currentMesh].uvIndices.size(); i++) {
+	for (unsigned int i = 0; i < modelMeshes[currentMesh].uvIndices.size(); i++) {
 		uvIndex = modelMeshes[currentMesh].uvIndices[i];
 		glm::vec2 uv = temporaryUvs[uvIndex - 1];
 		modelMeshes[currentMesh].m_vertexUVs.push_back(uv);
 	}
-	for (int i = 0; i < modelMeshes[currentMesh].normalIndices.size(); i++) {
+	for (unsigned int i = 0; i < modelMeshes[currentMesh].normalIndices.size(); i++) {
 		normalIndex = modelMeshes[currentMesh].normalIndices[i];
 		glm::vec3 normal = temporaryNormals[normalIndex - 1];
 		modelMeshes[currentMesh].m_vertexNormals.push_back(normal);

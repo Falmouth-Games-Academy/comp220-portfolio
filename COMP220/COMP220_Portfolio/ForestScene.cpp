@@ -51,7 +51,7 @@ void ForestScene::loadTreeModel()
 	treeModel.loadTextures("Textures/tree_trunk.png");
 	treeModel.loadTextures("Textures/leaf.png");
 
-	for (int i = 0; i < treeModel.modelMeshes.size(); i++)
+	for (unsigned int i = 0; i < treeModel.modelMeshes.size(); i++)
 	{
 		treeModel.modelMeshes[i].createBuffers();
 	}
@@ -203,7 +203,7 @@ void ForestScene::run()
 		mvp = projection * view * transform;
 		glUniformMatrix4fv(mvpLocation, 1, GL_FALSE, glm::value_ptr(mvp));
 
-		for (int i = 0; i < treeModel.modelTextures.size(); i++)
+		for (unsigned int i = 0; i < treeModel.modelTextures.size(); i++)
 		{
 			treeModel.modelTextures[i].bindTexture();
 			treeModel.modelMeshes[i].draw();

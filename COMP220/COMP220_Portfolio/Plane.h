@@ -14,7 +14,7 @@ public:
 	/*!
 		Takes in the position, size and texture location for the plane
 	*/
-	Plane(int floorYPosition, int initialFloorSize, const std::string& floorTexture);
+	Plane(float floorYPosition, float initialFloorSize, const std::string& floorTexture);
 	//! Destructor
 	~Plane();
 
@@ -24,9 +24,9 @@ public:
 	Mesh mesh;
 
 	//!  returns the in Y value
-	int getY() { return y; }
+	float getY() { return y; }
 	//!  returns the in floorSize value
-	int getFloorSize() { return floorSize; }
+	float getFloorSize() { return floorSize; }
 
 private:
 	//! int value of the Y position

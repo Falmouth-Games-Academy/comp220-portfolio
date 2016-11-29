@@ -34,7 +34,7 @@ public:
 	//! vec3 of the particle velocity
 	glm::vec3 velocity;
 	//! float for the size of the particle when rendered
-	float size = 0.1;
+	float size = 0.1f;
 	
 };
 
