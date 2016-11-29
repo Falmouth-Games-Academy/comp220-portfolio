@@ -34,8 +34,7 @@ public:
 	Plane* floor;
 
 	//! Vector containing all the current particles
-	//std::vector<std::shared_ptr<Particle>> particles;
-	std::vector<Particle> particles;
+	std::vector<std::shared_ptr<Particle>> particles;
 
 	//! Returns the int maxParticleNumber
 	int getMaxParticlesNumber() { return maxParticleNumber; };

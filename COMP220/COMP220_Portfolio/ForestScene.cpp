@@ -186,8 +186,8 @@ void ForestScene::run()
 		{
 			transform = glm::mat4();
 
-			transform = glm::translate(transform, particleSystem.particles[i].position);
-			if (particleSystem.particles[i].position.y > floor.getY() + 1)
+			transform = glm::translate(transform, particleSystem.particles[i]->position);
+			if (particleSystem.particles[i]->position.y > floor.getY() + 1)
 			{
 				transform = glm::rotate(transform, sin(currentTime / 400.0f), glm::vec3(0, 0, 1));
 				transform = glm::rotate(transform, sin(currentTime / 400.0f), glm::vec3(1, 0, 0));

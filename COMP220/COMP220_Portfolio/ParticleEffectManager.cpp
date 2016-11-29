@@ -38,9 +38,9 @@ void ParticleEffectManager::createParticle()
 	Particle particle(particlePosition, glm::vec3(0, 0, 0), floor);
 	particle.lifeSpan = (rand() % 10) * 100;
 
-	//auto sharedparticle = std::make_shared<Particle>(particle);
-	//particles.push_back(sharedparticle);
-	particles.push_back(particle);
+	auto sharedparticle = std::make_shared<Particle>(particle);
+	particles.push_back(sharedparticle);
+
 
 }
 
@@ -54,17 +54,15 @@ void ParticleEffectManager::updateParticles(float deltaTime)
 	for (int i = 0; i < particles.size(); i++)
 	{
 		
-		if (particles[i].lifeSpan > 0)
+		if (particles[i]->lifeSpan > 0)
 		{
-			particles[i].update(deltaTime);
-			particles[i].lifeSpan -= 1;
+			particles[i]->update(deltaTime);
+			particles[i]->lifeSpan -= 1;
 		}
-		else if (particles[i].lifeSpan < 1)
+		else if (particles[i]->lifeSpan < 1)
 		{
 			particles.erase(particles.begin() + i);
 		}
-
-		
 	}
 }
 
