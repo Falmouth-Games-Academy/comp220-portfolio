@@ -1,9 +1,9 @@
 #include "stdafx.h"
-#include "Floor.h"
+#include "Plane.h"
 
 
 
-Floor::Floor(int floorYPosition, int initialFloorSize, const std::string& floorTexture)
+Plane::Plane(int floorYPosition, int initialFloorSize, const std::string& floorTexture)
 	: y(floorYPosition), floorSize(initialFloorSize)
 {
 	texture.loadTexture(floorTexture);
@@ -19,6 +19,6 @@ Floor::Floor(int floorYPosition, int initialFloorSize, const std::string& floorT
 	mesh.createBuffers();
 }
 
-Floor::~Floor()
+Plane::~Plane()
 {
 }

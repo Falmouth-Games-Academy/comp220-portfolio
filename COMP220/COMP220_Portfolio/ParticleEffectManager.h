@@ -1,29 +1,45 @@
 #pragma once
 #include"Particle.h"
-#include"Floor.h"
+#include"Plane.h"
+//! Particle effect managing class
+/*!
+	Creates, updates and eliminates particles 
+*/
 class ParticleEffectManager
 {
 public:
 	//! Constructor
-	ParticleEffectManager(Floor* levelFloor);
+	ParticleEffectManager(Plane* levelFloor);
 	//! Destructor
 	~ParticleEffectManager();
 
+	//! Creates particles
 	void createParticles(const std::string& fileName);
+	//! Updates particles position
 	void updateParticles(float deltaTime);
+	//! Creates particle meshes
 	void createMesh(Particle particle);
 
-	// starting point for all particles 
+	//! Vec3 that contains starting XYZ position of particle
 	glm::vec3 initialPosition;
+	//! Vec3 that contains intial velocity of particle
 	glm::vec3 initialVelocity;
 
-	Floor* floor;
+	//! Pointer to the plane in the main level
+	/*!
+	Used for phyics to make sure particles don't fall through floor
+	*/
+	Plane* floor;
 
+	//! Vector containing all the current particles
 	std::vector<std::shared_ptr<Particle>> particles;
 
+	//! Returns the int maxParticleNumber
 	int getMaxParticlesNumber() { return maxParticleNumber; };
+	//! Texture to be used on particles
 	Texture particleTexture;
 private: 
+	//! int for the maximum number of particles that can exist at one time
 	int maxParticleNumber = 20;
 };
 

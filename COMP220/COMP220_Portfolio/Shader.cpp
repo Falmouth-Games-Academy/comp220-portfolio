@@ -25,7 +25,7 @@ bool Shader::compileShader(GLuint shaderId, const std::string& shaderFileName)
 	}
 	else
 	{
-		errorSystem.showErrorMessage(shaderFileName.c_str(), "File not found");
+		errorSystem.createErrorMessage(shaderFileName.c_str(), "File not found");
 		return false;
 	}
 
@@ -44,7 +44,7 @@ bool Shader::compileShader(GLuint shaderId, const std::string& shaderFileName)
 		// Display the compilation log
 		std::vector<char> errorMessage(infoLogLength + 1);
 		glGetShaderInfoLog(shaderId, infoLogLength, NULL, errorMessage.data());
-		errorSystem.showErrorMessage(errorMessage.data(), shaderFileName.c_str());
+		errorSystem.createErrorMessage(errorMessage.data(), shaderFileName.c_str());
 	}
 
 	return (result != GL_FALSE);
@@ -73,7 +73,7 @@ GLuint Shader::loadShaders(const std::string& vertex_file_path, const std::strin
 	if (infoLogLength > 1) {
 		std::vector<char> errorMessage(infoLogLength + 1);
 		glGetProgramInfoLog(programId, infoLogLength, NULL, errorMessage.data());
-		errorSystem.showErrorMessage(errorMessage.data(), "glLinkProgram error");
+		errorSystem.createErrorMessage(errorMessage.data(), "glLinkProgram error");
 	}
 
 	glDetachShader(programId, vertexShaderId);

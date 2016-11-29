@@ -8,7 +8,7 @@ Texture::Texture(const std::string& fileName)
 	
 	if (textureId == 0)
 	{
-		errorSystem.showErrorMessage("loadTexture failed", "Error");
+		errorSystem.createErrorMessage("loadTexture failed", "Error");
 	}
 }
 
@@ -26,7 +26,7 @@ GLuint Texture::loadTexture(const std::string& fileName)
 
 	if (textureSurface == nullptr)
 	{
-		errorSystem.showErrorMessage(SDL_GetError(), "IMG_Load failed");
+		errorSystem.createErrorMessage(SDL_GetError(), "IMG_Load failed");
 		return 0;
 	}
 
@@ -44,7 +44,7 @@ GLuint Texture::loadTexture(const std::string& fileName)
 	}
 	else
 	{
-		errorSystem.showErrorMessage("Invalid pixel format", ":(");
+		errorSystem.createErrorMessage("Invalid pixel format", ":(");
 		return 0;
 	}
 

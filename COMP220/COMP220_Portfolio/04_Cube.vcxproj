@@ -155,7 +155,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="COMP220_Portfolio.h" />
-    <ClInclude Include="Floor.h" />
+    <ClInclude Include="Plane.h" />
     <ClInclude Include="ForestScene.h" />
     <ClInclude Include="ErrorMessage.h" />
     <ClInclude Include="Mesh.h" />
@@ -171,7 +171,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="COMP220_Portfolio.cpp" />
-    <ClCompile Include="Floor.cpp" />
+    <ClCompile Include="Plane.cpp" />
     <ClCompile Include="ForestScene.cpp" />
     <ClCompile Include="ErrorMessage.cpp" />
     <ClCompile Include="Mesh.cpp" />

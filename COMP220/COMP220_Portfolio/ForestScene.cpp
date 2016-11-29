@@ -6,7 +6,7 @@ ForestScene::ForestScene()
 {
 	if (SDL_Init(SDL_INIT_VIDEO) < 0)
 	{
-		errorSystem.showErrorMessage(SDL_GetError(), "SDL_Init failed");
+		errorSystem.createErrorMessage(SDL_GetError(), "SDL_Init failed");
 	}
 
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
@@ -18,19 +18,19 @@ ForestScene::ForestScene()
 
 	if (window == nullptr)
 	{
-		errorSystem.showErrorMessage(SDL_GetError(), "SDL_CreateWindow failed");
+		errorSystem.createErrorMessage(SDL_GetError(), "SDL_CreateWindow failed");
 	}
 
 	glContext = SDL_GL_CreateContext(window);
 
 	if (glContext == nullptr)
 	{
-		errorSystem.showErrorMessage(SDL_GetError(), "SDL_GL_CreateContext failed");
+		errorSystem.createErrorMessage(SDL_GetError(), "SDL_GL_CreateContext failed");
 	}
 
 	if (glewInit() != GLEW_OK)
 	{
-		errorSystem.showErrorMessage("glewInit failed", "Error");
+		errorSystem.createErrorMessage("glewInit failed", "Error");
 	}
 }
 
@@ -42,11 +42,11 @@ ForestScene::~ForestScene()
 }
 
 
-void ForestScene::loadModel()
+void ForestScene::loadTreeModel()
 {
 	bool tree = treeModel.loadOBJ("tree.obj", glm::vec3(1.0, 1.0, 1.0));
 	if (!tree)
-		errorSystem.showErrorMessage("Model loading failed.", "Error");
+		errorSystem.createErrorMessage("Model loading failed.", "Error");
 
 	treeModel.loadTextures("Textures/tree_trunk.png");
 	treeModel.loadTextures("Textures/leaf.png");
@@ -65,9 +65,9 @@ void ForestScene::run()
 	glGenVertexArrays(1, &VertexArrayID);
 	glBindVertexArray(VertexArrayID);
 
-	Floor floor(-1, 10, "Textures/mud.png");
+	Plane floor(-1, 10, "Textures/mud.png");
 	
-	loadModel();
+	loadTreeModel();
 	
 	Particle particle(glm::vec3(0,5,0), glm::vec3(0, 0, 0), &floor);
 	particle.particleMesh.addSphere(particle.size , 1, glm::vec3(0.0, 1.0, 1.0));
@@ -165,7 +165,7 @@ void ForestScene::run()
 		float deltaTime = (currentTime - lastFrameTime) / 1000.0f;
 		lastFrameTime = currentTime;
 
-		particle.tick(deltaTime);
+		particle.update(deltaTime);
 
 		glClearColor(0.9f, 0.9f, 0.9f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

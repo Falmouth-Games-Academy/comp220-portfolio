@@ -2,7 +2,7 @@
 #include "ParticleEffectManager.h"
 
 
-ParticleEffectManager::ParticleEffectManager(Floor* levelFloor)
+ParticleEffectManager::ParticleEffectManager(Plane* levelFloor)
 	:floor(levelFloor)
 {
 	
@@ -39,6 +39,6 @@ void ParticleEffectManager::updateParticles(float deltaTime)
 {
 	for (int i = 0; i < getMaxParticlesNumber(); i++)
 	{
-		particles[i]->tick(deltaTime);
+		particles[i]->update(deltaTime);
 	}
 }

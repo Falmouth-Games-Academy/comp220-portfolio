@@ -1,12 +1,14 @@
 #pragma once
+//! Error class
+/*!
+	contains functions to create errors 
+*/
 class ErrorMessage : std::exception
 {
 public:
-
-	void initialisationError(const char* message, const char* title);
-
-	void showErrorMessage(const char* message, const char* title);
-
-private:
-	std::string message;
+	//! Error message function
+	/*!
+	Creates an error pop up when called
+	*/
+	void createErrorMessage(const char* message, const char* title);
 };

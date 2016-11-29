@@ -2,7 +2,7 @@
 #include "Particle.h"
 
 
-Particle::Particle(const glm::vec3& initialPosition, const glm::vec3& initialVelocity, Floor* levelFloor)
+Particle::Particle(const glm::vec3& initialPosition, const glm::vec3& initialVelocity, Plane* levelFloor)
 	: position(initialPosition), velocity(initialVelocity), floor(levelFloor)
 {
 	texture.loadTexture("Textures/leaf.png");
@@ -18,7 +18,7 @@ void Particle::addMesh()
 
 }
 
-void Particle::tick(float deltaTime)
+void Particle::update(float deltaTime)
 {
 	
 
