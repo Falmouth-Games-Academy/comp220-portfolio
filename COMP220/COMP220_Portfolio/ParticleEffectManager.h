@@ -14,11 +14,13 @@ public:
 	~ParticleEffectManager();
 
 	//! Creates particles
-	void createParticle(const std::string& fileName);
+	void createParticle();
 	//! Updates particles position
 	void updateParticles(float deltaTime);
 	//! Creates particle meshes
-	void createMesh(Particle particle);
+	void createMesh(const std::string& fileName);
+
+	glm::vec3 generateParticlePosition();
 
 	//! Vec3 that contains starting XYZ position of particle
 	glm::vec3 initialPosition;
@@ -32,7 +34,8 @@ public:
 	Plane* floor;
 
 	//! Vector containing all the current particles
-	std::vector<std::shared_ptr<Particle>> particles;
+	//std::vector<std::shared_ptr<Particle>> particles;
+	std::vector<Particle> particles;
 
 	//! Returns the int maxParticleNumber
 	int getMaxParticlesNumber() { return maxParticleNumber; };

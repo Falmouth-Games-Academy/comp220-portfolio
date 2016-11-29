@@ -20,10 +20,6 @@ public:
 	//! vec4 of the particles colour when rendered
 	glm::vec4 colour;
 	
-	//! Particle mesh
-	Mesh particleMesh;
-	//! Particle texture
-	Texture texture;
 	//! Pointer to the level floor for use in physics
 	Plane* floor;
 
