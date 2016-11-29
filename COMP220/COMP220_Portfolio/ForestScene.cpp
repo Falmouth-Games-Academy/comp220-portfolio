@@ -185,19 +185,18 @@ void ForestScene::run()
 		for (int i = 0; i < particleSystem.particles.size(); i++)
 		{
 			transform = glm::mat4();
-			if (particleSystem.particles[i].lifeSpan > 0)
-			{
-				transform = glm::translate(transform, particleSystem.particles[i].position);
-				if (particleSystem.particles[i].position.y > floor.getY() + 1)
-				{
-					transform = glm::rotate(transform, sin(currentTime / 400.0f), glm::vec3(0, 0, 1));
-					transform = glm::rotate(transform, sin(currentTime / 400.0f), glm::vec3(1, 0, 0));
-				}
 
-				mvp = projection * view * transform;
-				glUniformMatrix4fv(mvpLocation, 1, GL_FALSE, glm::value_ptr(mvp));
-				particleSystem.particleMesh.draw();
+			transform = glm::translate(transform, particleSystem.particles[i].position);
+			if (particleSystem.particles[i].position.y > floor.getY() + 1)
+			{
+				transform = glm::rotate(transform, sin(currentTime / 400.0f), glm::vec3(0, 0, 1));
+				transform = glm::rotate(transform, sin(currentTime / 400.0f), glm::vec3(1, 0, 0));
 			}
+
+			mvp = projection * view * transform;
+			glUniformMatrix4fv(mvpLocation, 1, GL_FALSE, glm::value_ptr(mvp));
+			particleSystem.particleMesh.draw();
+
 		}
 
 		

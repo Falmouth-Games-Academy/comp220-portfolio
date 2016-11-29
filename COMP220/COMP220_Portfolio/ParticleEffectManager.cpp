@@ -51,7 +51,7 @@ void ParticleEffectManager::updateParticles(float deltaTime)
 	{
 		createParticle();
 	}
-	for (int i = 0; i < getMaxParticlesNumber(); i++)
+	for (int i = 0; i < particles.size(); i++)
 	{
 		
 		if (particles[i].lifeSpan > 0)
@@ -59,6 +59,11 @@ void ParticleEffectManager::updateParticles(float deltaTime)
 			particles[i].update(deltaTime);
 			particles[i].lifeSpan -= 1;
 		}
+		else if (particles[i].lifeSpan < 1)
+		{
+			particles.erase(particles.begin() + i);
+		}
+
 		
 	}
 }
