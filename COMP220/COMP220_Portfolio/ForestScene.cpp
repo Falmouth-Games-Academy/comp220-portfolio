@@ -68,11 +68,8 @@ void ForestScene::run()
 	Plane floor(-1, 10, "Textures/mud.png");
 	
 	loadTreeModel();
-	
-	Particle particle(glm::vec3(0,5,0), glm::vec3(0, 0, 0), &floor);
-	particle.particleMesh.addSphere(particle.size , 1, glm::vec3(0.0, 1.0, 1.0));
-	particle.particleMesh.createBuffers();
-	particle.texture.loadTexture("Textures/leaf.png");
+	ParticleEffectManager particleSystem(&floor, 5, 5);
+	particleSystem.createParticles("Textures/leaf.png");
 
 	GLuint programID = shaders.loadShaders("vertex.glsl", "fragment.glsl");
 	GLuint mvpLocation = glGetUniformLocation(programID, "mvp");
@@ -165,7 +162,8 @@ void ForestScene::run()
 		float deltaTime = (currentTime - lastFrameTime) / 1000.0f;
 		lastFrameTime = currentTime;
 
-		particle.update(deltaTime);
+		//particle.update(deltaTime);
+		particleSystem.updateParticles(deltaTime);
 
 		glClearColor(0.9f, 0.9f, 0.9f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -178,16 +176,27 @@ void ForestScene::run()
 		glm::mat4 transform;
 		glUniform3f(lightDirectionLocation, 1, 1, 1);
 		glUniform3f(cameraSpaceLocation, playerPosition.x, playerPosition.y, playerPosition.z);
+		glm::mat4 mvp;
 
 		// Render particles
-		transform = glm::translate(transform, particle.position);
-		transform = glm::rotate(transform, sin(currentTime / 400.0f), glm::vec3(0, 0, 1));
-		transform = glm::rotate(transform, sin(currentTime / 400.0f), glm::vec3(1, 0, 0));		
-		glm::mat4 mvp = projection * view * transform;
-		glUniformMatrix4fv(mvpLocation, 1, GL_FALSE, glm::value_ptr(mvp));
+		particleSystem.particleTexture.bindTexture();
+		for (int i = 0; i < particleSystem.particles.size(); i++)
+		{
+			transform = glm::mat4();
+			transform = glm::translate(transform, particleSystem.particles[i]->position);
+			if (particleSystem.particles[i]->position.y > floor.getY() + 1)
+			{
+				transform = glm::rotate(transform, sin(currentTime / 400.0f), glm::vec3(0, 0, 1));
+				transform = glm::rotate(transform, sin(currentTime / 400.0f), glm::vec3(1, 0, 0));
+			}
+			
+			mvp = projection * view * transform;
+			glUniformMatrix4fv(mvpLocation, 1, GL_FALSE, glm::value_ptr(mvp));
+			particleSystem.particleMesh.draw();
+		}
+
 		
-		particle.texture.bindTexture();
-		particle.particleMesh.draw();
+
 
 		// Render floor
 		transform = glm::mat4();
@@ -195,7 +204,8 @@ void ForestScene::run()
 		glUniformMatrix4fv(mvpLocation, 1, GL_FALSE, glm::value_ptr(mvp));
 		floor.texture.bindTexture();
 		floor.mesh.draw();
-				
+			
+		
 		// Render trees
 		transform = glm::mat4();
 		transform = glm::translate(transform, treeModel.position);
@@ -208,7 +218,7 @@ void ForestScene::run()
 			treeModel.modelTextures[i].bindTexture();
 			treeModel.modelMeshes[i].draw();
 		}
-
+		
 		SDL_GL_SwapWindow(window);
 	}
 

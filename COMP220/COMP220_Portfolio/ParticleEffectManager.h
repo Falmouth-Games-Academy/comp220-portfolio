@@ -9,12 +9,12 @@ class ParticleEffectManager
 {
 public:
 	//! Constructor
-	ParticleEffectManager(Plane* levelFloor);
+	ParticleEffectManager(Plane* levelFloor, float intialYpos, int particleCount);
 	//! Destructor
 	~ParticleEffectManager();
 
 	//! Creates particles
-	void createParticles(const std::string& fileName);
+	void createParticle(const std::string& fileName);
 	//! Updates particles position
 	void updateParticles(float deltaTime);
 	//! Creates particle meshes
@@ -38,8 +38,14 @@ public:
 	int getMaxParticlesNumber() { return maxParticleNumber; };
 	//! Texture to be used on particles
 	Texture particleTexture;
+	//! Particle Mesh
+	Mesh particleMesh;
 private: 
 	//! int for the maximum number of particles that can exist at one time
 	int maxParticleNumber = 20;
+	//! float starting point for particle
+	float intialYposition = 0;
+	//! the size f the particle when rendered.
+	float particleSize = 0.1;
 };
 
