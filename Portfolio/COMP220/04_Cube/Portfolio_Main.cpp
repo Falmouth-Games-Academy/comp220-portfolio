@@ -184,11 +184,7 @@ int main(int argc, char* args[])
 	terrain.generateTerrain(grassMesh, mountainMesh);
 	grassMesh.createBuffers();
 	mountainMesh.createBuffers();
-	/*
-	terrain.generateChunk(grassMesh, mountainMesh);
-	grassMesh.createBuffers();
-	mountainMesh.createBuffers();
-	*/
+
 
 	// Variables to be used in the shader
 	GLuint programID = loadShaders("vertex.glsl", "fragment.glsl");
@@ -350,7 +346,6 @@ int main(int argc, char* args[])
 		glUniform3f(ObjectColor, objectColour.r, objectColour.g, objectColour.b);
 		glUniform1f(specularIntensity, specularIntensityVal);
 		glUniform3f(LightPos, lightPos.x, lightPos.y, lightPos.z);
-
 
 		// Bind Textures
 		glBindTexture(GL_TEXTURE_2D, grassTexture);

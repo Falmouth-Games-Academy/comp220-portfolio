@@ -18,7 +18,7 @@ public:
 	void generateTerrain(Mesh& mesh, Mesh& snowTexture);
 
 	//! Places a cube
-	void placeCube(Mesh& grassMesh, Mesh& mountainMesh, glm::vec3& voxelPosition, std::vector<std::vector<Voxel>>& Voxels, glm::vec3& lastVoxelPosition);
+	void placeCube(Mesh& grassMesh, Mesh& mountainMesh, glm::vec3& voxelPosition, std::vector<std::vector<Voxel>>& Voxels);
 
 	//! Creates a grid of voxels
 	void makeGrid();
@@ -42,8 +42,8 @@ public:
 	const float getGroundAmplification() { return GoundAmplification; }
 
 private:
-	const float terrainWidth = 1000;
-	const float terrainDepth = 1000;
+	const float terrainWidth = 300;
+	const float terrainDepth = 300;
 	const float noiseMax = 3;
 	const float noiseMin = 0;
 	const float SquareSize = 1.5f;

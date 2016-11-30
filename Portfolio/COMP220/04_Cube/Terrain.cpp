@@ -14,18 +14,26 @@ Terrain::~Terrain()
 
 void Terrain::makeGrid()
 {
+	// Generate perlin noise from seed
+	PerlinNoise perlinNoise;
+	int seed = SDL_GetTicks();
+	perlinNoise.GenerateNoise(seed);
+
 	// Temp y value before perlin noise
 	float y = 0;
 
 	// Populate the grid with Voxels
-	for (float x = 0; x < terrainWidth + 2000; x++)
+	for (float x = 0; x < terrainWidth; x++)
 	{
 		std::vector<Voxel> column;
 		Voxels.push_back(column);
 
-		for (float z = 0; z < terrainDepth + 2000; z++)
+		for (float z = 0; z < terrainDepth; z++)
 		{
-			Voxel voxel(x, y, z);
+			float terrainHeight = perlinNoise.noise((x / noiseAmplification), (z / noiseAmplification), 0);
+			terrainHeight = (char)((terrainHeight - noiseMin) * (255 / (noiseMax - noiseMin)));
+
+			Voxel voxel(x, terrainHeight, z);
 			Voxels[x].push_back(voxel);
 			
 		}
@@ -39,32 +47,25 @@ float Terrain::getHeight(float x, float z)
 }
 void Terrain::generateTerrain(Mesh& groundTexture, Mesh& snowTexture)
 {
-	// Generate perlin noise from seed
-	PerlinNoise perlinNoise;
-	int seed = SDL_GetTicks();
-	perlinNoise.GenerateNoise(seed);
+	
 
 	// Makes the grid of voxels
 	makeGrid();
-	glm::vec3 lastVoxelPos(0, 0, 0);
+
+
 	for (float x = 0; x < terrainWidth; x++)
 	{
 		for (float z = 0; z < terrainDepth; z++)
 		{
-			// Calculate terrain height based of position
-			float terrainHeight = perlinNoise.noise((x / noiseAmplification), (z / noiseAmplification), 0);
-			terrainHeight = (char)((terrainHeight - noiseMin) * (255 / (noiseMax - noiseMin)));
-			glm::vec3 voxelPos(x + voxelSize + voxelSize, terrainHeight + voxelSize + voxelSize, z + voxelSize + voxelSize);
+			
+			glm::vec3 voxelPos(x + voxelSize + voxelSize, getHeight(x,z) + voxelSize + voxelSize, z + voxelSize + voxelSize);
 
 
 			/* TODO: Calculate neighbouring voxels and remove unnessary triangles
 			*/
 			
-			
-			//placeCube(groundTexture, snowTexture, voxelPos, Voxels, lastVoxelPos);
 			// Place the voxel
-			Voxels[x][z].placeVoxel(groundTexture, snowTexture, voxelPos);
-			lastVoxelPos.x = voxelPos.x;
+			placeCube(groundTexture, snowTexture, voxelPos, Voxels);
 		}
 	}
 }
@@ -76,78 +77,64 @@ void Terrain::generateChunk(Mesh& grassMesh, Mesh& mountainMesh)
 	
 }
 
-void Terrain::placeCube(Mesh& grassMesh, Mesh& mountainMesh, glm::vec3& voxelPosition, std::vector<std::vector<Voxel>>& Voxels, glm::vec3& lastVoxelPosition)
+void Terrain::placeCube(Mesh& grassMesh, Mesh& mountainMesh, glm::vec3& voxelPosition, std::vector<std::vector<Voxel>>& Voxels)
 {
 	glm::vec3 colour(0.25, 0.25, 0.25);
 	std::vector<glm::vec3> faces;
-	if (voxelPosition.x == lastVoxelPosition.x)
+
+
+	// Set voxels below snowPeakHeight to be ground
+	if (voxelPosition.y < snowPeakHeight)
 	{
-		glm::vec3 null(0, 0, 0);
-		for (int i = 0; i < 6; i++)
-			faces.push_back(null);
+		glm::vec3 a(voxelPosition.x - voxelSize, voxelPosition.y + voxelSize, voxelPosition.z + voxelSize);
+		glm::vec3 b(voxelPosition.x + voxelSize, voxelPosition.y + voxelSize, voxelPosition.z + voxelSize);
+		glm::vec3 c(voxelPosition.x + voxelSize, voxelPosition.y + voxelSize, voxelPosition.z - voxelSize);
+		glm::vec3 d(voxelPosition.x - voxelSize, voxelPosition.y + voxelSize, voxelPosition.z - voxelSize);
+		glm::vec3 e(voxelPosition.x - voxelSize, voxelPosition.y - voxelSize, voxelPosition.z + voxelSize);
+		glm::vec3 f(voxelPosition.x - voxelSize, voxelPosition.y - voxelSize, voxelPosition.z - voxelSize);
+		glm::vec3 g(voxelPosition.x + voxelSize, voxelPosition.y - voxelSize, voxelPosition.z - voxelSize);
+		glm::vec3 h(voxelPosition.x + voxelSize, voxelPosition.y - voxelSize, voxelPosition.z + voxelSize);
+
+		faces.push_back(a);
+		faces.push_back(b);
+		faces.push_back(c);
+		faces.push_back(d);
+		faces.push_back(e);
+		faces.push_back(f);
+		faces.push_back(g);
+		faces.push_back(h);
 
 		grassMesh.addCubeFromFace(faces, colour);
 	}
+	// Else render snow texture cube
 	else
 	{
-		if (voxelPosition.y < 0)
-		{
-			
-			glm::vec3 a(voxelPosition.x - voxelSize, voxelPosition.y + voxelSize, voxelPosition.z + voxelSize);
-			glm::vec3 b(voxelPosition.x + voxelSize, voxelPosition.y + voxelSize, voxelPosition.z + voxelSize);
-			glm::vec3 c(voxelPosition.x + voxelSize, voxelPosition.y + voxelSize, voxelPosition.z - voxelSize);
-			glm::vec3 d(voxelPosition.x - voxelSize, voxelPosition.y + voxelSize, voxelPosition.z - voxelSize);
-			glm::vec3 e(voxelPosition.x - voxelSize, voxelPosition.y - voxelSize, voxelPosition.z + voxelSize);
-			glm::vec3 f(voxelPosition.x - voxelSize, voxelPosition.y - voxelSize, voxelPosition.z - voxelSize);
-			glm::vec3 g(voxelPosition.x + voxelSize, voxelPosition.y - voxelSize, voxelPosition.z - voxelSize);
-			glm::vec3 h(voxelPosition.x + voxelSize, voxelPosition.y - voxelSize, voxelPosition.z + voxelSize);
-			
-			faces.push_back(a);
-			faces.push_back(b);
-			faces.push_back(c);
-			faces.push_back(d);
-			faces.push_back(e);
-			faces.push_back(f);
-			faces.push_back(g);
-			faces.push_back(h);
+		glm::vec3 a(voxelPosition.x - voxelSize, voxelPosition.y + voxelSize, voxelPosition.z + voxelSize);
+		glm::vec3 b(voxelPosition.x + voxelSize, voxelPosition.y + voxelSize, voxelPosition.z + voxelSize);
+		glm::vec3 c(voxelPosition.x + voxelSize, voxelPosition.y + voxelSize, voxelPosition.z - voxelSize);
+		glm::vec3 d(voxelPosition.x - voxelSize, voxelPosition.y + voxelSize, voxelPosition.z - voxelSize);
+		glm::vec3 e(voxelPosition.x - voxelSize, voxelPosition.y - voxelSize, voxelPosition.z + voxelSize);
+		glm::vec3 f(voxelPosition.x - voxelSize, voxelPosition.y - voxelSize, voxelPosition.z - voxelSize);
+		glm::vec3 g(voxelPosition.x + voxelSize, voxelPosition.y - voxelSize, voxelPosition.z - voxelSize);
+		glm::vec3 h(voxelPosition.x + voxelSize, voxelPosition.y - voxelSize, voxelPosition.z + voxelSize);
 
+		// Offset the mountain terrain to be lighter at the top
+		glm::vec3 colour(voxelPosition.y / 50, voxelPosition.y / 50, voxelPosition.y / 50);
 
-			grassMesh.addCubeFromFace(faces, colour);
-		}
-		// Else render snow texture cube
-		else
-		{
-			glm::vec3 a(voxelPosition.x - voxelSize, voxelPosition.y + voxelSize, voxelPosition.z + voxelSize);
-			glm::vec3 b(voxelPosition.x + voxelSize, voxelPosition.y + voxelSize, voxelPosition.z + voxelSize);
-			glm::vec3 c(voxelPosition.x + voxelSize, voxelPosition.y + voxelSize, voxelPosition.z - voxelSize);
-			glm::vec3 d(voxelPosition.x - voxelSize, voxelPosition.y + voxelSize, voxelPosition.z - voxelSize);
-			glm::vec3 e(voxelPosition.x - voxelSize, voxelPosition.y - voxelSize, voxelPosition.z + voxelSize);
-			glm::vec3 f(voxelPosition.x - voxelSize, voxelPosition.y - voxelSize, voxelPosition.z - voxelSize);
-			glm::vec3 g(voxelPosition.x + voxelSize, voxelPosition.y - voxelSize, voxelPosition.z - voxelSize);
-			glm::vec3 h(voxelPosition.x + voxelSize, voxelPosition.y - voxelSize, voxelPosition.z + voxelSize);
-			glm::vec3 colour(voxelPosition.y / 50, voxelPosition.y / 50, voxelPosition.y / 50);
+		faces.push_back(a);
+		faces.push_back(b);
+		faces.push_back(c);
+		faces.push_back(d);
+		faces.push_back(e);
+		faces.push_back(f);
+		faces.push_back(g);
+		faces.push_back(h);
 
-			faces.push_back(a);
-			faces.push_back(b);
-			faces.push_back(c);
-			faces.push_back(d);
-			faces.push_back(e);
-			faces.push_back(f);
-			faces.push_back(g);
-			faces.push_back(h);
-
-			grassMesh.addCubeFromFace(faces, colour);
-		}
+		mountainMesh.addCubeFromFace(faces, colour);
 	}
-	/*
-	for each (auto voxel in getNeighbourVoxels(voxelPosition, Voxels))
-	{
-
-	}
-	*/
 }
 
-// Gets neighbouring voxels around a voxel
+// Gets neighbouring voxels around a voxel (not used at the moment)
 std::vector<Voxel> Terrain::getNeighbourVoxels(glm::vec3& voxelPosition, std::vector<std::vector<Voxel>>& Voxels)
 {
 	// Vector to return

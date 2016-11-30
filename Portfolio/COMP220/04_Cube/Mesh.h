@@ -20,7 +20,7 @@ public:
 	void addCube(const glm::vec3& a, const glm::vec3& b, const glm::vec3& c, const glm::vec3& d, const glm::vec3& e, const glm::vec3& f, const glm::vec3& g, const glm::vec3& h, const glm::vec3& colour);
 
 	//! Only places faces that are needed
-	void addCubeFromFace(std::vector<glm::vec3>& faces, const glm::vec3& colour);
+	void addCubeFromFace(const std::vector<glm::vec3>& faces, const glm::vec3& colour);
 
 	//! Creates a circle
 	void addCircle(const glm::vec3& centre, float radius, int numPoints,
