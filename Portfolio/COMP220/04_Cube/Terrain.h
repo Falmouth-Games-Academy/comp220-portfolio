@@ -17,6 +17,9 @@ public:
 	//! Generates the terrain
 	void generateTerrain(Mesh& mesh, Mesh& snowTexture);
 
+	//! Places a cube
+	void placeCube(Mesh& grassMesh, Mesh& mountainMesh, glm::vec3& voxelPosition, std::vector<std::vector<Voxel>>& Voxels, glm::vec3& lastVoxelPosition);
+
 	//! Creates a grid of voxels
 	void makeGrid();
 
@@ -31,28 +34,28 @@ public:
 
 	//! Get voxel size
 	Voxel voxel;
-	float voxelSize = voxel.getVoxelSize();
+	const float voxelSize = voxel.getVoxelSize();
 
 	//! Getters
-	int getTerrainWidth() { return terrainWidth; }
-	int getTerrainDepth() { return terrainDepth; }
-	int getGroundAmplification() { return GoundAmplification; }
+	const float getTerrainWidth() { return terrainWidth; }
+	const float getTerrainDepth() { return terrainDepth; }
+	const float getGroundAmplification() { return GoundAmplification; }
 
 private:
-	int terrainWidth = 500;
-	int terrainDepth = 500;
-	int noiseMax = 3;
-	int noiseMin = 0;
-	float SquareSize = 1.5f;
+	const float terrainWidth = 1000;
+	const float terrainDepth = 1000;
+	const float noiseMax = 3;
+	const float noiseMin = 0;
+	const float SquareSize = 1.5f;
 
 	//! Amplification(the lower the number the higher the amplification)
-	float noiseAmplification = 180.0;
+	const float noiseAmplification = 180.0;
 
 	//! Changes at what point the peaks change to snow
-	float snowPeakHeight = 10.0f;
+	const float snowPeakHeight = 10.0f;
 
 	// !Changes how varied the ground is
-	float GoundAmplification = 1.0f;
+	const float GoundAmplification = 1.0f;
 
 };
 

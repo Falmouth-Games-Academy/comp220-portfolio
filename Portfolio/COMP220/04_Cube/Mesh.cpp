@@ -71,11 +71,36 @@ void Mesh::addSquare(const glm::vec3& a, const glm::vec3& b,
 void Mesh::addCube(const glm::vec3& a, const glm::vec3& b,const glm::vec3& c,const glm::vec3& d, const glm::vec3& e, const glm::vec3& f, const glm::vec3& g, const glm::vec3& h, const glm::vec3& colour)
 {
 	addSquare(a, b, c, d, colour, 0.25f, 0.5f, 0.0f, 0.25f);
+	//addSquare(b, h, g, c, colour, 0.5f, 0.75f, 0.25f, 0.5f);
+	//addSquare(a, e, h, b, colour, 0.25f, 0.5f, 0.25f, 0.5f);
+	//addSquare(d, f, e, a, colour, 0.75f, 1.0f, 0.25f, 0.5f);
+	//addSquare(e, f, g, h, colour, 0.0f, 0.25f, 0.25f, 0.5f); // Removed bottom square
+	//addSquare(d, c, g, f, colour, 0.25f, 0.5f, 0.5f, 0.75f);
+}
+
+void Mesh::addCubeFromFace(std::vector<glm::vec3>& faces, const glm::vec3& colour)
+{
+	glm::vec3 null(0,0,0);
+
+	for (int i = i; i < faces.size(); i++)
+	{
+		if (faces[i] != null)
+		{
+			addSquare(faces[0], faces[1], faces[2], faces[3], colour, 0.25f, 0.5f, 0.0f, 0.25f);
+		}
+	}
+
+	
+		
+
+	/*
+	addSquare(a, b, c, d, colour, 0.25f, 0.5f, 0.0f, 0.25f);
 	addSquare(b, h, g, c, colour, 0.5f, 0.75f, 0.25f, 0.5f);
 	addSquare(a, e, h, b, colour, 0.25f, 0.5f, 0.25f, 0.5f);
 	addSquare(d, f, e, a, colour, 0.75f, 1.0f, 0.25f, 0.5f);
 	//addSquare(e, f, g, h, colour, 0.0f, 0.25f, 0.25f, 0.5f); // Removed bottom square
 	addSquare(d, c, g, f, colour, 0.25f, 0.5f, 0.5f, 0.75f);
+	*/
 }
 
 void Mesh::addCircle(const glm::vec3& centre, float radius, int numPoints,

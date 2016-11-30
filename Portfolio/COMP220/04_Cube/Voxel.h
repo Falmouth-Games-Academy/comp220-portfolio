@@ -8,7 +8,7 @@ public:
 	~Voxel();
 
 	//! Voxel position
-	Voxel(int x, int y, int z);
+	Voxel(float x, float y, float z);
 
 	//! Stores whether the voxel is a voxel( to be expanded upon for more bools)
 	bool isVoxel = true;
@@ -23,8 +23,11 @@ public:
 	//! Place voxel function
 	void placeVoxel(Mesh& meshTexture, Mesh& snowTexture, glm::vec3 voxelPosition);
 
+	//! Spawn Voxel
+	void spawnVoxel(Mesh& meshTexture, Mesh& snowTexture, glm::vec3& voxelPosition, glm::vec3& previousVoxelPosition);
+
 private:
 	glm::vec3 voxelPosition;
-	float voxelSize = 0.5;
+	const float voxelSize = 0.5;
 };
 

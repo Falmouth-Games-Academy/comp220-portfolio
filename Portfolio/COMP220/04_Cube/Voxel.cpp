@@ -11,9 +11,14 @@ Voxel::~Voxel()
 {
 }
 
-Voxel::Voxel(int x, int y, int z)
+Voxel::Voxel(float x, float y, float z)
 {
-	setVoxelPosition(glm::vec3(x, 0, z));
+	setVoxelPosition(glm::vec3(x, 0.0f, z));
+}
+
+void Voxel::spawnVoxel(Mesh& meshTexture, Mesh& snowTexture, glm::vec3& voxelPosition, glm::vec3& previousVoxelPosition)
+{
+
 }
 
 void Voxel::placeVoxel(Mesh& meshTexture, Mesh& snowTexture, glm::vec3 voxelPosition)

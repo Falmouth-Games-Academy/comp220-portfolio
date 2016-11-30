@@ -316,7 +316,7 @@ int main(int argc, char* args[])
 		glm::mat4 view = glm::lookAt(glm::vec3(playerPosition), glm::vec3(playerPosition + playerLook), glm::vec3(0, 1, 0));
 
 		// Render Distance
-		glm::mat4 projection = glm::perspective(glm::radians(45.0f), 1.0f, 0.1f, 1000.0f);
+		glm::mat4 projection = glm::perspective(glm::radians(45.0f), 1.0f, 0.1f, 6000.0f);
 
 		glm::mat4 transform;
 		//transform = glm::rotate(transform, glm::radians(-90.0f), glm::vec3(1, 0, 0)); 
