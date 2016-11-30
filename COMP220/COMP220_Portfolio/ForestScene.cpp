@@ -67,7 +67,7 @@ void ForestScene::run()
 	//create floor plane
 	Plane floor(-1, 10, "Textures/mud.png");
 	// load in tree obj and textures
-	//loadTreeModel();
+	loadTreeModel();
 	// create particle system
 	ParticleEffectManager particleSystem(&floor, 5, 5);
 	particleSystem.createMesh("Textures/leaf.png");
@@ -78,6 +78,8 @@ void ForestScene::run()
 	GLuint mvpLocation = glGetUniformLocation(programID, "mvp");
 	GLuint lightDirectionLocation = glGetUniformLocation(programID, "lightDirection");
 	GLuint cameraSpaceLocation = glGetUniformLocation(programID, "cameraSpace");
+	GLuint ambientLightColour = glGetUniformLocation(programID, "ambientLightColour");
+	GLuint mainLightColour = glGetUniformLocation(programID, "mainLightColour");
 
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
@@ -176,8 +178,14 @@ void ForestScene::run()
 		glm::mat4 projection = glm::perspective(glm::radians(45.0f), 1.0f, 0.1f, 100.0f);
 
 		glm::mat4 transform;
+
+		glm::vec3 ambientColour(0.1, 0.1, 0.1);
+		glm::vec3 lightColour(1.0, 1.0, 1.0);
+
 		glUniform3f(lightDirectionLocation, 1, 1, 1);
 		glUniform3f(cameraSpaceLocation, playerPosition.x, playerPosition.y, playerPosition.z);
+		glUniform3f(ambientLightColour, ambientColour.r, ambientColour.g, ambientColour.b);
+		glUniform3f(mainLightColour, lightColour.r, lightColour.g, lightColour.b);
 		glm::mat4 mvp;
 
 		// Render particles
@@ -187,10 +195,10 @@ void ForestScene::run()
 			transform = glm::mat4();
 
 			transform = glm::translate(transform, particleSystem.particles[i]->position);
-			if (particleSystem.particles[i]->position.y > floor.getY() + 1)
+			if (particleSystem.particles[i]->position.y > floor.getY() + 0.5)
 			{
-				transform = glm::rotate(transform, sin(currentTime / 400.0f), glm::vec3(0, 0, 1));
-				transform = glm::rotate(transform, sin(currentTime / 400.0f), glm::vec3(1, 0, 0));
+				transform = glm::rotate(transform, sin(currentTime / 500.0f), glm::vec3(0, 0, 1));
+				transform = glm::rotate(transform, cos(currentTime / 500.0f), glm::vec3(1, 0, 0));
 			}
 
 			mvp = projection * view * transform;
@@ -198,9 +206,6 @@ void ForestScene::run()
 			particleSystem.particleMesh.draw();
 
 		}
-
-		
-
 
 		// Render floor
 		transform = glm::mat4();
@@ -210,7 +215,7 @@ void ForestScene::run()
 		floor.mesh.draw();
 			
 		
-		/*// Render trees
+		// Render trees
 		transform = glm::mat4();
 		transform = glm::translate(transform, treeModel.position);
 		transform = glm::scale(transform, glm::vec3(4, 4, 4));
@@ -221,7 +226,7 @@ void ForestScene::run()
 		{
 			treeModel.modelTextures[i].bindTexture();
 			treeModel.modelMeshes[i].draw();
-		}*/
+		}
 		
 		SDL_GL_SwapWindow(window);
 	}

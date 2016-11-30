@@ -7,22 +7,31 @@ in vec2 uv;
 uniform sampler2D textureSampler;
 uniform vec3 lightDirection;
 uniform vec3 cameraSpace;
+uniform vec3 ambientLightColour;
+uniform vec3 mainLightColour;
 
 out vec4 fragmentColour;
 
 void main()
 {
-	vec3 cameraDirectionNorm = normalize(cameraSpace);
-	vec3 lightDirectionNorm = normalize(lightDirection);
+	vec3 normalized = normalize(normal);
+	vec3 normalizedLightDirection = normalize(lightDirection);
+	vec3 normalizedCamerSpace = normalize(cameraSpace);
+	vec3 R = reflect(-lightDirection, normal);
+	
 
-	vec3 reflection = reflect(-lightDirectionNorm, cameraDirectionNorm);
+	//Diffuse
+	vec3 n = normalize( normal );
+    vec3 l = normalize( lightDirection );
+	float cosTheta = clamp(dot(n,l),0 ,1);
+	vec3 diffuseLighting = mainLightColour * cosTheta;
 
-	float specularIntensity = clamp( dot( cameraDirectionNorm, reflection), 0,1 );
-	float diffuseIntensity = clamp(dot(normal, lightDirectionNorm), 0,1);
+	// Ambient 
+	vec3 ambientLighting = ambientLightColour * diffuseLighting;
 
-	vec3 ambientColor = vec3(0.3, 0.3, 0.3); // change to uniform
+	float distance = length(lightDirection - n);
 
-	vec3 lighting = ambientColor + diffuseIntensity;
+	vec3 lighting = diffuseLighting + ambientLighting;
 
 	fragmentColour = vec4(lighting * colour, 1.0) * texture(textureSampler, uv);
 
