@@ -14,25 +14,26 @@ out vec4 fragmentColour;
 
 void main()
 {
-	vec3 normalized = normalize(normal);
-	vec3 normalizedLightDirection = normalize(lightDirection);
-	vec3 normalizedCamerSpace = normalize(cameraSpace);
-	vec3 R = reflect(-lightDirection, normal);
+	vec3 normalizedNormal = normalize( normal );
+    vec3 normalizedlightDirection = normalize( lightDirection );
+	float distance = length(lightDirection - normalizedNormal);
+
+	// Ambient lighting
+	vec3 MaterialAmbientColor = ambientLightColour * colour;
+    float cosTheta = dot(normalizedNormal, normalizedlightDirection);
+
+	// Diffuse Lighting
+	vec3 normalizedCamera = normalize(cameraSpace);
+	vec3 reflected = reflect(-lightDirection, normal);
+	vec3 lightDirectionNorm = normalize(lightDirection);
+	vec3 diffuseLighting = colour  * mainLightColour * cosTheta / (distance * distance) ;
+
+	// Specular Lighting
+	float cosAlpha = clamp(dot(normalizedCamera,reflected), 0, 1);
+	float diffuseIntensity = dot(normal, lightDirectionNorm);
+	float lightIntensity = diffuseIntensity + pow(cosAlpha, 5);
+	vec3 specularLighting = lightIntensity  * colour;
 	
-
-	//Diffuse
-	vec3 n = normalize( normal );
-    vec3 l = normalize( lightDirection );
-	float cosTheta = clamp(dot(n,l),0 ,1);
-	vec3 diffuseLighting = mainLightColour * cosTheta;
-
-	// Ambient 
-	vec3 ambientLighting = ambientLightColour * diffuseLighting;
-
-	float distance = length(lightDirection - n);
-
-	vec3 lighting = diffuseLighting + ambientLighting;
-
-	fragmentColour = vec4(lighting * colour, 1.0) * texture(textureSampler, uv);
+	fragmentColour = vec4(MaterialAmbientColor + diffuseLighting + specularLighting, 1.0) * texture(textureSampler, uv);
 
 }

@@ -65,7 +65,7 @@ void ForestScene::run()
 	glGenVertexArrays(1, &VertexArrayID);
 	glBindVertexArray(VertexArrayID);
 	//create floor plane
-	Plane floor(-1, 10, "Textures/mud.png");
+	Plane floor(-1, 30, "Textures/mud.png");
 	// load in tree obj and textures
 	loadTreeModel();
 	// create particle system
@@ -179,7 +179,7 @@ void ForestScene::run()
 
 		glm::mat4 transform;
 
-		glm::vec3 ambientColour(0.1, 0.1, 0.1);
+		glm::vec3 ambientColour(0.3, 0.3, 0.3);
 		glm::vec3 lightColour(1.0, 1.0, 1.0);
 
 		glUniform3f(lightDirectionLocation, 1, 1, 1);
