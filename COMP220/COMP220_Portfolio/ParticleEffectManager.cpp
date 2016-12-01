@@ -27,8 +27,7 @@ glm::vec3 ParticleEffectManager::generateParticlePosition()
 	// Generates random X and Z value between between -1 and 1
 	float randomX = ((float)rand() / (RAND_MAX)) * 2 - 1;
 	float randomZ = ((float)rand() / (RAND_MAX)) * 2 - 1;
-	// Generates random Y value between 0 and 1 and divides it by 10
-	float randomY = rand() % 5 + intialYposition;
+	float randomY = rand() % intialYposition + 1;
 	return glm::vec3(randomX, randomY, randomZ);
 }
 
