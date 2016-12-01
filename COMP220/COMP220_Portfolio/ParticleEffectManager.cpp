@@ -16,7 +16,7 @@ ParticleEffectManager::~ParticleEffectManager()
 
 void ParticleEffectManager::createMesh(const std::string& fileName)
 {
-	particleMesh.addSphere(particleSize, 1, glm::vec3(0.0, 1.0, 1.0));
+	particleMesh.addSphere(particleSize, 8, glm::vec3(0.0, 1.0, 1.0));
 	particleMesh.createBuffers();
 	particleTexture.loadTexture(fileName);
 }
@@ -36,12 +36,10 @@ void ParticleEffectManager::createParticle()
 {
 	glm::vec3 particlePosition = generateParticlePosition();
 	Particle particle(particlePosition, glm::vec3(0, 0, 0), floor);
-	particle.lifeSpan = (rand() % 10) * 100;
+	particle.lifeSpan = (rand() % 10) * 200;
 
 	auto sharedparticle = std::make_shared<Particle>(particle);
 	particles.push_back(sharedparticle);
-
-
 }
 
 void ParticleEffectManager::updateParticles(float deltaTime)

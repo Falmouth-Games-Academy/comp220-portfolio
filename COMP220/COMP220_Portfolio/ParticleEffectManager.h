@@ -19,7 +19,7 @@ public:
 	void updateParticles(float deltaTime);
 	//! Creates particle meshes
 	void createMesh(const std::string& fileName);
-
+	//! Generates coordinates for particle
 	glm::vec3 generateParticlePosition();
 
 	//! Vec3 that contains starting XYZ position of particle

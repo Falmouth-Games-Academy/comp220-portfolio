@@ -12,11 +12,6 @@ Particle::~Particle()
 {
 }
 
-void Particle::addMesh()
-{
-
-}
-
 void Particle::update(float deltaTime)
 {
 	// Apply collision response
@@ -27,7 +22,7 @@ void Particle::update(float deltaTime)
 
 	position += deltaTime * velocity;
 	// Apply gravity
-	glm::vec3 acceleration(0, -9.81f, 0);
+	glm::vec3 acceleration(0, -4.0f, 0);
 
 	// Update velocity
 	velocity += deltaTime * acceleration;

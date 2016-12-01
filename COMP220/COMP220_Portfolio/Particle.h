@@ -23,8 +23,6 @@ public:
 	//! Pointer to the level floor for use in physics
 	Plane* floor;
 
-	//! Adds a mesh to the particle
-	void addMesh();
 	//! vec3 of the particle position
 	glm::vec3 position;
 	//! vec3 of the particle velocity

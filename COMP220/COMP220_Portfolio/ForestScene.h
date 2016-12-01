@@ -47,4 +47,6 @@ private:
 	float playerYaw = 0;
 	//! ints for mouse X and Y coordinates
 	int mouseX, mouseY;
+
+	const Uint32 timePerUpdate = 1000 / 60;
 };
