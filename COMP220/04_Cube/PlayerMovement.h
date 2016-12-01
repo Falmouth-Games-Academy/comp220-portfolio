@@ -16,8 +16,8 @@ public:
 
 private:
 	// constants for sensitivity and speed
-	const float movementSpeed = 0.5;
-	const float mouseSensitivity = 0.005;
+	const float movementSpeed = 0.05;
+	const float mouseSensitivity = 0.05;
 
 	// store the players position
 	glm::vec4 playerPosition;
@@ -35,7 +35,4 @@ private:
 
 	//gets z height
 	glm::vec4 height(glm::vec4 playerPosition);
-
-
-
 };
