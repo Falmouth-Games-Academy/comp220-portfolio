@@ -1,0 +1,10 @@
+This is BibTeX, Version 0.99dThe top-level auxiliary file: comp220_Portfolio_Proposal.aux
+The style file: ieeetr.bst
+I couldn't open database file comp230_Ethics.bib
+---line 20 of file comp220_Portfolio_Proposal.aux
+ : \bibdata{comp230_Ethics
+ :                        }
+I'm skipping whatever remains of this command
+I found no \citation commands---while reading file comp220_Portfolio_Proposal.aux
+I found no database files---while reading file comp220_Portfolio_Proposal.aux
+(There were 3 error messages)
