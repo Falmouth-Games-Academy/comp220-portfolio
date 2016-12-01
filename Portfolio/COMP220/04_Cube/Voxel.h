@@ -4,7 +4,9 @@
 class Voxel
 {
 public:
+	//! Constructor
 	Voxel();
+	//! Destructor
 	~Voxel();
 
 	//! Voxel position

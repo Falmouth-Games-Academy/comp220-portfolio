@@ -3,7 +3,9 @@
 class Mesh
 {
 public:
+	//! Constructor
 	Mesh();
+	//! Destructor
 	~Mesh();
 
 	//! Adds a triangle from 3 vectors
@@ -30,7 +32,9 @@ public:
 	void addCylinder(const glm::vec3& centre, float radius, int numPoints, float height,
 		const glm::vec3& colour);
 
+	//! Creates buffers to store data
 	void createBuffers();
+	//! Binds the buffer data and draws trianges
 	void draw();
 
 private:

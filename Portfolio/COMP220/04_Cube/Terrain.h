@@ -8,7 +8,9 @@
 class Terrain
 {
 public:
+	//! Constructor
 	Terrain();
+	//! Destructor
 	~Terrain();
 	
 	//! Generates a chunk (in-progress)
@@ -42,8 +44,8 @@ public:
 	const float getGroundAmplification() { return GoundAmplification; }
 
 private:
-	const float terrainWidth = 300;
-	const float terrainDepth = 300;
+	const float terrainWidth = 100;
+	const float terrainDepth = 100;
 	const float noiseMax = 3;
 	const float noiseMin = 0;
 	const float SquareSize = 1.5f;
