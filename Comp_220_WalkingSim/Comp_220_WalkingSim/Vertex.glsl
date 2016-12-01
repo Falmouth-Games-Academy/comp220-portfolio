@@ -5,7 +5,7 @@ layout(location = 1) in vec3 vertexColour;
 layout(location = 2) in vec2 vertexUV;
 layout(location = 3) in vec3 vertexNormal;
 
-uniform mat4 mvp;
+uniform mat4 Material;
 
 out vec3 colour;
 out vec3 normal;
@@ -13,7 +13,7 @@ out vec2 uv;
 
 void main()
 {
-	gl_Position = mvp * vec4(vertexPos, 1.0);
+	gl_Position = Material * vec4(vertexPos, 1.0);
 	colour = vertexColour;
 	normal = vertexNormal;
 	uv = vertexUV;

@@ -20,14 +20,14 @@ Mesh::~Mesh()
 		glDeleteBuffers(1, &m_normalBuffer);
 }
 
-void Mesh::addTriangle(const Vertex& v1, const Vertex& v2, const Vertex& v3)
+void Mesh::AddTriangle(const Vertex& v1, const Vertex& v2, const Vertex& v3)
 {
-	addVertex(v1);
-	addVertex(v2);
-	addVertex(v3);
+	AddVertex(v1);
+	AddVertex(v2);
+	AddVertex(v3);
 }
 
-void Mesh::addVertex(const Vertex& vertex)
+void Mesh::AddVertex(const Vertex& vertex)
 {
 	if (m_positionBuffer != 0)
 	{
@@ -39,15 +39,15 @@ void Mesh::addVertex(const Vertex& vertex)
 	m_vertexUVs.push_back(vertex.m_textureCoord);
 }
 
-void Mesh::addSquare(const Vertex& v1, const Vertex& v2, const Vertex& v3, const Vertex& v4)
+void Mesh::AddSquare(const Vertex& v1, const Vertex& v2, const Vertex& v3, const Vertex& v4)
 {
-	addVertex(v1);
-	addVertex(v2);
-	addVertex(v3);
-	addVertex(v4);
+	AddVertex(v1);
+	AddVertex(v2);
+	AddVertex(v3);
+	AddVertex(v4);
 }
 
-Vertex Mesh::createSphereVertex(float radius, float longitude, float latitude, const glm::vec3& colour)
+Vertex Mesh::CreateSphereVertex(float radius, float longitude, float latitude, const glm::vec3& colour)
 {
 	glm::vec3 unitPos(
 		cos(latitude) * cos(longitude),
@@ -63,7 +63,7 @@ Vertex Mesh::createSphereVertex(float radius, float longitude, float latitude, c
 		textureCoords);
 }
 
-void Mesh::addSphere(float radius, int quality, const glm::vec3& colour)
+void Mesh::AddSphere(float radius, int quality, const glm::vec3& colour)
 {
 	float angleStep = glm::radians(90.0f) / quality;
 
@@ -74,11 +74,11 @@ void Mesh::addSphere(float radius, int quality, const glm::vec3& colour)
 	for (int i = 0; i <= quality * 4; i++)
 	{
 		float longitude = i * angleStep;
-		ringPoints.push_back(createSphereVertex(radius, longitude, latitude, colour));
+		ringPoints.push_back(CreateSphereVertex(radius, longitude, latitude, colour));
 		if (ringPoints.size() > 1)
 		{
 			Vertex pole = createSphereVertex(radius, longitude - 0.5f*angleStep, glm::radians(90.0f), colour);
-			addTriangle(pole, ringPoints[i], ringPoints[i - 1]);
+			AddTriangle(pole, ringPoints[i], ringPoints[i - 1]);
 		}
 	}
 
@@ -92,11 +92,11 @@ void Mesh::addSphere(float radius, int quality, const glm::vec3& colour)
 		for (int i = 0; i <= quality * 4; i++)
 		{
 			float longitude = i * angleStep;
-			ringPoints.push_back(createSphereVertex(radius, longitude, latitude, colour));
+			ringPoints.push_back(CreateSphereVertex(radius, longitude, latitude, colour));
 			if (ringPoints.size() > 1)
 			{
-				addTriangle(lastRingPoints[i], ringPoints[i], ringPoints[i - 1]);
-				addTriangle(lastRingPoints[i - 1], lastRingPoints[i], ringPoints[i - 1]);
+				AddTriangle(lastRingPoints[i], ringPoints[i], ringPoints[i - 1]);
+				AddTriangle(lastRingPoints[i - 1], lastRingPoints[i], ringPoints[i - 1]);
 			}
 		}
 	}
@@ -104,11 +104,10 @@ void Mesh::addSphere(float radius, int quality, const glm::vec3& colour)
 	// Bottom cap
 	for (int i = 1; i < ringPoints.size(); i++)
 	{
-		Vertex pole = createSphereVertex(radius, (i - 0.5f)*angleStep, glm::radians(-90.0f), colour);
-		addTriangle(pole, ringPoints[i - 1], ringPoints[i]);
+		Vertex pole = CreateSphereVertex(radius, (i - 0.5f)*angleStep, glm::radians(-90.0f), colour);
+		AddTriangle(pole, ringPoints[i - 1], ringPoints[i]);
 	}
 }
-
 
 bool Mesh::LoadObj(
 	const char * path,
@@ -196,7 +195,7 @@ void Mesh::LoadTexture()
 
 }
 
-void Mesh::createBuffers()
+void Mesh::CreateBuffers()
 {
 	if (m_positionBuffer != 0)
 	{
@@ -231,7 +230,7 @@ void Mesh::createBuffers()
 	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(glm::vec3), &vertices[0], GL_STATIC_DRAW);
 }
 
-void Mesh::draw()
+void Mesh::Draw()
 {
 	if (m_positionBuffer == 0)
 	{

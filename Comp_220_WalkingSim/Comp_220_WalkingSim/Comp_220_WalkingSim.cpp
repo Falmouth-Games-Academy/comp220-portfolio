@@ -11,6 +11,7 @@ void showErrorMessage(const char* message, const char* title)
 	MessageBoxA(nullptr, message, title, MB_OK | MB_ICONERROR);
 }
 
+// Retrieves the shader file and set it up for OpenGL
 bool compileShader(GLuint shaderId, const std::string& shaderFileName)
 {
 	// Read the source code from the file
@@ -18,6 +19,7 @@ bool compileShader(GLuint shaderId, const std::string& shaderFileName)
 	std::ifstream sourceStream(shaderFileName, std::ios::in);
 	if (sourceStream.is_open())
 	{
+		// If the file is found it will load into the buffer
 		std::stringstream buffer;
 		buffer << sourceStream.rdbuf();
 		shaderSource = buffer.str();
@@ -25,6 +27,7 @@ bool compileShader(GLuint shaderId, const std::string& shaderFileName)
 	}
 	else
 	{
+		// Error if the file was not found
 		showErrorMessage(shaderFileName.c_str(), "File not found");
 		return false;
 	}
@@ -50,6 +53,7 @@ bool compileShader(GLuint shaderId, const std::string& shaderFileName)
 	return (result != GL_FALSE);
 }
 
+// Load the shader into OpenGL
 GLuint loadShaders(const std::string& vertex_file_path, const std::string& fragment_file_path) {
 
 	// Create the shaders
@@ -85,18 +89,26 @@ GLuint loadShaders(const std::string& vertex_file_path, const std::string& fragm
 	return programId;
 }
 
+// Load the Texture
 GLuint loadTexture(const std::string& fileName)
 {
+	// Get the Image to load
 	SDL_Surface* textureSurface = IMG_Load(fileName.c_str());
 
+	// Throw error message is file doesnt exist
 	if (textureSurface == nullptr)
 	{
 		showErrorMessage(SDL_GetError(), "IMG_Load failed");
 		return 0;
 	}
 
+	// Give the Texture an ID
 	GLuint textureId;
+
+	// Generate an array
 	glGenTextures(1, &textureId);
+
+	// Bind the Array
 	glBindTexture(GL_TEXTURE_2D, textureId);
 
 	int format;
@@ -123,21 +135,27 @@ GLuint loadTexture(const std::string& fileName)
 	return textureId;
 }
 
+// Main function
 int main(int argc, char* args[])
 {
+	// Show error is initialisation failed
 	if (SDL_Init(SDL_INIT_VIDEO) < 0)
 	{
 		showErrorMessage(SDL_GetError(), "SDL_Init failed");
 		return 1;
 	}
 
+	//Set up SDL-GL's versions 
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 
+	// Create the window to show on screen
 	SDL_Window* window = SDL_CreateWindow("My first OpenGL program", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 600, 600, SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL);
 
+	// Loading various variables and their corrisponding
+	// error messages if the fail
 	if (window == nullptr)
 	{
 		showErrorMessage(SDL_GetError(), "SDL_CreateWindow failed");
@@ -166,21 +184,32 @@ int main(int argc, char* args[])
 		return 1;
 	}
 
+	// Assign a vertex array ID
 	GLuint VertexArrayID;
+
+	// Generate the Array
 	glGenVertexArrays(1, &VertexArrayID);
+
+	// Bind the Array
 	glBindVertexArray(VertexArrayID);
 
+	// Load an instance of the Mesh.cpp class
 	Mesh mesh;
 
+	// Add a Shpere
 	mesh.addSphere(1, 80, glm::vec4(1, 1, 1, 1));
 
+	// Create the Buffers
 	mesh.createBuffers();
 
+	// Load an Object
 	//mesh.LoadObj();
 
+	// Load the shaders into the program
 	GLuint programID = loadShaders("vertex.glsl", "fragment.glsl");
 
-	GLuint mvpLocation = glGetUniformLocation(programID, "mvp");
+	// 
+	GLuint MaterialLocation = glGetUniformLocation(programID, "Material");
 
 	GLuint lightDirectionLocation = glGetUniformLocation(programID, "lightDirection");
 
