@@ -47,8 +47,8 @@ private:
 	float playerYaw = 0;
 	//! ints for mouse X and Y coordinates
 	int mouseX, mouseY;
-
+	//! float for how long a frame takes
 	float deltaTime;
-
+	//! const Uint32 to make phyics update at 60fps
 	const Uint32 timePerUpdate = 1000 / 60;
 };
