@@ -167,16 +167,18 @@ void ForestScene::run()
 
 		// Calculate delta time
 		Uint32 currentTime = SDL_GetTicks();
-		float deltaTime = (currentTime - lastFrameTime) / 1000.0f;
-		lastFrameTime = currentTime;
-
-		// Update particle
-		//while (currentTime - lastFrameTime >= timePerUpdate)
-		//{
-			particleSystem.updateParticles(deltaTime);
-		//}
+		deltaTime = (currentTime - lastFrameTime) / 1000.0f;
 		
 
+		
+
+		// Update particle
+		if (currentTime > lastFrameTime)
+		{
+			particleSystem.updateParticles(deltaTime);
+		}
+		
+		lastFrameTime = currentTime;
 		glClearColor(0.9f, 0.9f, 0.9f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 

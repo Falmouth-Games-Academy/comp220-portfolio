@@ -48,5 +48,7 @@ private:
 	//! ints for mouse X and Y coordinates
 	int mouseX, mouseY;
 
+	float deltaTime;
+
 	const Uint32 timePerUpdate = 1000 / 60;
 };
