@@ -6,7 +6,7 @@
 #include"ParticleEffectManager.h"
 #include"Shader.h"
 #include"Plane.h"
-//! Main clas where everything runs
+//! Main class that creates and renders scene
 class ForestScene
 {
 public:

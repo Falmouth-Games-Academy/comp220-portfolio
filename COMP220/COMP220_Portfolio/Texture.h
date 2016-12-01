@@ -1,6 +1,6 @@
 #pragma once
 #include"ErrorMessage.h"
-//! Texture classs
+//! Texture class
 /*!
 	Loads and binds textures from image files
 */

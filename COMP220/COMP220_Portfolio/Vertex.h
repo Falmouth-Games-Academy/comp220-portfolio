@@ -1,5 +1,8 @@
 #pragma once
 //! Vertex class
+/*!
+	Creates vertices to be used in meshes
+*/
 class Vertex
 {
 public:

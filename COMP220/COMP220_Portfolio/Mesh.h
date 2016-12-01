@@ -1,7 +1,11 @@
 #pragma once
 
 #include "Vertex.h"
-
+//! Mesh class
+/*!
+	for creating meshes and rendering them
+	
+*/
 class Mesh
 {
 public:
