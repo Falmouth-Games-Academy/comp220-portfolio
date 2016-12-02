@@ -10,14 +10,14 @@ class Vertex
 public:
 	Vertex(const glm::vec3& pos, const glm::vec2& texCoord, const glm::vec3& normal = glm::vec3(0,0,0))
 	{
-		this->pos = pos;
-		this->texCoord = texCoord;
-		this->normal = normal;
+		this->pos = pos; // pointer is used to retrieve the object's pos
+		this->texCoord = texCoord;// pointer is used to retrieve the object's texCoord
+		this->normal = normal;// pointer is used to retrieve the object's normal
 	}
 
 	inline glm::vec3* GetPos() { return &pos; }		//gets private vec3 pos
 	inline glm::vec2* GetTexCoord() { return &texCoord; }//gets private vec2 Coord
-	inline glm::vec3* GetNormal() { return &normal; }
+	inline glm::vec3* GetNormal() { return &normal; }   //gets the normal
 
 protected:
 private:

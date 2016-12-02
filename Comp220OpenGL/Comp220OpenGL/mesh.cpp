@@ -28,12 +28,12 @@ Mesh::Mesh(Vertex* vertices, unsigned int numVertices, unsigned int* indices, un
 	
 }
 
-
+//deconstructor
 Mesh::~Mesh()
-{
+{	//deletes the vertex arrays
 	glDeleteVertexArrays(1, &m_vertexArrayObject);
 }
-
+//initialize the meshs
 void Mesh::InitMesh(const IndexedModel& model) 
 {
 	m_drawCount =model.indices.size();

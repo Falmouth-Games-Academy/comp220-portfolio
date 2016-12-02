@@ -57,7 +57,7 @@ void Shader::Update(const Transform& transform,const Camera& camera)
 	glUniformMatrix4fv(m_uniforms[TRANSFORM_U], 1, GL_FALSE, &model[0][0]);
 }
 
-
+//creating the shader
 static GLuint CreateShader(const std::string& text, GLenum shaderType)
 {
 	//check shader is working if not print fail.
@@ -76,7 +76,7 @@ static GLuint CreateShader(const std::string& text, GLenum shaderType)
 	CheckShaderError(shader, GL_COMPILE_STATUS, false, "shader compile failure:  ");
 	return shader;
 }
-
+//loading the shader
 static std::string LoadShader(const std::string& fileName) //Loads a file off the hardrive
 {
 	std::ifstream file;

@@ -18,12 +18,13 @@ Display::Display(int width, int height, const std::string& title)
 	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 16);//depth buffer
 
 
-	//Creates Window
+	//Creates Window using SDL
 	m_window = SDL_CreateWindow(title.c_str(),SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width,height,SDL_WINDOW_OPENGL);
 	m_glContext =SDL_GL_CreateContext(m_window);
 
 	//init glew
 	//glewExperimental = GL_TRUE;
+
 	GLenum status = glewInit();
 	if (status != GLEW_OK)
 	{
@@ -36,8 +37,11 @@ Display::Display(int width, int height, const std::string& title)
 	and what it does when it draws it compares with any close and if it sitn there then draw it*/
 	glEnable(GL_DEPTH_TEST);
 
-
-	//backface culling works for convex items
+	/*
+	Cull face makes the behind of the visble not rendered to
+	reduce the number of polygons the hardware has to draw.
+	backface culling works for convex items
+	*/
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);
 
