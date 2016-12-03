@@ -21,7 +21,7 @@ void main()
 {
 	// Materials
 	vec3 materialDiffuseColor = texture( textureSampler, uv ).rgb;
-	vec3 materialAmbientColor = vec3(0.1,0.1,0.1) * materialDiffuseColor;
+	vec3 materialAmbientColor = ambientLightColour * materialDiffuseColor;
 	vec3 materialSpecularColor = vec3(0.3,0.3,0.3);
 
 

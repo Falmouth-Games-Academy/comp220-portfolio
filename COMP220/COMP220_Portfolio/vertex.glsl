@@ -32,7 +32,7 @@ void main()
 	eyeDirection = vec3(0,0,0) - vertexPosition;
 
 	vec3 lightPositionCameraspace = ( vpMatrix * vec4(lightPosition,1)).xyz;
-	lightDirectionCameraspace = lightPosition + eyeDirection;
+	lightDirectionCameraspace = lightPositionCameraspace + eyeDirection;
 
 	normalCameraspace = ( vpMatrix * modelMatrix * vec4(vertexNormal,0)).xyz;
 	
