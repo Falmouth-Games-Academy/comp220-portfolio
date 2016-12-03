@@ -1,9 +1,2 @@
-﻿  PlayerMovement.cpp
-c:\users\warwick\desktop\comp220-portfolio\comp220\06_lighting\playermovement.h(19): warning C4305: 'initializing': truncation from 'double' to 'const float'
-c:\users\warwick\desktop\comp220-portfolio\comp220\06_lighting\playermovement.h(20): warning C4305: 'initializing': truncation from 'double' to 'const float'
-c:\users\warwick\desktop\comp220-portfolio\comp220\06_lighting\playermovement.cpp(84): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-c:\users\warwick\desktop\comp220-portfolio\comp220\06_lighting\playermovement.cpp(85): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-c:\users\warwick\desktop\comp220-portfolio\comp220\06_lighting\playermovement.cpp(87): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-c:\users\warwick\desktop\comp220-portfolio\comp220\06_lighting\playermovement.cpp(88): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-  06_Lighting.vcxproj -> C:\Users\Warwick\Desktop\comp220-portfolio\COMP220\x64\Debug\06_Lighting.exe
+﻿  06_Lighting.vcxproj -> C:\Users\Warwick\Desktop\comp220-portfolio\COMP220\x64\Debug\06_Lighting.exe
   06_Lighting.vcxproj -> C:\Users\Warwick\Desktop\comp220-portfolio\COMP220\x64\Debug\06_Lighting.pdb (Full PDB)
