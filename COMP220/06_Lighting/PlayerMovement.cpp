@@ -45,11 +45,11 @@ void PlayerMovement::tick()
 	const Uint8* keyboardState = SDL_GetKeyboardState(nullptr);
 	if (keyboardState[SDL_SCANCODE_W])
 	{
-		playerPosition += playerForward * 0.001f;
+		playerPosition += playerForward * movementSpeed;
 	}
 	if (keyboardState[SDL_SCANCODE_S])
 	{
-		playerPosition -= playerForward * 0.001f;
+		playerPosition -= playerForward * movementSpeed;
 	}
 
 	glm::vec4 playerRight(0, 0, -1, 0);
@@ -59,15 +59,15 @@ void PlayerMovement::tick()
 
 	if (keyboardState[SDL_SCANCODE_A])
 	{
-		playerPosition -= playerRight * 0.001f;
+		playerPosition -= playerRight * movementSpeed;
 	}
 	if (keyboardState[SDL_SCANCODE_D])
 	{
-		playerPosition += playerRight * 0.001f;
+		playerPosition += playerRight * movementSpeed;
 	}
 
 	glm::mat4 view = glm::lookAt(glm::vec3(playerPosition), glm::vec3(playerPosition + playerLook), glm::vec3(0, 1, 0));
-	glm::mat4 projection = glm::perspective(glm::radians(45.0f), 1.0f, 0.1f, 100.0f);
+	glm::mat4 projection = glm::perspective(glm::radians(45.0f), 1.0f, 0.1f, 1000.0f);
 
 	glm::mat4 transform;
 	MVP = projection * view * transform;

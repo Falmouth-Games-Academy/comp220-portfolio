@@ -57,25 +57,11 @@ int main(int argc, char* args[])
 		return 1;
 	}
 
-	GLuint texture = loadTexture.loadTexture("earth.jpg");
-
-	if (texture == 0)
-	{
-		error.custom("loadTexture failed", ":(");
-		return 1;
-	}
-
 	GLuint VertexArrayID;
 	glGenVertexArrays(1, &VertexArrayID);
 	glBindVertexArray(VertexArrayID);
 
 	Mesh mesh;
-
-	Vertex p1(glm::vec3(1, -2, 1), glm::vec3(1, 1, 1));
-	Vertex p2(glm::vec3(1, -2, 2), glm::vec3(1, 1, 1));
-	Vertex p3(glm::vec3(0, -2, 2), glm::vec3(1,1,1));
-	Vertex p4(glm::vec3(0, -2, 1), glm::vec3(1, 1, 1));
-	mesh.addSquare(p3,p2,p1,p4);
 
 	//set up terrain
 	Terrain terrain(4, mesh);
@@ -126,7 +112,7 @@ int main(int argc, char* args[])
 
 		player.tick();
 
-		glClearColor(0.0f, 0.0f, 0.2f, 1.0f);
+		glClearColor(1.0f, 0.6509803921568627f, 0.1294117647058824f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		glUseProgram(programID);

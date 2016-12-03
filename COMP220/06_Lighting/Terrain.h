@@ -24,6 +24,10 @@ public:
 private:
 	std::vector<noise::Perlin> noiseArray;
 
+	//determine the colour based on the position of the point
+	glm::vec3 getColour(double nx, double ny);
+
+	//mesh to add the terrain to
 	Mesh *mesh;
 
 	//stored for use in player movement

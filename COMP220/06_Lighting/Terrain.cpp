@@ -28,12 +28,10 @@ void Terrain::generateTerrain(int maxX, int maxY, float noiseAmplification, floa
 			glm::vec3 p3(x, getLayeredNoise(nx, ny) * heightAmplification, y);
 			glm::vec3 p4(x - 1, getLayeredNoise(previousNx, ny) * heightAmplification, y);
 
-			Vertex v1(p1, glm::vec3(0.5, 1, 1));
-			Vertex v2(p2, glm::vec3(1, 0.5, 1));
-			Vertex v3(p3, glm::vec3(1, 1, 0.5));
-			Vertex v4(p4, glm::vec3(1, 1, 1));
-
-			glm::vec3 col(getLayeredNoise(nx, ny) + 0.5, 1 - (getLayeredNoise(nx, ny) + 0.5), (getLayeredNoise(nx, ny) + 0.5) * ((nx + ny) / 2));
+			Vertex v1(p1, getColour(previousNx, previousNy));
+			Vertex v2(p2, getColour(nx, previousNy));
+			Vertex v3(p3, getColour(nx, ny));
+			Vertex v4(p4, getColour(previousNx, ny));
 
 			mesh->addSquare(v4, v3, v2, v1);
 
@@ -65,6 +63,19 @@ double Terrain::getLayeredNoise(double nx, double ny)
 	}
 	return noise;
 }
+
+glm::vec3 Terrain::getColour(double nx, double ny)
+{
+	glm::vec3 col(getLayeredNoise(nx, ny) + 0.5, (getLayeredNoise(nx, ny) + 0.5), (getLayeredNoise(nx, ny) + 0.5));
+	col = col + glm::vec3(0, 1 - (getLayeredNoise(nx, ny) + 0.75), 0);
+	if (getLayeredNoise(nx, ny) <= -0.1)
+	{
+		col = col + glm::vec3(0,0, 1);
+	}
+	return col;
+}
+
+
 
 
 Terrain::~Terrain()
