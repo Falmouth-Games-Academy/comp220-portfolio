@@ -77,7 +77,7 @@ void Mesh::AddSphere(float radius, int quality, const glm::vec3& colour)
 		ringPoints.push_back(CreateSphereVertex(radius, longitude, latitude, colour));
 		if (ringPoints.size() > 1)
 		{
-			Vertex pole = createSphereVertex(radius, longitude - 0.5f*angleStep, glm::radians(90.0f), colour);
+			Vertex pole = CreateSphereVertex(radius, longitude - 0.5f*angleStep, glm::radians(90.0f), colour);
 			AddTriangle(pole, ringPoints[i], ringPoints[i - 1]);
 		}
 	}
@@ -185,14 +185,8 @@ bool Mesh::LoadObj(
 
 				out_vertices.push_back(vertex);
 			}
-
 		}
 	}
-}
-
-void Mesh::LoadTexture()
-{
-
 }
 
 void Mesh::CreateBuffers()
@@ -221,13 +215,6 @@ void Mesh::CreateBuffers()
 	glGenBuffers(1, &m_normalBuffer);
 	glBindBuffer(GL_ARRAY_BUFFER, m_normalBuffer);
 	glBufferData(GL_ARRAY_BUFFER, m_vertexNormals.size() * sizeof(glm::vec3), m_vertexNormals.data(), GL_STATIC_DRAW);
-
-	// Read our .obj file
-	std::vector< glm::vec3 > vertices;
-	std::vector< glm::vec2 > uvs;
-	std::vector< glm::vec3 > normals; // Won't be used at the moment.
-	bool res = LoadObj("cube.obj", vertices, uvs, normals);
-	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(glm::vec3), &vertices[0], GL_STATIC_DRAW);
 }
 
 void Mesh::Draw()

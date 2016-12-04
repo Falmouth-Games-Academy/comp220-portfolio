@@ -197,13 +197,18 @@ int main(int argc, char* args[])
 	Mesh mesh;
 
 	// Add a Shpere
-	mesh.addSphere(1, 80, glm::vec4(1, 1, 1, 1));
+	mesh.AddSphere(1, 8, glm::vec4(1, 1, 1, 1));
+
+	// Read our .obj file
+	std::vector< glm::vec3 > vertices;
+	std::vector< glm::vec2 > uvs;
+	std::vector< glm::vec3 > normals; // Won't be used at the moment.
+	mesh.LoadObj("cube.obj", vertices, uvs, normals);
 
 	// Create the Buffers
-	mesh.createBuffers();
+	mesh.CreateBuffers();
 
-	// Load an Object
-	//mesh.LoadObj();
+	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(glm::vec3), &vertices[0], GL_STATIC_DRAW);	
 
 	// Load the shaders into the program
 	GLuint programID = loadShaders("vertex.glsl", "fragment.glsl");
@@ -307,12 +312,12 @@ int main(int argc, char* args[])
 		glm::mat4 transform;
 		//transform = glm::rotate(transform, SDL_GetTicks() / 1000.0f, glm::vec3(0, 1, 0));
 		glm::mat4 mvp = projection * view * transform;
-		glUniformMatrix4fv(mvpLocation, 1, GL_FALSE, glm::value_ptr(mvp));
+		glUniformMatrix4fv(MaterialLocation, 1, GL_FALSE, glm::value_ptr(mvp));
 
 		//Adding Lighting
 		glUniform3f(lightDirectionLocation, 1, 1, 1);
 
-		mesh.draw();
+		mesh.Draw();
 
 		SDL_GL_SwapWindow(window);
 	}
