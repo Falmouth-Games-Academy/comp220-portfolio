@@ -49,5 +49,7 @@ private:
 	int intialYposition = 0;
 	//! the size f the particle when rendered.
 	float particleSize = 0.1;
+	//! maximum life span for a particle
+	int maxLifeSpan = 500;
 };
 

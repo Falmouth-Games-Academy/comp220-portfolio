@@ -168,17 +168,15 @@ void ForestScene::run()
 		// Calculate delta time
 		Uint32 currentTime = SDL_GetTicks();
 		deltaTime = (currentTime - lastFrameTime) / 1000.0f;
-		
-
-		
 
 		// Update particle
-		if (currentTime > lastFrameTime)
+		if (currentTime > (lastFrameTime + timePerUpdate))
 		{
 			particleSystem.updateParticles(deltaTime);
+			lastFrameTime = currentTime;
 		}
 		
-		lastFrameTime = currentTime;
+		
 		glClearColor(0.9f, 0.9f, 0.9f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -192,7 +190,7 @@ void ForestScene::run()
 		glUniformMatrix4fv(vpMatrixLocation, 1, GL_FALSE, glm::value_ptr(vpMatrix));
 
 
-		glm::vec3 ambientColour(0.15, 0.15, 0.15);
+		glm::vec3 ambientColour(0.1, 0.1, 0.1);
 		glm::vec3 lightColour(1.0, 1.0, 1.0);
 
 		glm::vec3 mainLightPosition = glm::vec3(4, 4, 4);

@@ -35,7 +35,7 @@ void ParticleEffectManager::createParticle()
 {
 	glm::vec3 particlePosition = generateParticlePosition();
 	Particle particle(particlePosition, glm::vec3(0, 0, 0), floor);
-	particle.lifeSpan = (rand() % 10) * 200;
+	particle.lifeSpan = (rand() % maxLifeSpan);
 
 	auto sharedparticle = std::make_shared<Particle>(particle);
 	particles.push_back(sharedparticle);
