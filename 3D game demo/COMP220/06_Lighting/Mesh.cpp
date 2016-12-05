@@ -39,14 +39,15 @@ void mesh::nonWall()
 	int nonWall = 0;
 }
 
+//!making a wall mesh using two triangles
 void mesh::wall(const glm::vec3& a, const glm::vec3& b,
 	const glm::vec3& c, const glm::vec3& d, const glm::vec3& colour,
 	float u1, float u2, float v1, float v2)
 {
 	glm::vec2 ta(u1, v1);
 	glm::vec2 tb(u1, v2);
-	glm::vec2 tc(u2, v2);
-	glm::vec2 td(u2, v1);
+	glm::vec2 tc(u2, v1);
+	glm::vec2 td(u2, v2);
 
 	triangle(a, b, d);
 	triangle(d, b, c);

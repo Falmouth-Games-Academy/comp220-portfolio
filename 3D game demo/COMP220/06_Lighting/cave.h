@@ -1,10 +1,10 @@
 #pragma once
 
-class mesh
+class cave
 {
 public:
-	mesh();
-	~mesh();
+	cave();
+	~cave();
 
 	void createBuffers();
 	void draw();

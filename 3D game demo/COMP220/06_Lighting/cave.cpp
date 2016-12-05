@@ -75,12 +75,21 @@ GLuint loadShaders(const std::string& vertex_file_path, const std::string& fragm
 	return programId;
 }
 
+cave::cave()
+{
+}
+
+cave::~cave()
+{}
+
 /*Lighting for the demo*/
 int light()
 {
 	GLuint programID = loadShaders("vertex.glsl", "fragment.glsl");
 	GLuint lighting = glGetUniformLocation(programID, "lightDirection");
 	glUniform3f(lighting, 1, 1, 1);
+
+	return 1;
 }
 
 /*Loading textures to texture the walls*/
@@ -123,38 +132,47 @@ GLuint getTexture(const std::string& fileName)
 }
 
 /*This is me using cellular automata to go through a grid and define is a cell is a wall if so it will load a mesh*/
-int caveGen(wall, nonWall)
+mesh* caveGen()
 {
-	for (int x = 0; x < 10; x++)
+	mesh* myMesh = new mesh;
+	for (int x = 0; x < 25; x++)
 	{
-		x = 1 + (int)(10.0 * (rand() / (RAND_MAX + 1.0)));
-		if (x > 5)
+		for (int y = 0; y < 1; y++) //creating a grid
 		{
-			mesh mesh;
-			mesh.wall(glm::vec3(0, 0, 0), glm::vec3(1, 0, 0), glm::vec3(1, 1, 0), glm::vec3(0, 1, 0), glm::vec3(1, 0, 0), 0, 0, 0, 0);
-			mesh.createBuffers();
-		}
-		else
-		{
-			int nonWall;
-		}
+			for (int z = 0; z < 25; z++)
+			{
+				int v = 1 + (int)(10.0 * (rand() / (RAND_MAX + 1.0)));
+				if (v > 5)
+				{
+					myMesh->wall(glm::vec3(x, y, z), glm::vec3(x + 1, y, z+1), glm::vec3(x + 1, y + 1, z+1), glm::vec3(x, y + 1, z), glm::vec3(1, 0, 0), 0, 0, 0, 0);
+				}
+				else
+				{
+					int nonWall;
+				}
+				int k = 1 + (int)(10.0 * (rand() / (RAND_MAX + 1.0))); //generating a random number to determine if it is a wall ot not
+				if (k > 1)
+				{
+					myMesh->wall(glm::vec3(x, y + 1, 0), glm::vec3(x, y, 0), glm::vec3(x + 1, y, 0), glm::vec3(x + 1, y + 1, 0), glm::vec3(1, 0, 0), 0, 0, 0, 0);
+				}
+				int l = 1 + (int)(10.0 * (rand() / (RAND_MAX + 1.0)));
+				if (l > 1)
+				{
+					myMesh->wall(glm::vec3(0, y, z), glm::vec3(0, y, z + 1), glm::vec3(0, y + 1, z + 1), glm::vec3(0, y + 1, z), glm::vec3(1, 0, 0), 0, 0, 0, 0);
+				}
+				int j = 1 + (int)(10.0 * (rand() / (RAND_MAX + 1.0)));
+				if (j > 1)
+				{
+					myMesh->wall(glm::vec3(x, 0, z), glm::vec3(x + 1, 0, z + 1), glm::vec3(x + 1, 0, z + 1), glm::vec3(x, 0, z), glm::vec3(1, 0, 0), 0, 0, 0, 0);
+				}
 
-		for (int y = 0; y < 10; y++) //creating a grid
-		{
-			y = 1 + (int)(10.0 * (rand() / (RAND_MAX + 1.0)));
-			if (y > 5)
-			{
-				mesh mesh;
-				mesh.wall(glm::vec3(0, 0, 0), glm::vec3(1, 0, 0), glm::vec3(1, 1, 0), glm::vec3(0, 1, 0), glm::vec3(1, 0, 0), 0, 0, 0, 0);
-				mesh.createBuffers();
-			}
-			else
-			{
-				int nonWall;
 			}
 
 		}
 	}
+
+	myMesh->createBuffers();//draws all the points of the object in my mesh
+	return myMesh;
 }
 
 /*main function which currently still has played movement*/
@@ -207,7 +225,7 @@ int main(int argc, char* args[])
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	glEnable(GL_CULL_FACE);
+	//glEnable(GL_CULL_FACE);
 
 	glm::vec4 plyrPos(0, 0, 4, 1);
 	float plyrPitch = 0;
@@ -215,6 +233,8 @@ int main(int argc, char* args[])
 
 	SDL_SetRelativeMouseMode(SDL_TRUE);
 	SDL_GetRelativeMouseState(nullptr, nullptr);
+
+	mesh* caveMesh = caveGen();
 
 	bool running = true;
 	while (running)
@@ -238,6 +258,8 @@ int main(int argc, char* args[])
 			}
 		}
 
+
+		//using mouse to see where player is looking
 		int Xmouse, Ymouse;
 		SDL_GetRelativeMouseState(&Xmouse, &Ymouse);
 		plyrYaw -= Xmouse * 0.005f;
@@ -255,6 +277,8 @@ int main(int argc, char* args[])
 		plyrView = plyrRotation * plyrView;
 		glm::vec4 plyrFwrd = plyrView;
 
+
+		/*takes key input to make the camera move around the screen*/
 		const Uint8* keyState = SDL_GetKeyboardState(nullptr);
 		if (keyState[SDL_SCANCODE_W])
 		{
@@ -291,14 +315,16 @@ int main(int argc, char* args[])
 		glm::mat4 mvp = project * sight * transform;
 		glUniformMatrix4fv(mvpPosition, 1, GL_FALSE, glm::value_ptr(mvp));
 
-		GLuint wallTexture = getTexture("floor.jpg");
+		GLuint wallTexture = getTexture("wall.jpg"); //trying to load a texture
 
-		if (wallTexture)
+		if (wallTexture == 0)
 		{
-			showError("getTexture did not work", ":(");
+			showError("loadTexture failed", ":(");
 			return 1;
 		}
 
+		glBindTexture(GL_TEXTURE_2D, wallTexture);
+		caveMesh->draw();
 
 		SDL_GL_SwapWindow(window);
 	}
