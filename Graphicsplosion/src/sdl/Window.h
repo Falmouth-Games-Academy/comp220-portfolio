@@ -9,7 +9,9 @@ public:
 	~Window();
 
 public:
-	void Render();
+	void BeginRender(bool doClear = true);
+
+	void EndRender();
 
 public:
 	// Returns the error state where 0 = no errors in creation
@@ -19,4 +21,6 @@ public:
 
 private:
 	struct SDL_Window* sdlWindow;
+
+	void* sdlGlContext;
 };
