@@ -9,6 +9,9 @@ public:
 	~Window();
 
 public:
+	void Render();
+
+public:
 	// Returns the error state where 0 = no errors in creation
 	int GetError() {
 		return (int)(sdlWindow != nullptr);
