@@ -3,9 +3,11 @@
 layout(location = 0) in vec3 vertexPos;
 out vec3 vertexColour;
 
+uniform mat4 matWorld; // the global transformation matrix
+
 void main()
 {
-	gl_Position.xyz = vertexPos;
+	gl_Position.xyz = (matWorld * vec4(vertexPos, 1)).xyz; // matrix needs to be multiplied from the left?
 	gl_Position.w = 1.0;
 
 	vertexColour = gl_Position.xyz;

@@ -17,6 +17,54 @@ class BasicShaderProgram {
 	};
 };
 
+class Vec4 {
+public:
+	Vec4(float x_, float y_, float z_, float w_) : x(x_), y(y_), z(z_), w(w_) {};
+
+public:
+	float x, y, z, w;
+};
+
+class Matrix {
+public:
+	Matrix() = default;
+	Matrix(const Vec4& x, const Vec4& y, const Vec4& z, const Vec4& w) :
+		m11(x.x), m21(x.y), m31(x.z), m41(x.w), m12(y.x), m22(y.y), m32(y.z), m42(y.w), m13(z.x), m23(z.y), m33(z.z), m43(z.w),
+		m14(w.x), m24(w.y), m34(w.z), m44(w.w) {};
+
+	// Identity constructor
+	static Matrix Matrix::FromIdentity() {
+		return Matrix(Vec4(1.0f, 0.0f, 0.0f, 0.0f), Vec4(0.0f, 1.0f, 0.0f, 0.0f), Vec4(0.0f, 0.0f, 1.0f, 0.0f), Vec4(0.0f, 0.0f, 0.0f, 1.0f));
+	}
+
+public:
+	union {
+		struct {
+			float m11, m12, m13, m14;
+			float m21, m22, m23, m24;
+			float m31, m32, m33, m34;
+			float m41, m42, m43, m44;
+		};
+
+		float m[4][4];
+	};
+
+public:
+	// Matrix multiplication operator
+	void operator*=(const Matrix& other) {
+		Matrix temp{};
+		for (int r = 0; r < 4; r++) {
+			for (int c = 0; c < 4; c++) {
+				for (int s = 0; s < 4; s++) {
+					temp.m[r][c] += m[0][s] * other.m[s][0];
+				}
+			}
+		}
+
+		*this = temp;
+	}
+};
+
 int main(int argc, char* argv[]) {
 	Window mainWindow("Tester", Vec2I(640, 480));
 
@@ -45,7 +93,7 @@ int main(int argc, char* argv[]) {
 	GLuint vertexbuffer;
 	glGenBuffers(1, &vertexbuffer);
 	glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(g_vertex_buffer_data), g_vertex_buffer_data, GL_DYNAMIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(g_vertex_buffer_data), g_vertex_buffer_data, GL_STATIC_DRAW);
 
 	glVertexAttribPointer(
 		0,                  // attribute 0. No particular reason for 0, but must match the layout in the shader.
@@ -56,23 +104,44 @@ int main(int argc, char* argv[]) {
 		(void*)0            // array buffer offset
 	);
 
+	// Set the world transform
+	Matrix matWorld(Vec4(1.0f, 0.0f, 0.0f, 0.0f), Vec4(0.0f, 1.0f, 0.0f, 0.0f), Vec4(0.0f, 0.0f, 1.0f, 0.0f), Vec4(0.0f, 0.0f, 0.0f, 1.0f));
+	int uniMatWorld = glGetUniformLocation(shaderProgram.GetGlProgram(), "matWorld");
+
+	float angle = 0.0f;
+
 	while (!sdl.HasReceivedQuit()) {
 		sdl.UpdateEvents();
-
-		// Rotate the triangle lol because we can
-		for (int i = 0; i < sizeof(g_vertex_buffer_data) / sizeof(g_vertex_buffer_data[0]); i += 3) {
-			float x = g_vertex_buffer_data[i + 0], y = g_vertex_buffer_data[i + 1];
-
-			g_vertex_buffer_data[i + 0] = x * cos(0.1f) - y * sin(0.1f);
-			g_vertex_buffer_data[i + 1] = x * sin(0.1f) + y * cos(0.1f);
-		}
-		glBufferData(GL_ARRAY_BUFFER, sizeof(g_vertex_buffer_data), g_vertex_buffer_data, GL_DYNAMIC_DRAW);
 
 		// Render here
 		mainWindow.BeginRender();
 
 		// Use our test shader
 		test.UseShaderProgram(shaderProgram);
+
+		// Test rotate the triangle
+		angle += 0.1f;
+
+		matWorld.m11 = cos(angle);
+		matWorld.m21 = -sin(angle);
+		matWorld.m12 = sin(angle);
+		matWorld.m22 = cos(angle);
+
+		/*
+
+		*/
+
+		Matrix test = Matrix::FromIdentity();
+
+		test.m11 = cos(angle);
+		test.m31 = -sin(angle);
+		test.m13 = sin(angle);
+		test.m33 = cos(angle);
+
+		matWorld *= test;
+
+		// Upload the world transform
+		glUniformMatrix4fv(uniMatWorld, 1, GL_FALSE, (GLfloat*)&matWorld);
 
 		glEnableVertexAttribArray(0);
 		glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
