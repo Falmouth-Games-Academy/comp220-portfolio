@@ -1,7 +1,12 @@
 #version 330 core
+
 layout(location = 0) in vec3 vertexPos;
+out vec3 vertexColour;
+
 void main()
 {
 	gl_Position.xyz = vertexPos;
 	gl_Position.w = 1.0;
+
+	vertexColour = gl_Position.xyz;
 }
