@@ -15,9 +15,15 @@ public:
 
 public:
 	// Returns the error state where 0 = no errors in creation
-	int GetError() {
+	int GetError() const {
 		return (int)(sdlWindow != nullptr);
 	}
+
+public:
+	// Tries to create a GL context. If successful, returns the context. If the context already exists, nullptr is returned. Use GetGlContext in this case
+	void* CreateGlContext();
+
+	void* GetGlContext();
 
 private:
 	struct SDL_Window* sdlWindow;

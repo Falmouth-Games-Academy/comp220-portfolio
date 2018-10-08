@@ -9,7 +9,7 @@ enum GLResource : GLuint {
 // 3D renderer wrapper for OpenGL (by default)
 class Renderer {
 public:
-	Renderer();
+	Renderer(class Window& renderWindow);
 
 public:
 	void UseShaderProgram(const class ShaderProgram& program);

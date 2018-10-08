@@ -56,7 +56,7 @@ public:
 		for (int r = 0; r < 4; r++) {
 			for (int c = 0; c < 4; c++) {
 				for (int s = 0; s < 4; s++) {
-					temp.m[r][c] += m[0][s] * other.m[s][0];
+					temp.m[r][c] += m[r][s] * other.m[s][c];
 				}
 			}
 		}
@@ -65,10 +65,12 @@ public:
 	}
 };
 
+#include <Windows.h> // sleep
+
 int main(int argc, char* argv[]) {
 	Window mainWindow("Tester", Vec2I(640, 480));
 
-	Renderer test;
+	Renderer test(mainWindow);
 	
 	// Load the shaders
 	GLResource fragmentShader = test.LoadShaderFromSourceFile("src/shaders/fragment.txt", GL_FRAGMENT_SHADER);
@@ -120,16 +122,13 @@ int main(int argc, char* argv[]) {
 		test.UseShaderProgram(shaderProgram);
 
 		// Test rotate the triangle
-		angle += 0.1f;
+		angle += 6.28f / 60.0f;
 
+		matWorld = Matrix::FromIdentity();
 		matWorld.m11 = cos(angle);
 		matWorld.m21 = -sin(angle);
 		matWorld.m12 = sin(angle);
 		matWorld.m22 = cos(angle);
-
-		/*
-
-		*/
 
 		Matrix test = Matrix::FromIdentity();
 
@@ -152,6 +151,8 @@ int main(int argc, char* argv[]) {
 
 		// Done!
 		mainWindow.EndRender();
+
+		Sleep(16);
 	}
 
 	glDeleteBuffers(1, &vertexbuffer);

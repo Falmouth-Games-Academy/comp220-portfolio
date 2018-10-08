@@ -1,10 +1,25 @@
 #include "stdafx.h"
 #include "Renderer.h"
+#include "sdl/Window.h"
 #include <fstream>
 #include <iostream>
 
-Renderer::Renderer() {
-	return;// do nothing lawl
+#include "SDL.h"
+#include "glew.h"
+
+Renderer::Renderer(Window& renderWindow) {
+	// Create the GL context
+	renderWindow.CreateGlContext();
+
+	// Initialise OpenGL attributes (may move later)
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
+	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, SDL_TRUE);
+
+	// Setup GLEW
+	glewExperimental = GL_TRUE;
+
+	glewInit();
 }
 
 void Renderer::UseShaderProgram(const ShaderProgram& program) {
