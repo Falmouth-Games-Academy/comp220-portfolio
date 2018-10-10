@@ -7,7 +7,7 @@
 #include "SDL.h"
 #include "glew.h"
 
-Renderer::Renderer(Window& renderWindow) {
+void Renderer::Init(Window& renderWindow) {
 	// Create the GL context
 	renderWindow.CreateGlContext();
 
@@ -89,17 +89,19 @@ GLResource Renderer::LoadShaderFromSourceFile(const char* filename, GLenum glSha
 }
 
 ShaderProgram::ShaderProgram() : isLoaded(false) {
-	// Initialise GL program
-	glProgram = glCreateProgram();
 }
 
 ShaderProgram::ShaderProgram(const Renderer& renderer, GLResource vertexShader, GLResource fragmentShader) {
+	
+}
+
+void ShaderProgram::Init(const Renderer& renderer, GLResource vertexShader, GLResource fragmentShader) {
 	// Initialise GL program
 	glProgram = glCreateProgram();
 
 	// Try and load the provided shaders
 	isLoaded = true;
-	
+
 	glAttachShader(glProgram, vertexShader);
 	glAttachShader(glProgram, fragmentShader);
 

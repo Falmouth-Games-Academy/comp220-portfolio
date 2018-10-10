@@ -72,7 +72,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);3rdparty\SDL\include;3rdparty\glew\include\GL;src\</IncludePath>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);3rdparty\SDL\include;3rdparty\glew\include\GL;3rdparty\glm\;src\</IncludePath>
     <LibraryPath>$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86;3rdparty\glew\lib\Release\Win32;</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -81,7 +81,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);3rdparty\SDL\include;3rdparty\glew\include\GL;src\</IncludePath>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);3rdparty\SDL\include;3rdparty\glew\include\GL;3rdparty\glm\;src\</IncludePath>
     <LibraryPath>$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86;3rdparty\glew\lib\Release\Win32;</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -131,7 +131,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;3rdparty\SDL\lib\x86\SDL2.lib;glew32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;3rdparty\SDL\lib\x86\SDL2.lib;opengl32.lib;glew32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -156,14 +156,22 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\actors\Actor.h" />
+    <ClInclude Include="src\actors\Player.h" />
+    <ClInclude Include="src\main\Game.h" />
+    <ClInclude Include="src\main\Input.h" />
+    <ClInclude Include="src\main\Time.h" />
     <ClInclude Include="src\render\Renderer.h" />
     <ClInclude Include="src\sdl\SdlWrapper.h" />
     <ClInclude Include="src\sdl\Window.h" />
     <ClInclude Include="src\stdafx.h" />
-    <ClInclude Include="src\helpers\Vector.h" />
+    <ClInclude Include="src\helpers\math.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\main\Game.cpp" />
+    <ClCompile Include="src\main\Input.cpp" />
     <ClCompile Include="src\main\main.cpp" />
+    <ClCompile Include="src\main\Time.cpp" />
     <ClCompile Include="src\render\Renderer.cpp" />
     <ClCompile Include="src\sdl\SdlWrapper.cpp" />
     <ClCompile Include="src\sdl\Window.cpp" />

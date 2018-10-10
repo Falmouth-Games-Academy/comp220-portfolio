@@ -1,12 +1,21 @@
 #pragma once
-#include "helpers/vector.h"
+#include "helpers/math.h"
 
 // Window class using SDL windows
 class Window {
 public:
-	// Constructors and destructors
-	Window(const char* windowTitle, const Vec2I& windowSize);
+	// Construct but don't create
+	Window() : sdlWindow(nullptr), sdlGlContext(nullptr) {}
+
+	// Construct and create
+	Window(const char* windowTitle, const Vec2I& windowSize) {
+		Init(windowTitle, windowSize);
+	}
+
 	~Window();
+
+public:
+	void Init(const char* windowTitle, const Vec2I& windowSize);
 
 public:
 	void BeginRender(bool doClear = true);

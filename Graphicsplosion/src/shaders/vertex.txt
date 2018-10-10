@@ -7,8 +7,7 @@ uniform mat4 matWorld; // the global transformation matrix
 
 void main()
 {
-	gl_Position.xyz = (matWorld * vec4(vertexPos, 1)).xyz; // matrix needs to be multiplied from the left?
-	gl_Position.w = 1.0;
+	gl_Position = matWorld * vec4(vertexPos, 1); // matrix needs to be multiplied from the left?
 
 	vertexColour = gl_Position.xyz;
 }

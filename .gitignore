@@ -8,6 +8,11 @@ Graphicsplosion/3rdparty/glew/config/
 Graphicsplosion/3rdparty/glew/build/
 Graphicsplosion/3rdparty/glew/auto/
 Graphicsplosion/3rdparty/glew/glew.pc.in
+Graphicsplosion/3rdparty/glm/cmake/
+Graphicsplosion/3rdparty/glm/doc/
+
+# .yml files
+*.yml
 
 # User-specific files
 *.suo
