@@ -16,6 +16,8 @@ void Renderer::Init(Window& renderWindow) {
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, SDL_TRUE);
 
+	glEnable(GL_DEPTH_TEST);
+
 	// Setup GLEW
 	glewExperimental = GL_TRUE;
 
@@ -32,8 +34,19 @@ void Renderer::EndRender(Window& renderWindow) {
 	SDL_GL_SwapWindow(renderWindow.GetSdlWindow());
 }
 
+GLuint Renderer::CreateBuffer() {
+	GLuint buffer = 0;
+
+	glGenBuffers(1, &buffer);
+	return buffer;
+}
+
 void Renderer::UseShaderProgram(const ShaderProgram& program) {
 	glUseProgram(program.GetGlProgram());
+}
+
+void Renderer::UseVertexBuffer(const VertexBuffer& vertexBuffer) {
+	glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer.GetBufferName());
 }
 
 GLResource Renderer::LoadShaderFromSourceFile(const char* filename, GLenum glShaderType) {
@@ -133,4 +146,23 @@ bool ShaderProgram::Link() {
 
 	isLoaded = (programSuccess == GL_TRUE);
 	return isLoaded;
+}
+
+void VertexBuffer::Create(Renderer& renderer, const void* initialData, int initialDataSize) {
+	// Initialise with a new buffer
+	bufferName = renderer.CreateBuffer();
+
+	if (initialData) {
+		SetData(initialData, initialDataSize);
+	}
+}
+
+void VertexBuffer::Destroy() {
+	// Cleanup GL resources
+	glDeleteBuffers(1, &bufferName);
+}
+
+void VertexBuffer::SetData(const void* arrayData, int size) {
+	glBindBuffer(GL_ARRAY_BUFFER, bufferName); // TEMP
+	glBufferData(GL_ARRAY_BUFFER, size, arrayData, GL_STATIC_DRAW);
 }

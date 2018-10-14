@@ -38,6 +38,8 @@ void Game::Run() {
 }
 
 GLuint vertexbuffer; // temp
+VertexBuffer vertBuf;
+
 void Game::Init() {
 	// Initialise window and renderer
 	window.Init("Tester", Vec2I(640, 480));
@@ -50,12 +52,7 @@ void Game::Init() {
 	// Setup the default shader program
 	defaultShaderProgram.Init(render, vertexShader, fragmentShader);
 
-	// Create a new vertex array
-	GLuint VertexArrayID;
-	glGenVertexArrays(1, &VertexArrayID);
-	glBindVertexArray(VertexArrayID);
-
-	// An array of 3 vectors which represents 3 vertices
+	// Points for the test triangles
 	static GLfloat g_vertex_buffer_data[] = {
 		-1.0f, 0.0f, 1.0f,
 		1.0f, 0.0f, 1.0f,
@@ -70,12 +67,8 @@ void Game::Init() {
 		5.0f, -5.0f, 0.0f
 	};
 
-	glEnable(GL_DEPTH_TEST);
-
-	glGenBuffers(1, &vertexbuffer);
-	glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(g_vertex_buffer_data), g_vertex_buffer_data, GL_STATIC_DRAW);
-
+	vertBuf.Create(render, g_vertex_buffer_data, sizeof (g_vertex_buffer_data));
+	
 	glVertexAttribPointer(
 		0,                  // attribute 0. No particular reason for 0, but must match the layout in the shader.
 		3,                  // number of values
@@ -90,7 +83,7 @@ void Game::Init() {
 }
 
 void Game::Shutdown() {
-	glDeleteBuffers(1, &vertexbuffer);
+	vertBuf.Destroy();
 }
 
 void Game::Update() {
@@ -124,12 +117,12 @@ void Game::Render() {
 	glUniformMatrix4fv(uniMatWorld, 1, GL_FALSE, (GLfloat*)&matViewProj);
 
 	glEnableVertexAttribArray(0);
-	glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
+	render.UseVertexBuffer(vertBuf);
 
 	// Draw the triangle
 	glDrawArrays(GL_TRIANGLES, 0, 9);
 	glDisableVertexAttribArray(0);
 
 	// Done!
-	render.EndRender();
+	render.EndRender(window);
 }

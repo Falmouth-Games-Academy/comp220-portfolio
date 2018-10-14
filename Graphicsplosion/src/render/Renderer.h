@@ -24,7 +24,12 @@ public:
 	void EndRender(class Window& renderWindow);
 
 public:
+	// Creates a buffer, returning its name
+	GLuint CreateBuffer();
+
+public:
 	void UseShaderProgram(const class ShaderProgram& program);
+	void UseVertexBuffer(const class VertexBuffer& vertexBuffer);
 
 	GLResource LoadShaderFromSourceFile(const char* filename, GLenum glShaderType);
 };
@@ -63,4 +68,30 @@ private:
 	bool isLoaded;
 
 	GLuint glProgram;
+};
+
+class VertexBuffer {
+public:
+	VertexBuffer() : bufferName(0) {}
+
+	VertexBuffer(Renderer& renderer, const void* initialData = nullptr, int initialDataSize = 0) : bufferName(0) {
+		Create(renderer, initialData, initialDataSize);
+	}
+
+	~VertexBuffer() {
+		Destroy();
+	}
+
+public:
+	void Create(Renderer& renderer, const void* initialData = nullptr, int initialDataSize = 0);
+	void Destroy();
+
+	void SetData(const void* arrayData, int size);
+
+	GLuint GetBufferName() const {
+		return bufferName;
+	}
+
+private:
+	GLuint bufferName;
 };
