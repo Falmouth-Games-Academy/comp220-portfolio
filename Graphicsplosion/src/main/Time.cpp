@@ -25,5 +25,5 @@ float Time::GetTime() {
 	QueryPerformanceCounter((LARGE_INTEGER*)&currentTime);
 
 	// Return the time in seconds
-	return (float)((double)currentTime / (double)performanceFrequency);
+	return (float)((double)(currentTime - timeAtStartup) / (double)performanceFrequency);
 }

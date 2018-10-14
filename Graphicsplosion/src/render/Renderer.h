@@ -19,6 +19,11 @@ public:
 	void Init(class Window& renderWindow);
 
 public:
+	// Render functions
+	void BeginRender(bool doClear = true);
+	void EndRender(class Window& renderWindow);
+
+public:
 	void UseShaderProgram(const class ShaderProgram& program);
 
 	GLResource LoadShaderFromSourceFile(const char* filename, GLenum glShaderType);

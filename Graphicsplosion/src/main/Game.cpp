@@ -103,7 +103,7 @@ void Game::Update() {
 
 void Game::Render() {
 	// Render here
-	window.BeginRender();
+	render.BeginRender();
 
 	// Use our test shader
 	render.UseShaderProgram(defaultShaderProgram);
@@ -131,5 +131,5 @@ void Game::Render() {
 	glDisableVertexAttribArray(0);
 
 	// Done!
-	window.EndRender();
+	render.EndRender();
 }

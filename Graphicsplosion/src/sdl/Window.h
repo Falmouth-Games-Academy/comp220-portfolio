@@ -18,11 +18,6 @@ public:
 	void Init(const char* windowTitle, const Vec2I& windowSize);
 
 public:
-	void BeginRender(bool doClear = true);
-
-	void EndRender();
-
-public:
 	// Returns the error state where 0 = no errors in creation
 	int GetError() const {
 		return (int)(sdlWindow != nullptr);
@@ -33,6 +28,9 @@ public:
 	void* CreateGlContext();
 
 	void* GetGlContext();
+	struct SDL_Window* GetSdlWindow() {
+		return sdlWindow;
+	}
 
 private:
 	struct SDL_Window* sdlWindow;
