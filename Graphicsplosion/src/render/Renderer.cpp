@@ -13,15 +13,17 @@ void Renderer::Init(Window& renderWindow) {
 
 	// Initialise OpenGL attributes (may move later)
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
-	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, SDL_TRUE);
-
-	glEnable(GL_DEPTH_TEST);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2); // set the GL context version
+	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, SDL_TRUE); // enable double-buffering
+	SDL_GL_SetSwapInterval(0); // disable vsync
+	glEnable(GL_DEPTH_TEST); // enable depth testing
 
 	// Setup GLEW
 	glewExperimental = GL_TRUE;
-
 	glewInit();
+
+	// Init variables
+	viewportSize = renderWindow.GetSize();
 }
 
 void Renderer::BeginRender(bool doClear) {
@@ -31,6 +33,14 @@ void Renderer::BeginRender(bool doClear) {
 }
 
 void Renderer::EndRender(Window& renderWindow) {
+	// Resize the renderer to the window if the size has changed
+	if (viewportSize != renderWindow.GetSize()) {
+		viewportSize = renderWindow.GetSize();
+
+		glViewport(0, 0, viewportSize.x, viewportSize.y);
+	}
+
+	// Swap to the screen
 	SDL_GL_SwapWindow(renderWindow.GetSdlWindow());
 }
 

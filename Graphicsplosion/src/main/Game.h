@@ -33,6 +33,10 @@ private:
 	float _deltaTime;
 	float _frameTime;
 
+	// FPS
+	unsigned int currentFps;
+	unsigned int numFramesThisSecond;
+
 public:
 	// Public read-only variables
 	// Time since the last update

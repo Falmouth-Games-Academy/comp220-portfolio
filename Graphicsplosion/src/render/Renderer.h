@@ -1,5 +1,6 @@
 #pragma once
 #include "glew.h"
+#include "helpers/math.h"
 
 // lazy wrapper for unsafe GLuint type
 enum GLResource : GLuint {
@@ -32,6 +33,9 @@ public:
 	void UseVertexBuffer(const class VertexBuffer& vertexBuffer);
 
 	GLResource LoadShaderFromSourceFile(const char* filename, GLenum glShaderType);
+
+private:
+	Vec2I viewportSize;
 };
 
 // Shader wrapper for OpenGL
@@ -70,6 +74,7 @@ private:
 	GLuint glProgram;
 };
 
+// Vertex buffer
 class VertexBuffer {
 public:
 	VertexBuffer() : bufferName(0) {}

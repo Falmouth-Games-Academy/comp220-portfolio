@@ -27,10 +27,20 @@ public:
 	// Tries to create a GL context. If successful, returns the context. If the context already exists, nullptr is returned. Use GetGlContext in this case
 	void* CreateGlContext();
 
+public:
+	// Getters
 	void* GetGlContext();
+	
 	struct SDL_Window* GetSdlWindow() {
 		return sdlWindow;
 	}
+
+	// Returns the client area of the window
+	Vec2I GetSize() const;
+
+public:
+	// Change fullscreen/windowed mode
+	void SetFullscreen(bool isFullscreen);
 
 private:
 	struct SDL_Window* sdlWindow;
