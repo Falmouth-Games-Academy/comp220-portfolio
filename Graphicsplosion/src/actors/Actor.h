@@ -10,15 +10,14 @@ public:
 	}
 
 public:
+	// Called upon spawn
+	virtual void OnSpawn() {return;}
+
 	// Called every frame, by default does nothing. Overridable
-	virtual void Update(float deltaTime) {
-		return;
-	}
+	virtual void Update(float deltaTime) {return;}
 
 	// Called every frame, by default renders nothing. Overridable
-	virtual void Render() {
-		return;
-	}
+	virtual void Render() {return;}
 
 public:
 	// Returns the actor's position

@@ -123,13 +123,13 @@ void Iterate(Vertex* vertex) {
 
 void Game::Init() {
 	// Initialise window and renderer
-	window.Init("Tester", Vec2I(640, 480));
+	window.Init("Zomg, it's a game! F: Fullscreen U: Unlock mouse", Vec2I(640, 480));
 	render.Init(window);
 
 	Vertex a = { 0.0f };
 	//Iterate<Vertex>(&a, a.r, a.g, a.b);
 
-	// Load the shaders
+	// Load the default shaders
 	GLResource fragmentShader = render.LoadShaderFromSourceFile("src/shaders/fragment.txt", GL_FRAGMENT_SHADER);
 	GLResource vertexShader = render.LoadShaderFromSourceFile("src/shaders/vertex.txt", GL_VERTEX_SHADER);
 
@@ -137,9 +137,6 @@ void Game::Init() {
 	defaultShaderProgram.Init(render, vertexShader, fragmentShader);
 
 	// Points for the test triangles
-	unsigned int red = 0x000000FF;
-	unsigned int green = 0x0000FF00;
-	unsigned int blue = 0x00FF0000;
 	static GLfloat g_vertex_buffer_data[] = {
 		-1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f,
 		1.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f,
@@ -154,17 +151,15 @@ void Game::Init() {
 		5.0f, -5.0f, 0.0f, 1.0f, 0.0f, 0.0f
 	};
 
-	/*GLuint ar;
-	glCreateVertexArrays(1, &ar);
-	glBindVertexArray(ar);*/
-
+	// Create the test triangle
 	vertBuf.Create(render, g_vertex_buffer_data, sizeof (g_vertex_buffer_data));
 	
+	// Setup the default vertex format
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof (Vertex), (void*)offsetof(Vertex, x));
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, r));
 
-	// Player starts at 0.0, -1.0, 0.0
-	player.SetPosition(glm::vec3(0.0f, -1.0f, 0.0f));
+	// Spawn the player
+	player.OnSpawn();
 }
 
 void Game::Shutdown() {
@@ -198,7 +193,7 @@ void Game::Render() {
 
 	const float playerHeight = 0.5f;
 	matViewProj = glm::lookAtRH(player.GetPosition() + player.GetUp() * playerHeight, player.GetPosition() + player.GetForward(), player.GetUp()) * matViewProj;
-	matViewProj = glm::perspectiveFov(90.0f, 640.0f, 480.0f, 0.1f, 100.0f) * matViewProj;
+	matViewProj = glm::perspectiveFov(70.0f, (float)window.GetSize().x, (float)window.GetSize().y, 0.1f, 100.0f) * matViewProj;
 
 	// Upload the world transform and time
 	glUniformMatrix4fv(uniMatWorld, 1, GL_FALSE, (GLfloat*)&matViewProj);
