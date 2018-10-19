@@ -159,6 +159,7 @@
     <ClInclude Include="src\actors\Actor.h" />
     <ClInclude Include="src\actors\Player.h" />
     <ClInclude Include="src\main\Game.h" />
+    <ClInclude Include="src\main\Graphicsplosion.h" />
     <ClInclude Include="src\main\Input.h" />
     <ClInclude Include="src\main\Time.h" />
     <ClInclude Include="src\render\Renderer.h" />
@@ -170,6 +171,7 @@
   <ItemGroup>
     <ClCompile Include="src\actors\Player.cpp" />
     <ClCompile Include="src\main\Game.cpp" />
+    <ClCompile Include="src\main\Graphicsplosion.cpp" />
     <ClCompile Include="src\main\Input.cpp" />
     <ClCompile Include="src\main\main.cpp" />
     <ClCompile Include="src\main\Time.cpp" />

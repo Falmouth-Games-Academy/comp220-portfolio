@@ -10,24 +10,27 @@ public:
 
 	}
 
+	// Runs the game
 	void Run();
 
 private:
-	void Init();
-	void Shutdown();
+	// Called on game initialisation
+	virtual void Init() = 0;
+	
+	// Called on game shutdown
+	virtual void Shutdown() = 0;
 
 private:
-	void Update();
-	void Render();
+	// Called during each frame
+	virtual void Update() = 0;
 
-private:
+	// Called each frame after Update() when the renderer is ready
+	virtual void Render() = 0;
+
+protected:
 	// Main components
-	Player player;
 	Renderer render;
 	Window window;
-
-	// Rendering components
-	ShaderProgram defaultShaderProgram;
 
 	// Timing
 	float _deltaTime;
@@ -45,6 +48,3 @@ public:
 	// Time at the beginning of the frame, in seconds
 	const float& const frameTime;
 };
-
-// The entire game lies here
-extern Game game;

@@ -100,3 +100,9 @@ public:
 private:
 	GLuint bufferName;
 };
+
+// Default vertex type
+struct Vertex {
+	float x, y, z;
+	float r, g, b;
+};

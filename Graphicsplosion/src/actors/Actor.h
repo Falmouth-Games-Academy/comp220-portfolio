@@ -20,7 +20,7 @@ public:
 	virtual void Render() {return;}
 
 public:
-	// Returns the actor's position
+	// Returns / sets the actor's position
 	const glm::vec3 GetPosition() const {
 		return position;
 	}

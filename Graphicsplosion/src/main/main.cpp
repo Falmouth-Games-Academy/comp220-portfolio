@@ -2,7 +2,7 @@
 //
 
 #include "stdafx.h"
-#include "Game.h"
+#include "Graphicsplosion.h"
 #include <cassert>
 #include <cmath>
 #undef main
