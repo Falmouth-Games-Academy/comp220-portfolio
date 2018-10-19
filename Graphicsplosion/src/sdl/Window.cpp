@@ -4,7 +4,7 @@
 
 #include "glew.h"
 
-void Window::Init(const char* windowTitle, const Vec2I& windowSize) {
+void Window::Create(const char* windowTitle, const Vec2I& windowSize) {
 	// Create the window
 	sdlWindow = SDL_CreateWindow(windowTitle, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, windowSize.x, windowSize.y, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE | SDL_WINDOW_OPENGL);
 }
@@ -31,6 +31,11 @@ Vec2I Window::GetSize() const {
 }
 
 void Window::SetFullscreen(bool isFullscreen) {
+	// Don't do anything if we were already in this state
+	if (this->isFullscreen == isFullscreen) {
+		return;
+	}
+
 	// Setup the fullscreen display mode
 	if (isFullscreen) {
 		SDL_DisplayMode displayMode;
@@ -42,7 +47,25 @@ void Window::SetFullscreen(bool isFullscreen) {
 
 	// Toggle fullscreen
 	SDL_SetWindowFullscreen(sdlWindow, isFullscreen ? SDL_WINDOW_FULLSCREEN : 0);
-	SDL_ShowCursor(0);
+
+	// Update fullscreen status
+	this->isFullscreen = isFullscreen;
+}
+
+bool Window::IsFullscreen() const {
+	return isFullscreen;
+}
+
+void Window::SetMouseLock(bool isMouseLocked) {
+	// Set the mouse lock mode
+	SDL_SetRelativeMouseMode(isMouseLocked ? SDL_TRUE : SDL_FALSE);
+	SDL_ShowCursor(isMouseLocked ? 0 : 1);
+
+	this->isMouseLocked = isMouseLocked;
+}
+
+bool Window::IsMouseLocked() const {
+	return isMouseLocked;
 }
 
 Window::~Window() {

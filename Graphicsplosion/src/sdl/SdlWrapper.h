@@ -1,5 +1,6 @@
 #pragma once
 #include "helpers/math.h"
+#include <SDL.h>
 
 // SDL wrapper to manage globalevents, resources, initialisation etc
 class SdlWrapper {
@@ -17,8 +18,8 @@ public:
 	}
 
 public:
-	// Checks if the given keyboard key is pressed down
-	bool CheckKeyDown(const char* scancodeName);
+	// Converts a key to a scancode
+	SDL_Scancode KeyNameToCode(const char* keyName);
 
 	const Vec2I& GetMouseMotion() const;
 

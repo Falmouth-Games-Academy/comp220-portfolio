@@ -7,15 +7,15 @@ void Player::OnSpawn() {
 }
 
 void Player::Update(float deltaTime) {
-	const float playerSpeed = 3.0f;
+	const float playerSpeed = 6.0f;
 
 	// Move
 	position += GetForward() * (deltaTime * Input::GetVerticalAxis() * playerSpeed);
 	position += GetRight() * (deltaTime * Input::GetHorizontalAxis() * playerSpeed);
 
 	// Rotate by mouse
-	angle = angle * glm::quat(glm::vec3(0.0f, 0.0f, 0.01f * Input::GetMouseMotion().x));
-	angle = angle * glm::angleAxis(0.01f * Input::GetMouseMotion().y, GetRight());
+	angle = angle * glm::quat(glm::vec3(0.0f, 0.0f, 0.005f * Input::GetMouseMotion().x));
+	angle = angle * glm::angleAxis(0.005f * Input::GetMouseMotion().y, GetRight());
 
 	// I guess?
 	glm::normalize(angle);

@@ -4,20 +4,20 @@
 // Window class using SDL windows
 class Window {
 public:
-	// Construct but don't create
-	Window() : sdlWindow(nullptr), sdlGlContext(nullptr) {}
+	// Constructs but doesn't create
+	Window() : sdlWindow(nullptr), sdlGlContext(nullptr), isFullscreen(false), isMouseLocked(false) {}
 
-	// Construct and create
+	// Constructs and creates the window
 	Window(const char* windowTitle, const Vec2I& windowSize) {
-		Init(windowTitle, windowSize);
+		Create(windowTitle, windowSize);
 	}
 
 	~Window();
 
 public:
-	void Init(const char* windowTitle, const Vec2I& windowSize);
+	// Creates the window if it hasn't already been created
+	void Create(const char* windowTitle, const Vec2I& windowSize);
 
-public:
 	// Returns the error state where 0 = no errors in creation
 	int GetError() const {
 		return (int)(sdlWindow != nullptr);
@@ -39,11 +39,23 @@ public:
 	Vec2I GetSize() const;
 
 public:
-	// Change fullscreen/windowed mode
+	// Whether the window is fullscreened
 	void SetFullscreen(bool isFullscreen);
+	bool IsFullscreen() const;
+
+	// Whether the mouse is locked to the window
+	void SetMouseLock(bool isMouseLocked);
+	bool IsMouseLocked() const;
 
 private:
+	// SDL resources
 	struct SDL_Window* sdlWindow;
 
 	void* sdlGlContext;
+
+	// Used to remember whether the screen is fullscreen
+	bool isFullscreen;
+
+	// Used to remember whether the mouse is in locked/relative mode
+	bool isMouseLocked;
 };

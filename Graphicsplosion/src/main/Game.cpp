@@ -47,6 +47,16 @@ void Game::Run() {
 
 		// Render the game!
 		Render();
+
+		// Check for fullscreen and escape
+		if (Input::IsKeyPressed(SDL_SCANCODE_F)) {
+			window.SetFullscreen(!window.IsFullscreen());
+		}
+
+		// Check for mouse unlock
+		if (Input::IsKeyPressed(SDL_SCANCODE_M)) {
+			window.SetMouseLock(!window.IsMouseLocked());
+		}
 	}
 
 	Shutdown();
@@ -123,7 +133,9 @@ void Iterate(Vertex* vertex) {
 
 void Game::Init() {
 	// Initialise window and renderer
-	window.Init("Zomg, it's a game! F: Fullscreen U: Unlock mouse", Vec2I(640, 480));
+	window.Create("Zomg, it's a game! M: Unlock mouse F: Fullscreen and pay respects", Vec2I(640, 480));
+	window.SetMouseLock(true);
+
 	render.Init(window);
 
 	Vertex a = { 0.0f };
@@ -186,24 +198,32 @@ void Game::Render() {
 	static float angle;
 	angle += 6.28f * deltaTime;
 
-	// Set the world transform
+	// Find the shader constants
 	int uniMatWorld = glGetUniformLocation(defaultShaderProgram.GetGlProgram(), "matWorld");
+	int uniMatViewProj = glGetUniformLocation(defaultShaderProgram.GetGlProgram(), "matViewProj");
 	int uniTime = glGetUniformLocation(defaultShaderProgram.GetGlProgram(), "time");
-	glm::mat4 matViewProj = glm::rotate(angle, glm::vec3(0.0f, 0.0f, 1.0f));
 
+	// Set up the view/proj matrix
 	const float playerHeight = 0.5f;
-	matViewProj = glm::lookAtRH(player.GetPosition() + player.GetUp() * playerHeight, player.GetPosition() + player.GetForward(), player.GetUp()) * matViewProj;
+	glm::vec3 playerEye = player.GetPosition() + player.GetUp() * playerHeight;
+
+	glm::mat4 matViewProj = glm::lookAtRH(playerEye, playerEye + player.GetForward(), player.GetUp());
 	matViewProj = glm::perspectiveFov(70.0f, (float)window.GetSize().x, (float)window.GetSize().y, 0.1f, 100.0f) * matViewProj;
 
-	// Upload the world transform and time
-	glUniformMatrix4fv(uniMatWorld, 1, GL_FALSE, (GLfloat*)&matViewProj);
+	// Set up the world matrix (just a fun rotation around angle)
+	glm::mat4 matWorld = glm::rotate(angle, glm::vec3(0.0f, 0.0f, 1.0f));
+
+	// Upload the uniform variables
+	glUniformMatrix4fv(uniMatWorld, 1, GL_FALSE, (GLfloat*)&matWorld);
+	glUniformMatrix4fv(uniMatViewProj, 1, GL_FALSE, (GLfloat*)&matViewProj);
 	glUniform1f(uniTime, Time::GetTime());
 
+	// Enable the vertex attributes
 	glEnableVertexAttribArray(0);
 	glEnableVertexAttribArray(1);
-	render.UseVertexBuffer(vertBuf);
 
 	// Draw the triangle
+	render.UseVertexBuffer(vertBuf);
 	glDrawArrays(GL_TRIANGLES, 0, 36);
 
 	// Done!

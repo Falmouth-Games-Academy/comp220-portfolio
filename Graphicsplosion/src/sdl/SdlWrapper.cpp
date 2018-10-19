@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "SDL.h"
 #include "SdlWrapper.h"
+#include "main/Input.h"
 #include "helpers/math.h"
 #include <cassert>
 
@@ -18,9 +19,6 @@ SdlWrapper::SdlWrapper() : hasReceivedQuit(false) {
 
 	// Init and setup SDL
 	SDL_Init(SDL_INIT_EVERYTHING);
-
-	SDL_ShowCursor(0);
-	SDL_SetRelativeMouseMode(SDL_TRUE);
 }
 
 SdlWrapper::~SdlWrapper() {
@@ -39,20 +37,23 @@ void SdlWrapper::UpdateEvents() {
 			hasReceivedQuit = true;
 		}
 
+		if (event.type == SDL_KEYDOWN) {
+			// Inform the Input class of the key event
+			Input::SimulateKeyDown(event.key.keysym.scancode);
+		}
+
+		if (event.type == SDL_KEYUP) {
+			Input::SimulateKeyUp(event.key.keysym.scancode);
+		}
+
 		if (event.type == SDL_MOUSEMOTION) {
 			mouseMotion = Vec2I(event.motion.xrel, event.motion.yrel);
 		}
 	}
 }
 
-bool SdlWrapper::CheckKeyDown(const char* scancodeName) {
-	SDL_Scancode scanCode = SDL_GetScancodeFromName(scancodeName);
-
-	if (scanCode != SDL_SCANCODE_UNKNOWN) {
-		return SDL_GetKeyboardState(nullptr)[scanCode] != 0;
-	} else {
-		return false;
-	}
+SDL_Scancode SdlWrapper::KeyNameToCode(const char* keyName) {
+	return SDL_GetScancodeFromName(keyName);
 }
 
 const Vec2I& SdlWrapper::GetMouseMotion() const {

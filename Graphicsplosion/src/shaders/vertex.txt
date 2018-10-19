@@ -5,11 +5,12 @@ layout(location = 1) in vec3 vertexColour;
 out vec3 vertexColourFrag;
 
 uniform mat4 matWorld; // the global transformation matrix
+uniform mat4 matViewProj;  // the global view matrix
 uniform float time; // global time
 
 void main()
 {
-	gl_Position = matWorld * vec4(vertexPos, 1); // matrix needs to be multiplied from the left?
+	gl_Position =  matViewProj * matWorld * vec4(vertexPos, 1); // matrix needs to be multiplied from the left?
 
 	/*mat2 derp;
 	float timeScale = 4.0f;
