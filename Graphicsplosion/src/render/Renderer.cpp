@@ -18,6 +18,8 @@ void Renderer::Init(Window& renderWindow) {
 	SDL_GL_SetSwapInterval(0); // disable vsync
 	glEnable(GL_DEPTH_TEST); // enable depth testing
 
+	glEnable(GL_DEPTH_TEST);
+
 	// Setup GLEW
 	glewExperimental = GL_TRUE;
 	glewInit();
