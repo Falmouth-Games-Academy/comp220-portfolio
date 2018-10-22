@@ -64,11 +64,11 @@ public:
 	}
 
 public:
-	GLuint GetGlProgram() const {
-		return glProgram;
-	}
+	// Returns the internal GL program name
+	GLuint GetGlProgram() const { return glProgram; }
 
 private:
+	// Whether this was successfully loaded
 	bool isLoaded;
 
 	GLuint glProgram;
@@ -79,6 +79,7 @@ class VertexBuffer {
 public:
 	VertexBuffer() : bufferName(0) {}
 
+	// Creates a vertex buffer from an optional initial vertex array
 	VertexBuffer(Renderer& renderer, const void* initialData = nullptr, int initialDataSize = 0) : bufferName(0) {
 		Create(renderer, initialData, initialDataSize);
 	}
@@ -88,21 +89,43 @@ public:
 	}
 
 public:
+	// Creates a vertex buffer from an optional initial array
 	void Create(Renderer& renderer, const void* initialData = nullptr, int initialDataSize = 0);
 	void Destroy();
 
+	// Sets the data to a new array of vertices
 	void SetData(const void* arrayData, int size);
 
-	GLuint GetBufferName() const {
-		return bufferName;
-	}
+	// Returns the internal OpenGL buffer name
+	GLuint GetBufferName() const { return bufferName; }
 
 private:
 	GLuint bufferName;
+};
+
+class Texture {
+public:
+	Texture() : textureName(0) {}
+
+	// Constructs and creates a texture from a file
+	Texture(Renderer& renderer, const char* textureFilename) {
+		Create(renderer, textureFilename);
+	}
+
+public:
+	// Creates a texture from a file
+	bool Create(Renderer& renderer, const char* textureFilename);
+
+	// Returns the internal OpenGL texture name
+	GLuint GetTextureName() { return textureName; }
+
+private:
+	GLuint textureName;
 };
 
 // Default vertex type
 struct Vertex {
 	float x, y, z;
 	float r, g, b;
+	float u, v;
 };

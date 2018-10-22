@@ -7,12 +7,16 @@
 
 Graphicsplosion game;
 
+Texture test;
+
 void Graphicsplosion::Init() {
 	// Create window and initialise renderer
 	window.Create("Zomg, it's a game! M: Unlock mouse F: Fullscreen and pay respects", Vec2I(640, 480));
 	window.SetMouseLock(true);
 
 	render.Init(window);
+
+	test.Create(render, "texture.jpg");
 
 	// Load the default shaders
 	GLResource fragmentShader = render.LoadShaderFromSourceFile("src/shaders/fragment.txt", GL_FRAGMENT_SHADER);
@@ -22,18 +26,18 @@ void Graphicsplosion::Init() {
 	defaultShaderProgram.Init(render, vertexShader, fragmentShader);
 
 	// Generate the test triangle
-	static GLfloat g_vertex_buffer_data[] = {
-		-1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f,
-		1.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f,
-		0.0f,  0.0f, 0.0f, 0.0f, 0.0f, 1.0f,
+	static Vertex g_vertex_buffer_data[] = {
+		-1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f,
+		1.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f,
+		0.0f,  0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.5f, 0.0f,
 
-		-5.0f, -5.0f, 0.0f, 0.0f, 0.0f, 1.0f,
-		-5.0f, 5.0f, 0.0f, 0.0f, 0.0f, 1.0f,
-		5.0f, 5.0f, 0.0f, 1.0f, 0.0f, 0.0f,
+		-5.0f, -5.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f,
+		-5.0f, 5.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f,
+		5.0f, 5.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f,
 
-		-5.0f, -5.0f, 0.0f, 0.0f, 0.0f, 1.0f,
-		5.0f, 5.0f, 0.0f, 1.0f, 0.0f, 0.0f,
-		5.0f, -5.0f, 0.0f, 1.0f, 0.0f, 0.0f
+		-5.0f, -5.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f,
+		5.0f, 5.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f,
+		5.0f, -5.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f,
 	};
 
 	// Create the test triangle
@@ -69,6 +73,7 @@ void Graphicsplosion::Render() {
 	int uniMatWorld = glGetUniformLocation(defaultShaderProgram.GetGlProgram(), "matWorld");
 	int uniMatViewProj = glGetUniformLocation(defaultShaderProgram.GetGlProgram(), "matViewProj");
 	int uniTime = glGetUniformLocation(defaultShaderProgram.GetGlProgram(), "time");
+	int uniTexture = glGetUniformLocation(defaultShaderProgram.GetGlProgram(), "textureSampler");
 
 	// Set up the view/proj matrix
 	const float playerHeight = 0.5f;
@@ -84,14 +89,22 @@ void Graphicsplosion::Render() {
 	glUniformMatrix4fv(uniMatWorld, 1, GL_FALSE, (GLfloat*)&matWorld);
 	glUniformMatrix4fv(uniMatViewProj, 1, GL_FALSE, (GLfloat*)&matViewProj);
 	glUniform1f(uniTime, Time::GetTime());
+	glUniform1i(uniTexture, 0);
 
 	// Setup the default vertex format (todo: make this customisable)
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, x));
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, r));
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, u));
 
 	// Enable the vertex attributes
 	glEnableVertexAttribArray(0);
 	glEnableVertexAttribArray(1);
+	glEnableVertexAttribArray(2);
+
+	// Set the texture
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, test.GetTextureName());
+	glBindSampler(uniTexture, 1);
 
 	// Draw the triangle
 	render.UseVertexBuffer(triangle);

@@ -6,6 +6,7 @@
 
 #include "SDL.h"
 #include "glew.h"
+#include "sdl_image.h"
 
 void Renderer::Init(Window& renderWindow) {
 	// Create the GL context
@@ -177,4 +178,45 @@ void VertexBuffer::Destroy() {
 void VertexBuffer::SetData(const void* arrayData, int size) {
 	glBindBuffer(GL_ARRAY_BUFFER, bufferName); // TEMP
 	glBufferData(GL_ARRAY_BUFFER, size, arrayData, GL_STATIC_DRAW);
+}
+
+bool Texture::Create(Renderer& renderer, const char* textureFilename) {
+	// Try to load the texture file with SDL2_image
+	SDL_Surface* image;
+	if (!(image = IMG_Load(textureFilename))) {
+		return false;
+	}
+
+	// Generate the textures in OpenGL
+	glGenTextures(1, &textureName);
+
+	if (!textureName) {
+		SDL_FreeSurface(image);
+		return false;
+	}
+
+	// Copy the image data into OpenGL
+	SDL_LockSurface(image);
+
+	glBindTexture(GL_TEXTURE_2D, textureName);
+
+	// Copy the surface data based on its format
+	if (image->format->BytesPerPixel == 3) {
+		if (image->format->Rmask == 0xFF) {
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8, image->w, image->h, 0, GL_RGB, GL_UNSIGNED_BYTE, image->pixels);
+		} else if (image->format->Rmask == 0xFF0000) {
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8, image->w, image->h, 0, GL_BGR, GL_UNSIGNED_BYTE, image->pixels);
+		} else {
+			return false;
+		}
+	}
+
+	// Setup parameters and mipmaps
+	glTextureParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glGenerateMipmap(GL_TEXTURE_2D);
+
+	// Cleanup
+	SDL_UnlockSurface(image);
+
+	return true;
 }

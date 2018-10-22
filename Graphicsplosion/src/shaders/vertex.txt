@@ -2,7 +2,9 @@
 
 layout(location = 0) in vec3 vertexPos;
 layout(location = 1) in vec3 vertexColour;
-out vec3 vertexColourFrag;
+layout(location = 2) in vec2 vertexUv;
+out vec3 fragColour;
+out vec2 fragUv;
 
 uniform mat4 matWorld; // the global transformation matrix
 uniform mat4 matViewProj;  // the global view matrix
@@ -20,5 +22,7 @@ void main()
 	vertexColourFrag.xy = derp * gl_Position.xy;
 	vertexColourFrag.z = s;*/
 
-	vertexColourFrag = vertexColour;
+	fragUv = vertexUv;
+	fragColour = vertexColour;
+	//fragUv = gl_Position.xy;
 }
