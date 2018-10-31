@@ -1,39 +1,13 @@
 #include "stdafx.h"
 #include "Renderer.h" // Vertex (might be moved laer on)
+#include "Model.h"
 
 #include <vector>
 #include <assimp\Importer.hpp>
 #include <assimp\scene.h>
 #include <assimp\postprocess.h>
 
-class Mesh {
-public:
-	Mesh() : vertices(nullptr), numVertices(0), indices(nullptr), numIndices(0) {}
-
-	Mesh(const char* filename) {
-		Create(filename);
-	}
-
-	~Mesh() {
-		delete vertices;
-		delete indices;
-	}
-
-public:
-	// Loads the mesh from a file
-	bool Create(const char* filename);
-
-private:
-	// Array of the vertices in this mesh
-	Vertex* vertices;
-	unsigned int numVertices;
-
-	// Array of the vertex indices in this mesh
-	unsigned int* indices;
-	unsigned int numIndices;
-};
-
-bool Mesh::Create(const char* filename) {
+bool Model::Create(const char* filename) {
 	// Load the scene from the file
 	Assimp::Importer importer;
 	const aiScene* scene = importer.ReadFile(filename, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_GenSmoothNormals | aiProcess_GenUVCoords | aiProcess_CalcTangentSpace);
@@ -56,14 +30,17 @@ bool Mesh::Create(const char* filename) {
 			aiColor4D currentModelColour = aiColor4D(1.0, 1.0, 1.0, 1.0);
 			aiVector3D currentTextureCoordinates = aiVector3D(0.0f, 0.0f, 0.0f);
 
+			// Load colours
 			if (currentMesh->HasVertexColors(0)) {
 				currentModelColour = currentMesh->mColors[0][v];
 			}
 			
+			// Load UVs
 			if (currentMesh->HasTextureCoords(0)) {
 				currentTextureCoordinates = currentMesh->mTextureCoords[0][v];
 			}
 
+			// Push the vertex into the vector
 			Vertex currentVertex = {
 				currentModelVertex.x, currentModelVertex.y, currentModelVertex.z,
 				currentModelColour.r, currentModelColour.g, currentModelColour.b,
@@ -93,11 +70,25 @@ bool Mesh::Create(const char* filename) {
 	memcpy(this->vertices, vertices.data(), vertices.size() * sizeof(this->vertices[0]));
 	memcpy(this->indices, indices.data(), indices.size() * sizeof(this->indices[0]));
 
-	/*glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, numVerts * sizeof(Vertex), vertices.data(), GL_STATIC_DRAW);
-
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, numIndices * sizeof(unsigned int), indices.data(), GL_STATIC_DRAW);*/
+	// Initialise variables
+	areBuffersCreated = false;
 
 	return true;
+}
+
+void Model::Render(Renderer renderer) {
+	// Create the buffers if they don't already exist
+	if (!areBuffersCreated) {
+		vertexBuffer.Create(renderer, vertices, numVertices * sizeof (Vertex));
+		indexBuffer.Create(renderer, indices, numIndices * sizeof (unsigned int));
+
+		areBuffersCreated = true;
+	}
+
+	// Bind the buffers
+	renderer.UseVertexBuffer(&vertexBuffer);
+	renderer.UseIndexBuffer(&indexBuffer);
+
+	// Render the triangles
+	renderer.DrawTrianglesIndexed(0, numIndices);
 }

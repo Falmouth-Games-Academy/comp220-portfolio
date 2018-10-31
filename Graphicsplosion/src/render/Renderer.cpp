@@ -47,6 +47,34 @@ void Renderer::EndRender(Window& renderWindow) {
 	SDL_GL_SwapWindow(renderWindow.GetSdlWindow());
 }
 
+void Renderer::DrawTriangles(int startVertexIndex, int numVerticesToDraw) {
+	// Setup the default vertex format (todo: make this customisable)
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, x));
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, r));
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, u));
+
+	// Enable the vertex attributes
+	glEnableVertexAttribArray(0);
+	glEnableVertexAttribArray(1);
+	glEnableVertexAttribArray(2);
+
+	glDrawArrays(GL_TRIANGLES, startVertexIndex, numVerticesToDraw);
+}
+
+void Renderer::DrawTrianglesIndexed(int startIndex, int numIndicesToDraw) {
+	// Setup the default vertex format (todo: make this customisable)
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, x));
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, r));
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, u));
+
+	// Enable the vertex attributes
+	glEnableVertexAttribArray(0);
+	glEnableVertexAttribArray(1);
+	glEnableVertexAttribArray(2);
+
+	glDrawElements(GL_TRIANGLES, numIndicesToDraw, GL_UNSIGNED_INT, nullptr);
+}
+
 GLuint Renderer::CreateBuffer() {
 	GLuint buffer = 0;
 
@@ -54,12 +82,28 @@ GLuint Renderer::CreateBuffer() {
 	return buffer;
 }
 
+void Renderer::DestroyBuffer(GLuint bufferName) {
+	glDeleteBuffers(1, &bufferName);
+}
+
 void Renderer::UseShaderProgram(const ShaderProgram& program) {
 	glUseProgram(program.GetGlProgram());
 }
 
-void Renderer::UseVertexBuffer(const VertexBuffer& vertexBuffer) {
-	glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer.GetBufferName());
+void Renderer::UseVertexBuffer(const VertexBuffer* vertexBuffer) {
+	if (vertexBuffer) {
+		glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer->GetBufferName());
+	} else {
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+	}
+}
+
+void Renderer::UseIndexBuffer(const IndexBuffer* indexBuffer) {
+	if (indexBuffer) {
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer->GetBufferName());
+	} else {
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+	}
 }
 
 GLResource Renderer::LoadShaderFromSourceFile(const char* filename, GLenum glShaderType) {
@@ -161,23 +205,35 @@ bool ShaderProgram::Link() {
 	return isLoaded;
 }
 
-void VertexBuffer::Create(Renderer& renderer, const void* initialData, int initialDataSize) {
+void GenericBuffer::Create(Renderer& renderer, const void* initialData, int initialDataSize) {
 	// Initialise with a new buffer
 	bufferName = renderer.CreateBuffer();
 
+	// Initialise it with the data if it was supplied
 	if (initialData) {
 		SetData(initialData, initialDataSize);
 	}
+
+	// Connect this to the renderer (todo: don't do I guess)
+	this->renderer = &renderer;
 }
 
-void VertexBuffer::Destroy() {
-	// Cleanup GL resources
-	glDeleteBuffers(1, &bufferName);
+void GenericBuffer::Destroy() {
+	// Cleanup
+	if (renderer) {
+		renderer->DestroyBuffer(bufferName);
+	}
+	bufferName = 0;
 }
 
 void VertexBuffer::SetData(const void* arrayData, int size) {
 	glBindBuffer(GL_ARRAY_BUFFER, bufferName); // TEMP
 	glBufferData(GL_ARRAY_BUFFER, size, arrayData, GL_STATIC_DRAW);
+}
+
+void IndexBuffer::SetData(const void* arrayData, int size) {
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, bufferName); // TEMP
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, size, arrayData, GL_STATIC_DRAW);
 }
 
 bool Texture::Create(Renderer& renderer, const char* textureFilename) {
@@ -219,4 +275,11 @@ bool Texture::Create(Renderer& renderer, const char* textureFilename) {
 	SDL_UnlockSurface(image);
 
 	return true;
+}
+
+void Texture::Destroy() {
+	// Cleanup the texture
+	if (textureName) {
+		glDeleteTextures(1, &textureName);
+	}
 }

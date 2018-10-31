@@ -55,8 +55,12 @@ public:
 	Vec2Base(DimensionType x_, DimensionType y_) : x(x_), y(y_) {};
 
 public:
-	// Operator overloads
+	// Comparison operators
 	bool operator!=(const Vec2Base& other) { return (x != other.x || y != other.y); }
+
+public:
+	// Math operators
+	void operator+=(const Vec2Base& other) { x += other.x; y += other.y; }
 
 public:
 	DimensionType x, y;

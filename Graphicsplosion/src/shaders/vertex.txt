@@ -13,6 +13,8 @@ uniform float time; // global time
 void main()
 {
 	gl_Position =  matViewProj * matWorld * vec4(vertexPos, 1); // matrix needs to be multiplied from the left?
+	/*gl_Position.x += sin(time * 6.28f) * gl_Position.y;
+	gl_Position.y -= cos(time * 6.28f) * gl_Position.x;*/
 
 	/*mat2 derp;
 	float timeScale = 4.0f;
@@ -24,5 +26,5 @@ void main()
 
 	fragUv = vertexUv;
 	fragColour = vertexColour;
-	//fragUv = gl_Position.xy;
+	fragUv = gl_Position.xy;
 }

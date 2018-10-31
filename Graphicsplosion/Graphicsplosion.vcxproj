@@ -160,10 +160,12 @@
   <ItemGroup>
     <ClInclude Include="src\actors\Actor.h" />
     <ClInclude Include="src\actors\Player.h" />
+    <ClInclude Include="src\helpers\types.h" />
     <ClInclude Include="src\main\Game.h" />
     <ClInclude Include="src\main\Graphicsplosion.h" />
     <ClInclude Include="src\main\Input.h" />
     <ClInclude Include="src\main\Time.h" />
+    <ClInclude Include="src\render\Model.h" />
     <ClInclude Include="src\render\Renderer.h" />
     <ClInclude Include="src\sdl\SdlWrapper.h" />
     <ClInclude Include="src\sdl\Window.h" />

@@ -47,7 +47,7 @@ void SdlWrapper::UpdateEvents() {
 		}
 
 		if (event.type == SDL_MOUSEMOTION) {
-			mouseMotion = Vec2I(event.motion.xrel, event.motion.yrel);
+			mouseMotion += Vec2I(event.motion.xrel, event.motion.yrel);
 		}
 	}
 }

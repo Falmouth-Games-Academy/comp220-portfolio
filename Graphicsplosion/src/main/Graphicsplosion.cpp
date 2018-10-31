@@ -1,13 +1,16 @@
 #include "stdafx.h"
 #include "Graphicsplosion.h"
 #include "Time.h"
+#include "render/Model.h" // Test model load
 
 #include "glm/glm.hpp"
 #include "glm/gtx/transform.hpp"
 
 Graphicsplosion game;
 
-Texture test;
+Texture dbgTexture;
+Model dbgModel;
+VertexBuffer dbgModelBuffer;
 
 void Graphicsplosion::Init() {
 	// Create window and initialise renderer
@@ -16,7 +19,7 @@ void Graphicsplosion::Init() {
 
 	render.Init(window);
 
-	test.Create(render, "texture.jpg");
+	dbgTexture.Create(render, "texture.jpg");
 
 	// Load the default shaders
 	GLResource fragmentShader = render.LoadShaderFromSourceFile("src/shaders/fragment.txt", GL_FRAGMENT_SHADER);
@@ -42,6 +45,9 @@ void Graphicsplosion::Init() {
 
 	// Create the test triangle
 	triangle.Create(render, g_vertex_buffer_data, sizeof(g_vertex_buffer_data));
+	
+	Model derp;
+	dbgModel.Create("Assets/Bunny.fbx");
 
 	// Spawn the player
 	player.OnSpawn();
@@ -51,7 +57,7 @@ void Graphicsplosion::Shutdown() {
 	// Clean up the test vertex buffer
 	triangle.Destroy();
 
-
+	dbgTexture.Destroy();
 }
 
 void Graphicsplosion::Update() {
@@ -91,24 +97,19 @@ void Graphicsplosion::Render() {
 	glUniform1f(uniTime, Time::GetTime());
 	glUniform1i(uniTexture, 0);
 
-	// Setup the default vertex format (todo: make this customisable)
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, x));
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, r));
-	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, u));
-
-	// Enable the vertex attributes
-	glEnableVertexAttribArray(0);
-	glEnableVertexAttribArray(1);
-	glEnableVertexAttribArray(2);
-
 	// Set the texture
 	glActiveTexture(GL_TEXTURE1);
-	glBindTexture(GL_TEXTURE_2D, test.GetTextureName());
+	glBindTexture(GL_TEXTURE_2D, dbgTexture.GetTextureName());
 	glBindSampler(uniTexture, 1);
 
+	// Draw the model
+	dbgModel.Render(render);
+
 	// Draw the triangle
-	render.UseVertexBuffer(triangle);
-	glDrawArrays(GL_TRIANGLES, 0, 36);
+	render.UseVertexBuffer(&triangle);
+	render.UseIndexBuffer(nullptr);
+
+	render.DrawTriangles(0, 36);
 
 	// Done!
 	render.EndRender(window);
