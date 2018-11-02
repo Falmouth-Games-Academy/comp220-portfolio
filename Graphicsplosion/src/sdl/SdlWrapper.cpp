@@ -11,6 +11,13 @@ SdlWrapper sdl;
 int SdlWrapper::numSdlUsers = 0;
 
 SdlWrapper::SdlWrapper() : hasReceivedQuit(false) {
+	/*
+	SDL_GameController* SDL_GameControllerOpen(int joystick_index)
+	Sint16 SDL_GameControllerGetAxis(SDL_GameController*    gamecontroller,
+                                 SDL_GameControllerAxis axis)
+	SDL_CONTROLLER_AXIS_LEFTX
+	*/
+
 	// Increment the reference counter
 	++numSdlUsers;
 
@@ -48,6 +55,10 @@ void SdlWrapper::UpdateEvents() {
 
 		if (event.type == SDL_MOUSEMOTION) {
 			mouseMotion += Vec2I(event.motion.xrel, event.motion.yrel);
+		}
+
+		if (event.type == SDL_JOYAXISMOTION) {
+			Input::SimulateJoyAxis(event.jaxis.axis, event.jaxis.value);
 		}
 	}
 }

@@ -8,3 +8,5 @@ Input::keystateflags Input::keyStates[numKeyStates];
 
 // Array of keystates from the last frame
 Input::keystateflags Input::previousKeyStates[numKeyStates];
+
+float Input::joyAxes[Input::numJoyAxes];

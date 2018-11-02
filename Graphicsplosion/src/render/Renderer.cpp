@@ -9,15 +9,16 @@
 #include "sdl_image.h"
 
 void Renderer::Init(Window& renderWindow) {
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3); // set the GL context major version
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2); // set the GL context version
 	// Create the GL context
 	renderWindow.CreateGlContext();
 
 	// Initialise OpenGL attributes (may move later)
+	//GL_ARB_framebuffer_object
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2); // set the GL context version
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, SDL_TRUE); // enable double-buffering
 	SDL_GL_SetSwapInterval(0); // disable vsync
-	glEnable(GL_DEPTH_TEST); // enable depth testing
 
 	glEnable(GL_DEPTH_TEST);
 
@@ -268,7 +269,7 @@ bool Texture::Create(Renderer& renderer, const char* textureFilename) {
 	}
 
 	// Setup parameters and mipmaps
-	glTextureParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glGenerateMipmap(GL_TEXTURE_2D);
 
 	// Cleanup

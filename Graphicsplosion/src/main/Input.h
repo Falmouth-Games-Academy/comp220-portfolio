@@ -72,6 +72,18 @@ public:
 	static void SimulateKeyUp(scancode key) {
 		keyStates[key] &= ~KEYSTATE_DOWN;
 	}
+
+	// Simulates a joystick axis movement
+	static void SimulateJoyAxis(int axisId, float axisValue) {
+		if (axisId >= 0 && axisId < numJoyAxes) {
+			joyAxes[axisId] = axisValue;
+		}
+	}
+
+	// Simulates a joystick button press
+	static void SimulateJoyDown(int buttonId) {
+	}
+
 public:
 	// Returns a movement axis
 	static float GetHorizontalAxis() {
@@ -101,6 +113,10 @@ private:
 
 	// Array of keystates from the last frame
 	static keystateflags previousKeyStates[numKeyStates];
+
+	// Array of joystick axis states
+	static const int numJoyAxes = 16;
+	static float joyAxes[numJoyAxes];
 
 private:
 	static float horizontalAxis;
