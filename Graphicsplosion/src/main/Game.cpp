@@ -8,6 +8,9 @@
 
 #include "glm/glm.hpp"
 #include "glm/gtx/transform.hpp"
+#include <iostream>
+
+#include "helpers/types.h"
 
 void Game::Run() {
 	// Startup the game
@@ -22,7 +25,7 @@ void Game::Run() {
 		sdl.UpdateEvents();
 
 		// Update delta time and timing
-		_deltaTime = Time::GetTime() - _frameTime;
+		_deltaTime = (float)(Time::GetTime() - _frameTime);
 		_frameTime = Time::GetTime();
 
 		// Update frame rate counter

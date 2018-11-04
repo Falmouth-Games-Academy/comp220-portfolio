@@ -33,8 +33,8 @@ protected:
 	Window window;
 
 	// Timing
-	float _deltaTime;
-	float _frameTime;
+	float _deltaTime;  // time since the last frame
+	double _frameTime; // time since the game began
 
 	// FPS
 	unsigned int currentFps;
@@ -43,8 +43,8 @@ protected:
 public:
 	// Public read-only variables
 	// Time since the last update
-	const float& const deltaTime;
+	const float& deltaTime;
 
 	// Time at the beginning of the frame, in seconds
-	const float& const frameTime;
+	const double& frameTime;
 };

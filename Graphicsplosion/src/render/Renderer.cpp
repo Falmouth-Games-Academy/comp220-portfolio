@@ -9,13 +9,13 @@
 #include "sdl_image.h"
 
 void Renderer::Init(Window& renderWindow) {
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3); // set the GL context major version
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2); // set the GL context version
 	// Create the GL context
 	renderWindow.CreateGlContext();
 
 	// Initialise OpenGL attributes (may move later)
 	//GL_ARB_framebuffer_object
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3); // set the GL context major version
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2); // set the GL context version
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, SDL_TRUE); // enable double-buffering
 	SDL_GL_SetSwapInterval(0); // disable vsync
@@ -77,6 +77,7 @@ void Renderer::DrawTrianglesIndexed(int startIndex, int numIndicesToDraw) {
 }
 
 GLuint Renderer::CreateBuffer() {
+	// Return a new GL buffer
 	GLuint buffer = 0;
 
 	glGenBuffers(1, &buffer);
@@ -92,6 +93,7 @@ void Renderer::UseShaderProgram(const ShaderProgram& program) {
 }
 
 void Renderer::UseVertexBuffer(const VertexBuffer* vertexBuffer) {
+	// Bind the vertex buffer, if it exists (unbind otherwise)
 	if (vertexBuffer) {
 		glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer->GetBufferName());
 	} else {
@@ -100,6 +102,7 @@ void Renderer::UseVertexBuffer(const VertexBuffer* vertexBuffer) {
 }
 
 void Renderer::UseIndexBuffer(const IndexBuffer* indexBuffer) {
+	// Bind the index buffer, if it exists (unbind otherwise)
 	if (indexBuffer) {
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer->GetBufferName());
 	} else {
@@ -108,6 +111,7 @@ void Renderer::UseIndexBuffer(const IndexBuffer* indexBuffer) {
 }
 
 GLResource Renderer::LoadShaderFromSourceFile(const char* filename, GLenum glShaderType) {
+	// Try to open the shader file
 	std::ifstream file(filename, std::ios::in | std::ios::binary);
 
 	if (file.fail()) {
@@ -177,7 +181,7 @@ ShaderProgram::ShaderProgram(const Renderer& renderer, GLResource vertexShader, 
 }
 
 void ShaderProgram::Init(const Renderer& renderer, GLResource vertexShader, GLResource fragmentShader) {
-	// Initialise GL program
+	// Initialise the GL program
 	glProgram = glCreateProgram();
 
 	// Try and load the provided shaders
@@ -228,12 +232,14 @@ void GenericBuffer::Destroy() {
 }
 
 void VertexBuffer::SetData(const void* arrayData, int size) {
-	glBindBuffer(GL_ARRAY_BUFFER, bufferName); // TEMP
+	// Vertex buffers: Upload the data to the GL array buffer
+	glBindBuffer(GL_ARRAY_BUFFER, bufferName);
 	glBufferData(GL_ARRAY_BUFFER, size, arrayData, GL_STATIC_DRAW);
 }
 
 void IndexBuffer::SetData(const void* arrayData, int size) {
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, bufferName); // TEMP
+	// Index buffers: Upload the data to the GL element buffer
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, bufferName);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, size, arrayData, GL_STATIC_DRAW);
 }
 

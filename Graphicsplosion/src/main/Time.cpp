@@ -8,7 +8,7 @@ bool Time::hasInitialised = false;
 unsigned __int64 Time::timeAtStartup;
 unsigned __int64 Time::performanceFrequency;
 
-float Time::GetTime() {
+double Time::GetTime() {
 	if (!hasInitialised) {
 		LARGE_INTEGER performanceCount;
 
@@ -16,7 +16,9 @@ float Time::GetTime() {
 		QueryPerformanceFrequency((LARGE_INTEGER*)&performanceFrequency);
 
 		// Set initial time
-		timeAtStartup = QueryPerformanceCounter(&performanceCount);
+		QueryPerformanceCounter(&performanceCount);
+		*((LARGE_INTEGER*)&timeAtStartup) = performanceCount;
+		timeAtStartup = 0;
 		hasInitialised = true;
 	}
 
@@ -25,5 +27,5 @@ float Time::GetTime() {
 	QueryPerformanceCounter((LARGE_INTEGER*)&currentTime);
 
 	// Return the time in seconds
-	return (float)((double)(currentTime - timeAtStartup) / (double)performanceFrequency);
+	return ((double)(currentTime - timeAtStartup) / (double)performanceFrequency);
 }

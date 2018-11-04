@@ -4,20 +4,14 @@
 #include "main/Input.h"
 #include "helpers/math.h"
 #include <cassert>
+#include <iostream>
 
 // Global SDL wrapper
 SdlWrapper sdl;
 
 int SdlWrapper::numSdlUsers = 0;
 
-SdlWrapper::SdlWrapper() : hasReceivedQuit(false) {
-	/*
-	SDL_GameController* SDL_GameControllerOpen(int joystick_index)
-	Sint16 SDL_GameControllerGetAxis(SDL_GameController*    gamecontroller,
-                                 SDL_GameControllerAxis axis)
-	SDL_CONTROLLER_AXIS_LEFTX
-	*/
-
+SdlWrapper::SdlWrapper() : hasReceivedQuit(false), defaultJoystick(nullptr) {
 	// Increment the reference counter
 	++numSdlUsers;
 
@@ -26,17 +20,32 @@ SdlWrapper::SdlWrapper() : hasReceivedQuit(false) {
 
 	// Init and setup SDL
 	SDL_Init(SDL_INIT_EVERYTHING);
+
+	// Setup and enable joystick
+	defaultJoystick = SDL_JoystickOpen(0);
+	SDL_JoystickEventState(SDL_ENABLE);
+
+	// Display loaded joysticks
+	std::cout << "Joysticks found: " << std::endl;
+	for (int i = 0; i < SDL_NumJoysticks(); ++i) {
+		std::cout << "Joystick name: " << SDL_JoystickNameForIndex(i) << std::endl;
+	}
 }
 
 SdlWrapper::~SdlWrapper() {
+	// Cleanup SDL components
+	SDL_JoystickClose(defaultJoystick);
+
 	SDL_Quit();
 }
 
 void SdlWrapper::UpdateEvents() {
 	SDL_Event event;
 
-	// Reset some stuff
+	// Prepare for event loop refresh
 	mouseMotion = Vec2I(0, 0);
+
+	//SDL_JoystickUpdate();
 
 	// Capture SDL events
 	while (SDL_PollEvent(&event)) {

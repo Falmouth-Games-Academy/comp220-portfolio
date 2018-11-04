@@ -1,5 +1,6 @@
 #pragma once
 
+#include "helpers/math.h"
 #include "sdl/SdlWrapper.h"
 
 class Input {
@@ -26,7 +27,10 @@ public:
 		memcpy(previousKeyStates, keyStates, sizeof(keyStates));
 
 		// Update movement axes
-		horizontalAxis = verticalAxis = 0.0f;
+		horizontalAxis = Math::ClampDeadzone(joyAxes[0], joystickDeadzone);
+		verticalAxis = Math::ClampDeadzone(-joyAxes[1], joystickDeadzone);
+		eyeHorizontalAxis = Math::ClampDeadzone(joyAxes[3], joystickDeadzone);
+		eyeVerticalAxis = Math::ClampDeadzone(-joyAxes[4], joystickDeadzone);
 
 		if (IsKeyDown(SDL_SCANCODE_W)) {
 			verticalAxis += 1.0f;
@@ -43,6 +47,11 @@ public:
 		if (IsKeyDown(SDL_SCANCODE_A)) {
 			horizontalAxis -= 1.0f;
 		}
+
+		horizontalAxis = Math::ClampNormal(horizontalAxis);
+		verticalAxis = Math::ClampNormal(verticalAxis);
+		eyeHorizontalAxis = Math::ClampNormal(eyeHorizontalAxis);
+		eyeVerticalAxis = Math::ClampNormal(eyeVerticalAxis);
 	}
 
 public:
@@ -76,7 +85,7 @@ public:
 	// Simulates a joystick axis movement
 	static void SimulateJoyAxis(int axisId, float axisValue) {
 		if (axisId >= 0 && axisId < numJoyAxes) {
-			joyAxes[axisId] = axisValue;
+			joyAxes[axisId] = axisValue / 32767.0f;
 		}
 	}
 
@@ -92,6 +101,14 @@ public:
 
 	static float GetVerticalAxis() {
 		return verticalAxis;
+	}
+
+	static float GetEyeHorizontalAxis() {
+		return eyeHorizontalAxis;
+	}
+
+	static float GetEyeVerticalAxis() {
+		return eyeVerticalAxis;
 	}
 
 	// Returns the mouse offset since the last frame in pixels
@@ -121,4 +138,10 @@ private:
 private:
 	static float horizontalAxis;
 	static float verticalAxis;
+
+	static float eyeHorizontalAxis;
+	static float eyeVerticalAxis;
+
+private:
+	static const float joystickDeadzone;
 };

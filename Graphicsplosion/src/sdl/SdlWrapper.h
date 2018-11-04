@@ -24,9 +24,15 @@ public:
 	const Vec2I& GetMouseMotion() const;
 
 private:
+	// Whether the program is being quit
+	bool hasReceivedQuit;
+
+private:
+	// The mouse motion occurred since the last update
 	Vec2I mouseMotion;
 
-	bool hasReceivedQuit;
+	// The default joystick
+	SDL_Joystick* defaultJoystick;
 
 private:
 	static int numSdlUsers;

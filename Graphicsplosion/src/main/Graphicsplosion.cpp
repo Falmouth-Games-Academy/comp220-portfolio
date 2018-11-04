@@ -94,7 +94,7 @@ void Graphicsplosion::Render() {
 	// Upload the uniform variables
 	glUniformMatrix4fv(uniMatWorld, 1, GL_FALSE, (GLfloat*)&matWorld);
 	glUniformMatrix4fv(uniMatViewProj, 1, GL_FALSE, (GLfloat*)&matViewProj);
-	glUniform1f(uniTime, Time::GetTime());
+	glUniform1f(uniTime, (float)game.frameTime);
 	glUniform1i(uniTexture, 0);
 
 	// Set the texture

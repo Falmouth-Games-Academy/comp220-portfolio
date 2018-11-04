@@ -1,5 +1,14 @@
 #pragma once
 
+// General math functions
+namespace Math {
+	// Clamps a value between -1 and 1
+	inline float ClampNormal(float value) { return value < -1.0f ? -1.0f : (value > 1.0f ? 1.0f : value); }
+
+	// If a value is smaller than deadzoneRange, clamps the value to 0
+	inline float ClampDeadzone(float value, float deadzoneRange) { return (value > -deadzoneRange && value < deadzoneRange) ? 0.0f : value;  }
+};
+
 class Vec4 {
 public:
 	Vec4(float x_, float y_, float z_, float w_) : x(x_), y(y_), z(z_), w(w_) {};
