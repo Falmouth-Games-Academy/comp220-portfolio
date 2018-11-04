@@ -30,6 +30,8 @@ Graphicsplosion/3rdparty/glm/doc/
 [Rr]eleases/
 x64/
 x86/
+!**/lib/x64/
+!**/lib/x86/
 bld/
 [Bb]in/
 [Oo]bj/
