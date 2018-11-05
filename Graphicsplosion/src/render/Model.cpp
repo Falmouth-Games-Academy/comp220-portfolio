@@ -29,6 +29,7 @@ bool Model::Create(const char* filename) {
 			aiVector3D currentModelVertex = currentMesh->mVertices[v];
 			aiColor4D currentModelColour = aiColor4D(1.0, 1.0, 1.0, 1.0);
 			aiVector3D currentTextureCoordinates = aiVector3D(0.0f, 0.0f, 0.0f);
+			aiVector3D currentVertexNormal = aiVector3D(1.0f, 0.0f, 0.0f);
 
 			// Load colours
 			if (currentMesh->HasVertexColors(0)) {
@@ -40,10 +41,15 @@ bool Model::Create(const char* filename) {
 				currentTextureCoordinates = currentMesh->mTextureCoords[0][v];
 			}
 
+			if (currentMesh->HasNormals()) {
+				currentVertexNormal = currentMesh->mNormals[v];
+			}
+
 			// Push the vertex into the vector
 			Vertex currentVertex = {
 				currentModelVertex.x, currentModelVertex.y, currentModelVertex.z,
 				currentModelColour.r, currentModelColour.g, currentModelColour.b,
+				currentVertexNormal.x, currentVertexNormal.y, currentVertexNormal.z, 
 				currentTextureCoordinates.x, currentTextureCoordinates.y
 			};
 
@@ -51,8 +57,7 @@ bool Model::Create(const char* filename) {
 		}
 
 		// Load faces/vertex indices
-		for (int f = 0; f < currentMesh->mNumFaces; f++)
-		{
+		for (int f = 0; f < currentMesh->mNumFaces; f++) {
 			aiFace currentModelFace = currentMesh->mFaces[f];
 
 			indices.push_back(currentModelFace.mIndices[0]);
@@ -74,6 +79,14 @@ bool Model::Create(const char* filename) {
 	areBuffersCreated = false;
 
 	return true;
+}
+
+void Model::Destroy() {
+	delete[] vertices;
+	delete[] indices;
+
+	vertices = nullptr;
+	indices = nullptr;
 }
 
 void Model::Render(Renderer renderer) {

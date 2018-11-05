@@ -9,6 +9,19 @@ void Window::Create(const char* windowTitle, const Vec2I& windowSize) {
 	sdlWindow = SDL_CreateWindow(windowTitle, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, windowSize.x, windowSize.y, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE | SDL_WINDOW_OPENGL);
 }
 
+void Window::Destroy() {
+	if (sdlWindow) {
+		// Cleanup the resources
+		if (sdlGlContext) {
+			SDL_GL_DeleteContext(sdlGlContext);
+			sdlGlContext = nullptr;
+		}
+
+		SDL_DestroyWindow(sdlWindow);
+		sdlWindow = nullptr;
+	}
+}
+
 void* Window::CreateGlContext() {
 	if (sdlGlContext || !sdlWindow) {
 		// Don't create it if it already exists
@@ -66,15 +79,4 @@ void Window::SetMouseLock(bool isMouseLocked) {
 
 bool Window::IsMouseLocked() const {
 	return isMouseLocked;
-}
-
-Window::~Window() {
-	if (sdlWindow) {
-		// Cleanup the resources
-		if (sdlGlContext) {
-			SDL_GL_DeleteContext(sdlGlContext);
-		}
-
-		SDL_DestroyWindow(sdlWindow);
-	}
 }

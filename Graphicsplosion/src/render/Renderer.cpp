@@ -8,6 +8,8 @@
 #include "glew.h"
 #include "sdl_image.h"
 
+GLuint vao;
+
 void Renderer::Init(Window& renderWindow) {
 	// Create the GL context
 	renderWindow.CreateGlContext();
@@ -26,8 +28,30 @@ void Renderer::Init(Window& renderWindow) {
 	glewExperimental = GL_TRUE;
 	glewInit();
 
+	// Test
+	glGenVertexArrays(1, &vao);
+	glBindVertexArray(vao);
+
+	// Setup the default vertex format (todo: make this customisable)
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, x));
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, r));
+	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, normalX));
+	glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, u));
+
+	// Enable the vertex attributes
+	glEnableVertexAttribArray(0);
+	glEnableVertexAttribArray(1);
+	glEnableVertexAttribArray(2);
+	glEnableVertexAttribArray(3);
+
 	// Init variables
 	viewportSize = renderWindow.GetSize();
+}
+
+void Renderer::Shutdown() {
+	glDeleteVertexArrays(1, &vao);
+
+	return;
 }
 
 void Renderer::BeginRender(bool doClear) {
@@ -49,29 +73,21 @@ void Renderer::EndRender(Window& renderWindow) {
 }
 
 void Renderer::DrawTriangles(int startVertexIndex, int numVerticesToDraw) {
-	// Setup the default vertex format (todo: make this customisable)
+	glBindVertexArray(vao);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, x));
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, r));
-	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, u));
-
-	// Enable the vertex attributes
-	glEnableVertexAttribArray(0);
-	glEnableVertexAttribArray(1);
-	glEnableVertexAttribArray(2);
+	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, normalX));
+	glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, u));
 
 	glDrawArrays(GL_TRIANGLES, startVertexIndex, numVerticesToDraw);
 }
 
 void Renderer::DrawTrianglesIndexed(int startIndex, int numIndicesToDraw) {
-	// Setup the default vertex format (todo: make this customisable)
+	glBindVertexArray(vao);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, x));
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, r));
-	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, u));
-
-	// Enable the vertex attributes
-	glEnableVertexAttribArray(0);
-	glEnableVertexAttribArray(1);
-	glEnableVertexAttribArray(2);
+	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, normalX));
+	glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, u));
 
 	glDrawElements(GL_TRIANGLES, numIndicesToDraw, GL_UNSIGNED_INT, nullptr);
 }
@@ -180,7 +196,7 @@ ShaderProgram::ShaderProgram(const Renderer& renderer, GLResource vertexShader, 
 	
 }
 
-void ShaderProgram::Init(const Renderer& renderer, GLResource vertexShader, GLResource fragmentShader) {
+void ShaderProgram::Create(const Renderer& renderer, GLResource vertexShader, GLResource fragmentShader) {
 	// Initialise the GL program
 	glProgram = glCreateProgram();
 
@@ -191,6 +207,15 @@ void ShaderProgram::Init(const Renderer& renderer, GLResource vertexShader, GLRe
 	glAttachShader(glProgram, fragmentShader);
 
 	Link();
+}
+
+void ShaderProgram::Destroy() {
+	// Delete the program if it hasn't already been deleted
+	if (glProgram) {
+		glDeleteProgram(glProgram);
+
+		glProgram = 0;
+	}
 }
 
 bool ShaderProgram::AttachShader(GLResource shader) {

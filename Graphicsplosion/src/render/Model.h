@@ -10,13 +10,15 @@ public:
 	}
 
 	~Model() {
-		delete[] vertices;
-		delete[] indices;
+		Destroy();
 	}
 
 public:
 	// Loads the mesh from a file
 	bool Create(const char* filename);
+
+	// Destroys the model and frees data
+	void Destroy();
 
 public:
 	// Self-explanatory getters and setters. Urgh C# has opened my eyes... C++, there MUST be a better way!?

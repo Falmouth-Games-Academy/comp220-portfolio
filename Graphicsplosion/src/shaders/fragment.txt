@@ -4,10 +4,22 @@ out vec3 color;
 
 in vec3 fragColour;
 in vec2 fragUv;
+in vec3 fragNormal;
 
 uniform sampler2D textureSampler;
 
+uniform vec3 viewDirection;
+uniform vec3 directionalLightDirection;
+
 void main()
 {
+	// Basic texturing with vertex colours
 	color = fragColour * texture(textureSampler, fragUv).xyz;
+
+	// Specular lighting
+	vec3 halfWay = normalize(-directionalLightDirection + viewDirection);
+	float specularPower = 7.0f;
+	float nDoth = pow(dot(normalize(fragNormal), halfWay), specularPower);
+
+	color += vec3(0.8f, 0.8f, 0.8f) * nDoth;
 }

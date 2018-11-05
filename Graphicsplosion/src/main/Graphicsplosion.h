@@ -22,6 +22,9 @@ private:
 	// The triangle to render
 	VertexBuffer triangle;
 
+	// The background plane for a sky effect
+	VertexBuffer backPlane;
+
 	// Current rotation angle of the triangle
 	float triangleAngle;
 };

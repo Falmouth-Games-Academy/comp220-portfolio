@@ -61,44 +61,7 @@ void Game::Run() {
 	Shutdown();
 }
 
-VertexBuffer vertBuf;
-
-/*void GenCube(float dimension, Vertex verts[36]) {
-	glm::vec3 right(1.0f, 0.0f, 0.0f);
-	glm::vec3 forward(0.0f, 1.0f, 0.0f);
-	glm::vec3 up(0.0f, 0.0f, 1.0f);
-
-	struct dim {
-		glm::vec3 forward, right, up;
-	};
-
-	dim dimensions[] = { forward, right, up, 
-						-forward, right, up, 
-						 up, right, forward, 
-						-up, right, forward, 
-						 right, up, forward,
-						-right, up, forward};
-	glm::vec3 v[36];
-
-	for (int i = 0; i < 36; i += 6) {
-		glm::vec3& forward = dimensions[i / 6].forward, &right = dimensions[i / 6].right, &up = dimensions[i / 6].up;
-		v[i + 0] = forward + up + right;
-		v[i + 1] = forward + up - right;
-		v[i + 2] = forward - up - right;
-
-		v[i + 3] = forward + up + right;
-		v[i + 4] = forward - up - right;
-		v[i + 5] = forward - up + right;
-	}
-
-	for (int i = 0; i < 36; i++) {
-		verts[i].x = v[i].x;
-		verts[i].y = v[i].y;
-		verts[i].z = v[i].z;
-	}
-}*/
-
-struct VertAttribs {
+/*struct VertAttribs {
 	int stride;
 	GLenum type;
 	int offset;
@@ -128,4 +91,4 @@ template<typename VertexType, typename VarType, typename ...types> void Iterate(
 
 void Iterate(Vertex* vertex) {
 	printf("Done\n");
-}
+}*/

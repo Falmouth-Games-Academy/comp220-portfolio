@@ -2,29 +2,34 @@
 
 layout(location = 0) in vec3 vertexPos;
 layout(location = 1) in vec3 vertexColour;
-layout(location = 2) in vec2 vertexUv;
+layout(location = 2) in vec3 vertexNormal;
+layout(location = 3) in vec2 vertexUv;
+
 out vec3 fragColour;
 out vec2 fragUv;
+out vec3 fragNormal;
 
 uniform mat4 matWorld; // the global transformation matrix
 uniform mat4 matViewProj;  // the global view matrix
+
 uniform float time; // global time
+
+uniform vec3 ambientLightColour;
+uniform vec3 directionalLightDirection;
+uniform vec3 directionalLightColour;
 
 void main()
 {
+	// Pass the projected position to the fragment shader
 	gl_Position =  matViewProj * matWorld * vec4(vertexPos, 1); // matrix needs to be multiplied from the left?
-	/*gl_Position.x += sin(time * 6.28f) * gl_Position.y;
-	gl_Position.y -= cos(time * 6.28f) * gl_Position.x;*/
 
-	/*mat2 derp;
-	float timeScale = 4.0f;
-	float s = (sin(time * timeScale) + 1.0f) / 2.0f, c = (cos(time * timeScale) + 1.0f) / 2.0f;
-	derp[0] = vec2(c, s);
-	derp[1] = vec2(1.0f-s, c);
-	vertexColourFrag.xy = derp * gl_Position.xy;
-	vertexColourFrag.z = s;*/
+	// Use directional light + ambient light
+	float lightFactor = clamp(1.0f - dot(matWorld * vec4(vertexNormal, 0.0f), vec4(directionalLightDirection, 0.0f)), 0.0f, 1.0f);
+	fragColour = vertexColour * ambientLightColour + (directionalLightColour * lightFactor);
 
+	// Standard UVs
 	fragUv = vertexUv;
-	fragColour = vertexColour;
-	fragUv = gl_Position.xy;
+
+	// Send normal to frag shader
+	fragNormal = vec3(matWorld * vec4(vertexNormal, 0.0f));
 }

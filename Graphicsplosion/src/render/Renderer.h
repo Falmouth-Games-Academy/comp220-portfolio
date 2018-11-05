@@ -19,6 +19,9 @@ public:
 	// Init function for deferred creation
 	void Init(class Window& renderWindow);
 
+	// Shutdown cleans up resources and renderer
+	void Shutdown();
+
 public:
 	// Render functions
 	void BeginRender(bool doClear = true);
@@ -65,8 +68,13 @@ public:
 	// Loads and links a shader program with the given shaders
 	ShaderProgram(const Renderer& renderer, GLResource vertexShader, GLResource fragmentShader);
 
+	// Unloads/destroys the shader program
+	~ShaderProgram() { Destroy(); }
+
 public:
-	void Init(const Renderer& renderer, GLResource vertexShader, GLResource fragmentShader);
+	// Loads and links a shader program with the given shaders
+	void Create(const Renderer& renderer, GLResource vertexShader, GLResource fragmentShader);
+	void Destroy();
 
 public:
 	// Attaches a shader to the program (either vertex or fragment)
@@ -194,5 +202,6 @@ private:
 struct Vertex {
 	float x, y, z;
 	float r, g, b;
+	float normalX, normalY, normalZ;
 	float u, v;
 };

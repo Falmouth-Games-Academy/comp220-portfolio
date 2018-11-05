@@ -26,28 +26,40 @@ void Graphicsplosion::Init() {
 	GLResource vertexShader = render.LoadShaderFromSourceFile("src/shaders/vertex.txt", GL_VERTEX_SHADER);
 
 	// Setup the default shader program
-	defaultShaderProgram.Init(render, vertexShader, fragmentShader);
+	defaultShaderProgram.Create(render, vertexShader, fragmentShader);
 
 	// Generate the test triangle
-	static Vertex g_vertex_buffer_data[] = {
-		-1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f,
-		1.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f,
-		0.0f,  0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.5f, 0.0f,
+	static Vertex triangleVertices[] = {
+		-1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f,
+		1.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f,
+		0.0f,  0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.5f, 0.0f,
 
-		-5.0f, -5.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f,
-		-5.0f, 5.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f,
-		5.0f, 5.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f,
+		-5.0f, -5.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
+		-5.0f, 5.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f,
+		5.0f, 5.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f,
 
-		-5.0f, -5.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f,
-		5.0f, 5.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f,
-		5.0f, -5.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f,
+		-5.0f, -5.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
+		5.0f, 5.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f,
+		5.0f, -5.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f,
 	};
 
 	// Create the test triangle
-	triangle.Create(render, g_vertex_buffer_data, sizeof(g_vertex_buffer_data));
+	triangle.Create(render, triangleVertices, sizeof(triangleVertices));
 	
-	Model derp;
-	dbgModel.Create("Assets/Bunny.fbx");
+	// Load the test model
+	dbgModel.Create("Assets/Pigeon.fbx");
+
+	// Create the background plane
+	static Vertex backPlaneVertices[] = {
+		-1.0f, -1.0f, 0.9999f, 0.20f, 0.20f, 0.75f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f,
+		-1.0f,  1.0f, 0.9999f, 0.00f, 0.64f, 0.91f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f,
+		 1.0f,  1.0f, 0.9999f, 0.00f, 0.64f, 0.91f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f,
+		-1.0f, -1.0f, 0.9999f, 0.20f, 0.20f, 0.75f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f,
+		 1.0f,  1.0f, 0.9999f, 0.00f, 0.64f, 0.91f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f,
+		 1.0f, -1.0f, 0.9999f, 0.20f, 0.20f, 0.75f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f,
+	};
+
+	backPlane.Create(render, backPlaneVertices, sizeof(backPlaneVertices));
 
 	// Spawn the player
 	player.OnSpawn();
@@ -58,6 +70,11 @@ void Graphicsplosion::Shutdown() {
 	triangle.Destroy();
 
 	dbgTexture.Destroy();
+	dbgModel.Destroy();
+
+	// Clean up the renderer and other resources
+	render.Shutdown();
+	window.Destroy();
 }
 
 void Graphicsplosion::Update() {
@@ -73,13 +90,7 @@ void Graphicsplosion::Render() {
 	render.UseShaderProgram(defaultShaderProgram);
 
 	// Test rotate the triangle
-	triangleAngle += 6.28f * deltaTime;
-
-	// Find the shader constants
-	int uniMatWorld = glGetUniformLocation(defaultShaderProgram.GetGlProgram(), "matWorld");
-	int uniMatViewProj = glGetUniformLocation(defaultShaderProgram.GetGlProgram(), "matViewProj");
-	int uniTime = glGetUniformLocation(defaultShaderProgram.GetGlProgram(), "time");
-	int uniTexture = glGetUniformLocation(defaultShaderProgram.GetGlProgram(), "textureSampler");
+	triangleAngle += 6.28f * deltaTime * 0.25f;
 
 	// Set up the view/proj matrix
 	const float playerHeight = 0.5f;
@@ -91,11 +102,29 @@ void Graphicsplosion::Render() {
 	// Set up the world matrix (just a fun rotation around angle)
 	glm::mat4 matWorld = glm::rotate(triangleAngle, glm::vec3(0.0f, 0.0f, 1.0f));
 
+	// Find the uniform variables
+	int uniMatWorld = glGetUniformLocation(defaultShaderProgram.GetGlProgram(), "matWorld");
+	int uniMatViewProj = glGetUniformLocation(defaultShaderProgram.GetGlProgram(), "matViewProj");
+	int uniTime = glGetUniformLocation(defaultShaderProgram.GetGlProgram(), "time");
+	int uniTexture = glGetUniformLocation(defaultShaderProgram.GetGlProgram(), "textureSampler");
+	int uniAmbientLightColour = glGetUniformLocation(defaultShaderProgram.GetGlProgram(), "ambientLightColour");
+	int uniDirectionalLightColour = glGetUniformLocation(defaultShaderProgram.GetGlProgram(), "directionalLightColour");
+	int uniDirectionalLightDirection = glGetUniformLocation(defaultShaderProgram.GetGlProgram(), "directionalLightDirection");
+	int uniViewDirection = glGetUniformLocation(defaultShaderProgram.GetGlProgram(), "uniViewDirection");
+
 	// Upload the uniform variables
+	const glm::vec3 directionalLightDirection = glm::normalize(glm::vec3(-1.0f, -1.0f, -1.0f));
+	const glm::vec3 directionalLightColour = glm::vec3(0.4f, 0.4f, 0.4f);
+	const glm::vec3 viewDirection = glm::normalize(glm::vec3(matViewProj[2][0], matViewProj[2][1], matViewProj[2][2]));
+
 	glUniformMatrix4fv(uniMatWorld, 1, GL_FALSE, (GLfloat*)&matWorld);
 	glUniformMatrix4fv(uniMatViewProj, 1, GL_FALSE, (GLfloat*)&matViewProj);
 	glUniform1f(uniTime, (float)game.frameTime);
 	glUniform1i(uniTexture, 0);
+	glUniform3f(uniAmbientLightColour, 0.5f, 1.0f, 1.0f);
+	glUniform3f(uniDirectionalLightColour, directionalLightColour.x, directionalLightColour.y, directionalLightColour.z);
+	glUniform3f(uniDirectionalLightDirection, directionalLightDirection.x, directionalLightDirection.y, directionalLightDirection.z);
+	glUniform3fv(uniViewDirection, 1, (GLfloat*)&viewDirection);
 
 	// Set the texture
 	glActiveTexture(GL_TEXTURE1);
@@ -105,11 +134,19 @@ void Graphicsplosion::Render() {
 	// Draw the model
 	dbgModel.Render(render);
 
-	// Draw the triangle
-	render.UseVertexBuffer(&triangle);
+	// Draw the background plane
+	glUniformMatrix4fv(uniMatViewProj, 1, GL_FALSE, (GLfloat*)&glm::identity<glm::mat4>());
+	glUniformMatrix4fv(uniMatWorld, 1, GL_FALSE, (GLfloat*)&glm::identity<glm::mat4>());
+	render.UseVertexBuffer(&backPlane);
 	render.UseIndexBuffer(nullptr);
 
-	render.DrawTriangles(0, 36);
+	render.DrawTriangles(0, 6);
+
+	// Draw the triangle
+	/*render.UseVertexBuffer(&triangle);
+	render.UseIndexBuffer(nullptr);
+
+	render.DrawTriangles(0, 36);*/
 
 	// Done!
 	render.EndRender(window);

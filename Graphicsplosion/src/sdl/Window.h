@@ -12,11 +12,16 @@ public:
 		Create(windowTitle, windowSize);
 	}
 
-	~Window();
+	~Window() {
+		Destroy();
+	}
 
 public:
 	// Creates the window if it hasn't already been created
 	void Create(const char* windowTitle, const Vec2I& windowSize);
+
+	// Destroys the window
+	void Destroy();
 
 	// Returns the error state where 0 = no errors in creation
 	int GetError() const {
@@ -50,7 +55,6 @@ public:
 private:
 	// SDL resources
 	struct SDL_Window* sdlWindow;
-
 	void* sdlGlContext;
 
 	// Used to remember whether the screen is fullscreen
