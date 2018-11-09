@@ -19,7 +19,7 @@ void main()
 	// Specular lighting
 	vec3 halfWay = normalize(-directionalLightDirection + viewDirection);
 	float specularPower = 7.0f;
-	float nDoth = pow(dot(normalize(fragNormal), halfWay), specularPower);
+	float nDoth = clamp(pow(dot(normalize(fragNormal), halfWay), specularPower), 0.0f, 1.0f);
 
 	color += vec3(0.8f, 0.8f, 0.8f) * nDoth;
 }

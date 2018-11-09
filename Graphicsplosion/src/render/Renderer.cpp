@@ -28,7 +28,7 @@ void Renderer::Init(Window& renderWindow) {
 	glewExperimental = GL_TRUE;
 	glewInit();
 
-	// Test
+	// Test vertex array structure
 	glGenVertexArrays(1, &vao);
 	glBindVertexArray(vao);
 
@@ -49,12 +49,14 @@ void Renderer::Init(Window& renderWindow) {
 }
 
 void Renderer::Shutdown() {
+	// Free resources
 	glDeleteVertexArrays(1, &vao);
 
 	return;
 }
 
 void Renderer::BeginRender(bool doClear) {
+	// Clear the backbuffers before render
 	glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -73,22 +75,26 @@ void Renderer::EndRender(Window& renderWindow) {
 }
 
 void Renderer::DrawTriangles(int startVertexIndex, int numVerticesToDraw) {
+	// Bind vertex array (todo: How to not need to use glVertexAttribPointer every call...?)
 	glBindVertexArray(vao);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, x));
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, r));
 	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, normalX));
 	glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, u));
 
+	// Draw the triangles
 	glDrawArrays(GL_TRIANGLES, startVertexIndex, numVerticesToDraw);
 }
 
 void Renderer::DrawTrianglesIndexed(int startIndex, int numIndicesToDraw) {
+	// Bind vertex array (todo: How to not need to use glVertexAttribPointer every call...?)
 	glBindVertexArray(vao);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, x));
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, r));
 	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, normalX));
 	glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, u));
 
+	// Draw the triangles
 	glDrawElements(GL_TRIANGLES, numIndicesToDraw, GL_UNSIGNED_INT, nullptr);
 }
 

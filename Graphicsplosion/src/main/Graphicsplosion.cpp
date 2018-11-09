@@ -5,11 +5,13 @@
 
 #include "glm/glm.hpp"
 #include "glm/gtx/transform.hpp"
+#include "glm/gtc/type_ptr.hpp"
 
 Graphicsplosion game;
 
 Texture dbgTexture;
 Model dbgModel;
+Model dbgSecondModel;
 VertexBuffer dbgModelBuffer;
 
 void Graphicsplosion::Init() {
@@ -48,6 +50,7 @@ void Graphicsplosion::Init() {
 	
 	// Load the test model
 	dbgModel.Create("Assets/Pigeon.fbx");
+	dbgSecondModel.Create("Assets/Bunny.fbx");
 
 	// Create the background plane
 	static Vertex backPlaneVertices[] = {
@@ -117,26 +120,38 @@ void Graphicsplosion::Render() {
 	const glm::vec3 directionalLightColour = glm::vec3(0.4f, 0.4f, 0.4f);
 	const glm::vec3 viewDirection = glm::normalize(glm::vec3(matViewProj[2][0], matViewProj[2][1], matViewProj[2][2]));
 
-	glUniformMatrix4fv(uniMatWorld, 1, GL_FALSE, (GLfloat*)&matWorld);
-	glUniformMatrix4fv(uniMatViewProj, 1, GL_FALSE, (GLfloat*)&matViewProj);
+	const glm::vec3 ambientLight(0.25f, 0.5f, 0.5f);
+
+	glUniformMatrix4fv(uniMatWorld, 1, GL_FALSE, glm::value_ptr(matWorld));
+	glUniformMatrix4fv(uniMatViewProj, 1, GL_FALSE, glm::value_ptr(matViewProj));
 	glUniform1f(uniTime, (float)game.frameTime);
 	glUniform1i(uniTexture, 0);
-	glUniform3f(uniAmbientLightColour, 0.5f, 1.0f, 1.0f);
-	glUniform3f(uniDirectionalLightColour, directionalLightColour.x, directionalLightColour.y, directionalLightColour.z);
-	glUniform3f(uniDirectionalLightDirection, directionalLightDirection.x, directionalLightDirection.y, directionalLightDirection.z);
-	glUniform3fv(uniViewDirection, 1, (GLfloat*)&viewDirection);
+	glUniform3fv(uniAmbientLightColour, 1, glm::value_ptr(ambientLight));
+	glUniform3fv(uniDirectionalLightColour, 1, glm::value_ptr(directionalLightColour));
+	glUniform3fv(uniDirectionalLightDirection, 1, glm::value_ptr(directionalLightDirection));
+	glUniform3fv(uniViewDirection, 1, glm::value_ptr(viewDirection));
 
 	// Set the texture
 	glActiveTexture(GL_TEXTURE1);
 	glBindTexture(GL_TEXTURE_2D, dbgTexture.GetTextureName());
 	glBindSampler(uniTexture, 1);
 
-	// Draw the model
+	// Draw the two models
+	// Draw the pigeon
+	glm::mat4 pigeonTransform = matWorld;
+	glUniformMatrix4fv(uniMatWorld, 1, GL_FALSE, glm::value_ptr(pigeonTransform));
 	dbgModel.Render(render);
 
+	// Draw the bunny
+	glm::mat4 bunnyTransform = glm::scale(glm::vec3(0.15f, 0.15f, 0.15f)) * matWorld * glm::rotate(glm::half_pi<float>(), glm::vec3(1.0f, 0.0f, 0.0f));
+	bunnyTransform = glm::translate(glm::vec3(15.0f, 0.0f, 0.0f)) * bunnyTransform;
+
+	glUniformMatrix4fv(uniMatWorld, 1, GL_FALSE, glm::value_ptr(bunnyTransform));
+	dbgSecondModel.Render(render);
+
 	// Draw the background plane
-	glUniformMatrix4fv(uniMatViewProj, 1, GL_FALSE, (GLfloat*)&glm::identity<glm::mat4>());
-	glUniformMatrix4fv(uniMatWorld, 1, GL_FALSE, (GLfloat*)&glm::identity<glm::mat4>());
+	glUniformMatrix4fv(uniMatViewProj, 1, GL_FALSE, glm::value_ptr(glm::identity<glm::mat4>()));
+	glUniformMatrix4fv(uniMatWorld, 1, GL_FALSE, glm::value_ptr(glm::identity<glm::mat4>()));
 	render.UseVertexBuffer(&backPlane);
 	render.UseIndexBuffer(nullptr);
 
