@@ -1,0 +1,14 @@
+#version 330 core
+
+layout(location = 0) in vec2 vertexPos;
+
+out vec3 uvw;
+
+void main()
+{
+	// Pass the position through to the fragment shader
+	gl_Position = vec4(vertexPos, 0.0f, 1.0f);
+
+	// Pass the normalised texture coords through
+	uvw = (gl_Position + 1.0f) / 2.0f;
+}

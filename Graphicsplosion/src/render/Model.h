@@ -1,6 +1,59 @@
 #pragma once
 #include "Renderer.h"
 
+#include <vector>
+
+#include <glm/glm.hpp>
+
+struct AnimNode {
+	// The target bone's name and pointer
+	std::string targetName;
+	const struct Bone* target;
+
+	// Keyframes
+	struct Keyframe {
+		float time;
+
+		union {
+			glm::vec3 vec;
+		};
+	};
+
+	// Keyframe lists for translation, rotation and scale
+	std::vector<Keyframe> translation;
+	std::vector<Keyframe> rotation;
+	std::vector<Keyframe> scale;
+
+	// The current index of each keyframe, blended
+	float translationKeyframeIndex;
+	float rotationKeyframeIndex;
+	float scaleKeyframeIndex;
+};
+
+struct Anim {
+	std::vector<AnimNode> nodes;
+};
+
+
+struct Bone {
+	// The index of this bone relative to the model
+	int index;
+
+	// The name of this bone
+	std::string name;
+
+	// Matrix that transforms vertices from model space to bone space
+	glm::mat4 bindPose;
+
+	// List of attached vertex indices and their weights
+	struct VertexWeight {
+		int index;
+		float weight;
+	};
+
+	std::vector<VertexWeight> vertexWeights;
+};
+
 class Model {
 public:
 	Model() : vertices(nullptr), numVertices(0), indices(nullptr), numIndices(0) {}
@@ -51,6 +104,12 @@ private:
 	unsigned int* indices;
 	unsigned int numIndices;
 	
+	// Array of the bones in this mesh
+	std::vector<Bone> bones;
+
+	// Array of the animations in this model
+	std::vector<Anim> animations;
+
 	// Cached buffers
 	mutable class VertexBuffer vertexBuffer;
 	mutable class IndexBuffer indexBuffer;

@@ -5,6 +5,10 @@ class Graphicsplosion : public Game {
 public:
 	Graphicsplosion() : triangleAngle(0.0f) {}
 
+	ShaderProgram& GetDefaultShaderProgram() {
+		return defaultShaderProgram;
+	}
+
 private:
 	void Init() override;
 	void Shutdown() override;

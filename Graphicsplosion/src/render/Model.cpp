@@ -7,6 +7,8 @@
 #include <assimp\scene.h>
 #include <assimp\postprocess.h>
 
+#include <iostream>
+
 bool Model::Create(const char* filename) {
 	// Load the scene from the file
 	Assimp::Importer importer;
@@ -25,6 +27,8 @@ bool Model::Create(const char* filename) {
 		aiMesh *currentMesh = scene->mMeshes[i];
 
 		// Load vertices
+		vertices.resize(currentMesh->mNumVertices);
+
 		for (int v = 0; v < currentMesh->mNumVertices; v++) {
 			aiVector3D currentModelVertex = currentMesh->mVertices[v];
 			aiColor4D currentModelColour = aiColor4D(1.0, 1.0, 1.0, 1.0);
@@ -53,7 +57,9 @@ bool Model::Create(const char* filename) {
 				currentTextureCoordinates.x, currentTextureCoordinates.y
 			};
 
-			vertices.push_back(currentVertex);
+			currentVertex.boneIndices[0] = -1;
+
+			vertices[v] = currentVertex;
 		}
 
 		// Load faces/vertex indices
@@ -64,6 +70,91 @@ bool Model::Create(const char* filename) {
 			indices.push_back(currentModelFace.mIndices[1]);
 			indices.push_back(currentModelFace.mIndices[2]);
 		}
+
+		// Load bones
+		// Import animations (TEST  --- REFACTOR LATER)
+		aiBone* const* aiBones = currentMesh->mBones;
+		const int maxBonesPerVertex = 4;
+		
+		bones.resize(bones.size() + currentMesh->mNumBones);
+
+		for (int b = 0; b < currentMesh->mNumBones; b++) {
+			int bIndex = b + (bones.size() - currentMesh->mNumBones);
+			Bone& newBone = bones[bIndex];
+			
+			// Copy name and bind post
+			newBone.index = bIndex;
+			newBone.name = aiBones[b]->mName.C_Str();
+
+			for (int j = 0; j < 16; j++) {
+				bones[b].bindPose[j/4][j%4] = aiBones[b]->mOffsetMatrix[j/4][j%4];
+			}
+
+			// Copy vertex weights
+			newBone.vertexWeights.resize(aiBones[b]->mNumWeights);
+			for (int w = 0; w < aiBones[b]->mNumWeights; w++) {
+				int vIndex = aiBones[b]->mWeights[w].mVertexId;
+
+				newBone.vertexWeights[w].index = vIndex;
+				newBone.vertexWeights[w].weight = aiBones[b]->mWeights[w].mWeight;
+
+				// Update the vertex which uses this bone
+				if (newBone.vertexWeights[w].weight > 0.0f) {
+					for (int boneIndex = 0; boneIndex < maxBonesPerVertex; boneIndex++) {
+						// Replace the lowest -1 with this vertex and shift the -1 to the next one
+						if (vertices[vIndex].boneIndices[boneIndex] == -1) {
+							vertices[vIndex].boneIndices[boneIndex] = bIndex;
+							vertices[vIndex].boneWeights[boneIndex] = newBone.vertexWeights[w].weight;
+
+							if (boneIndex < maxBonesPerVertex - 1) {
+								vertices[vIndex].boneIndices[boneIndex + 1] = -1;
+							}
+
+							break;
+						}
+					}
+				}
+			}
+		}
+	}
+
+	// Load animations
+	for (int a = 0; a < scene->mNumAnimations; a++) {
+		const aiAnimation* aiAnim = scene->mAnimations[a];
+		Anim newAnimation;
+
+		newAnimation.nodes.resize(aiAnim->mNumChannels);
+		for (int c = 0; c < aiAnim->mNumChannels; c++) {
+			AnimNode& newNode = newAnimation.nodes[c];
+			const aiNodeAnim* channel = aiAnim->mChannels[c];
+
+			// Add the node to the channel
+			newNode.targetName = channel->mNodeName.C_Str();
+			newNode.target = nullptr;
+
+			// Try and find the target bone
+			for (Bone& b : bones) {
+				if (b.name == newNode.targetName) {
+					newNode.target = &b;
+				}
+			}
+
+			// Copy the translation and rotation keys
+			newNode.translation.resize(channel->mNumPositionKeys);
+			newNode.rotation.resize(channel->mNumRotationKeys);
+
+			for (int k = 0; k < channel->mNumPositionKeys; k++) {
+				newNode.translation[k].time = channel->mPositionKeys[k].mTime;
+				newNode.translation[k].vec = glm::vec3(channel->mPositionKeys[k].mValue.x, channel->mPositionKeys[k].mValue.y, channel->mPositionKeys[k].mValue.z);
+			}
+			
+			for (int k = 0; k < channel->mNumRotationKeys; k++) {
+				newNode.rotation[k].time = channel->mRotationKeys[k].mTime;
+				newNode.rotation[k].vec = glm::vec3(channel->mRotationKeys[k].mValue.x, channel->mRotationKeys[k].mValue.y, channel->mRotationKeys[k].mValue.z);
+			}
+		}
+
+		animations.push_back(newAnimation);
 	}
 
 	// Copy the results to our array
@@ -89,6 +180,9 @@ void Model::Destroy() {
 	indices = nullptr;
 }
 
+#include "main/Graphicsplosion.h"
+#include "glm/gtx/transform.hpp"
+
 void Model::Render(Renderer renderer) {
 	// Create the buffers if they don't already exist
 	if (!areBuffersCreated) {
@@ -101,6 +195,44 @@ void Model::Render(Renderer renderer) {
 	// Bind the buffers
 	renderer.UseVertexBuffer(&vertexBuffer);
 	renderer.UseIndexBuffer(&indexBuffer);
+
+	// Send the gargblarghs to the vertex shader
+	for (Anim& anim : animations) {
+		for (AnimNode& node : anim.nodes) {
+			if (node.target) {
+				node.target->index;
+
+				node.translationKeyframeIndex = 0.0f;
+				node.rotationKeyframeIndex = 0.0f;
+				node.scaleKeyframeIndex = 0.0f;
+			}
+		}
+	}
+
+	// Animate bones and shfishfizzle
+	glm::mat4 boneMatrices[64];
+
+	for (int i = 0; i < 64; i++) {
+		boneMatrices[i] = glm::mat4(1.0f);
+	}
+
+	for (Anim& anim : animations) {
+		for (AnimNode& node : anim.nodes) {
+			if (node.target) {
+				int matrixIndex = node.target->index;
+				glm::mat4 currentState;
+
+				currentState *= glm::translate(node.translation[0].vec);
+				currentState *= glm::(node.rotation[0].vec);
+
+				boneMatrices[matrixIndex] = node.target->bindPose;
+			}
+		}
+	}
+
+	// Send it to the shader
+	int uniBoneTransforms = glGetUniformLocation(game.GetDefaultShaderProgram().GetGlProgram(), "boneTransforms");
+	glUniformMatrix4fv(uniBoneTransforms, 64, GL_FALSE, (GLfloat*)boneMatrices);
 
 	// Render the triangles
 	renderer.DrawTrianglesIndexed(0, numIndices);

@@ -156,6 +156,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
+    <Text Include="src\shaders\vertexPassthrough.txt" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\actors\Actor.h" />

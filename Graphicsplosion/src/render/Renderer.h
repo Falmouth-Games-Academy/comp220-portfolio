@@ -204,4 +204,7 @@ struct Vertex {
 	float r, g, b;
 	float normalX, normalY, normalZ;
 	float u, v;
+
+	int boneIndices[4];
+	float boneWeights[4];
 };
