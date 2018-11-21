@@ -11,6 +11,12 @@ out vec3 fragColour;
 out vec2 fragUv;
 out vec3 fragNormal;
 
+out uint val1;
+out uint val2;
+out uint val3;
+out uint val4;
+out uint thisShouldWork;
+
 uniform mat4 matWorld; // the global transformation matrix
 uniform mat4 matViewProj;  // the global view matrix
 
@@ -53,4 +59,10 @@ void main()
 
 	// Send normal to frag shader
 	fragNormal = vec3(matWorld * vec4(vertexNormal, 0.0f));
+
+	val1 = boneIndices[0];
+	val2 = boneIndices[1];
+	val3 = boneIndices[2];
+	val4 = boneIndices[3];
+	thisShouldWork = 5u;
 }
