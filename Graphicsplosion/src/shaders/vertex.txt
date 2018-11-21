@@ -4,7 +4,7 @@ layout(location = 0) in vec3 vertexPos;
 layout(location = 1) in vec3 vertexColour;
 layout(location = 2) in vec3 vertexNormal;
 layout(location = 3) in vec2 vertexUv;
-layout(location = 4) in int boneIndices[4];
+layout(location = 4) in uint boneIndices[4];
 layout(location = 5) in float boneWeights[4];
 
 out vec3 fragColour;
@@ -14,7 +14,7 @@ out vec3 fragNormal;
 uniform mat4 matWorld; // the global transformation matrix
 uniform mat4 matViewProj;  // the global view matrix
 
-uniform mat4 boneTransforms[64]; // bone matrices
+uniform mat4 boneTransforms[32]; // bone matrices
 
 uniform float time; // global time
 
@@ -25,22 +25,22 @@ uniform vec3 directionalLightColour;
 void main()
 {
 	// Calculate the position of the vertex based on bones
-	vec4 animatedPosition = vec4(0.0f, 0.0f, 0.0f, 0.0f);
-	float numAnimatedPositions = 0.0f;
+	// If there is at least one bone attached, weight this to the bone
+	int numBones = 0;
+	if (boneIndices[0] < 32u) {
+		vec3 animatedPosition = vec3(0.0f, 0.0f, 0.0f);
 
-	for (int i = 0; i < 4; i++) {
-		if (boneIndices[i] < 0 || boneIndices[i] >= 64) {
-			break;
+		for (int i = 0; i < 4; i++) {
+			if (boneIndices[i] < 32u) {
+				animatedPosition += (boneTransforms[boneIndices[i]] * vec4(vertexPos, 1.0f)).xyz * boneWeights[i];
+			}
 		}
 
-		animatedPosition += (boneTransforms[i] * vec4(vertexPos, 1.0f)) * boneWeights[i];
-		numAnimatedPositions += 1.0f;
-	}
-
-	// Pass the projected position to the fragment shader
-	if (numAnimatedPositions > 0.0f) {
-		gl_Position = matViewProj * matWorld * animatedPosition;
+		gl_Position = matViewProj * matWorld * vec4(animatedPosition, 1);
 	} else {
+		numBones = -1;
+
+		// Otherwise use the regular position
 		gl_Position = matViewProj * matWorld * vec4(vertexPos, 1);
 	}
 

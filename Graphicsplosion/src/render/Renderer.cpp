@@ -11,18 +11,19 @@
 GLuint vao;
 
 void Renderer::Init(Window& renderWindow) {
-	// Create the GL context
-	renderWindow.CreateGlContext();
-
 	// Initialise OpenGL attributes (may move later)
 	//GL_ARB_framebuffer_object
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3); // set the GL context major version
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2); // set the GL context version
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, SDL_TRUE); // enable double-buffering
-	SDL_GL_SetSwapInterval(0); // disable vsync
 
+	// Create the GL context
+	renderWindow.CreateGlContext();
+
+	// Do additional setup
 	glEnable(GL_DEPTH_TEST);
+	SDL_GL_SetSwapInterval(0); // disable vsync
 
 	// Setup GLEW
 	glewExperimental = GL_TRUE;
@@ -77,7 +78,7 @@ void Renderer::DrawTriangles(int startVertexIndex, int numVerticesToDraw) {
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, r));
 	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, normalX));
 	glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, u));
-	glVertexAttribPointer(4, 4, GL_INT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, boneIndices));
+	glVertexAttribIPointer(4, 4, GL_UNSIGNED_BYTE, sizeof(Vertex), (void*)offsetof(Vertex, boneIndices));
 	glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, boneWeights));
 
 	// Draw the triangles
@@ -92,7 +93,7 @@ void Renderer::DrawTrianglesIndexed(int startIndex, int numIndicesToDraw) {
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, r));
 	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, normalX));
 	glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, u));
-	glVertexAttribPointer(4, 4, GL_INT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, boneIndices));
+	glVertexAttribIPointer(4, 4, GL_UNSIGNED_BYTE, sizeof(Vertex), (void*)offsetof(Vertex, boneIndices));
 	glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, boneWeights));
 
 	// Draw the triangles

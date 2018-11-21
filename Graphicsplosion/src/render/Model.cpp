@@ -57,7 +57,7 @@ bool Model::Create(const char* filename) {
 				currentTextureCoordinates.x, currentTextureCoordinates.y
 			};
 
-			currentVertex.boneIndices[0] = -1;
+			currentVertex.boneIndices[0] = 255;
 
 			vertices[v] = currentVertex;
 		}
@@ -102,12 +102,12 @@ bool Model::Create(const char* filename) {
 				if (newBone.vertexWeights[w].weight > 0.0f) {
 					for (int boneIndex = 0; boneIndex < maxBonesPerVertex; boneIndex++) {
 						// Replace the lowest -1 with this vertex and shift the -1 to the next one
-						if (vertices[vIndex].boneIndices[boneIndex] == -1) {
+						if (vertices[vIndex].boneIndices[boneIndex] == 255) {
 							vertices[vIndex].boneIndices[boneIndex] = bIndex;
 							vertices[vIndex].boneWeights[boneIndex] = newBone.vertexWeights[w].weight;
 
 							if (boneIndex < maxBonesPerVertex - 1) {
-								vertices[vIndex].boneIndices[boneIndex + 1] = -1;
+								vertices[vIndex].boneIndices[boneIndex + 1] = 255;
 							}
 
 							break;
@@ -182,6 +182,7 @@ void Model::Destroy() {
 
 #include "main/Graphicsplosion.h"
 #include "glm/gtx/transform.hpp"
+#include "glm/gtx/euler_angles.hpp"
 
 void Model::Render(Renderer renderer) {
 	// Create the buffers if they don't already exist
@@ -210,11 +211,7 @@ void Model::Render(Renderer renderer) {
 	}
 
 	// Animate bones and shfishfizzle
-	glm::mat4 boneMatrices[64];
-
-	for (int i = 0; i < 64; i++) {
-		boneMatrices[i] = glm::mat4(1.0f);
-	}
+	glm::mat4 boneMatrices[32];
 
 	for (Anim& anim : animations) {
 		for (AnimNode& node : anim.nodes) {
@@ -223,16 +220,18 @@ void Model::Render(Renderer renderer) {
 				glm::mat4 currentState;
 
 				currentState *= glm::translate(node.translation[0].vec);
-				currentState *= glm::(node.rotation[0].vec);
+				currentState *= glm::eulerAngleYXZ(node.rotation[0].vec.z, node.rotation[0].vec.y, node.rotation[0].vec.x);
 
 				boneMatrices[matrixIndex] = node.target->bindPose;
+				//boneMatrices[matrixIndex][0][0] = 3.0f;
+				boneMatrices[matrixIndex] = glm::identity<glm::mat4>();
 			}
 		}
 	}
 
 	// Send it to the shader
 	int uniBoneTransforms = glGetUniformLocation(game.GetDefaultShaderProgram().GetGlProgram(), "boneTransforms");
-	glUniformMatrix4fv(uniBoneTransforms, 64, GL_FALSE, (GLfloat*)boneMatrices);
+	glUniformMatrix4fv(uniBoneTransforms, 32, GL_FALSE, (GLfloat*)boneMatrices);
 
 	// Render the triangles
 	renderer.DrawTrianglesIndexed(0, numIndices);
