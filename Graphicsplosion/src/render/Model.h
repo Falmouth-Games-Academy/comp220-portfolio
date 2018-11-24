@@ -3,7 +3,9 @@
 
 #include <vector>
 
-#include <glm/glm.hpp>
+#include "glm/glm.hpp"
+#include "glm/gtc/quaternion.hpp"
+#include "glm/gtx/quaternion.hpp"
 
 struct AnimNode {
 	// The target bone's name and pointer
@@ -16,6 +18,7 @@ struct AnimNode {
 
 		union {
 			glm::vec3 vec;
+			glm::quat quat;
 		};
 	};
 
@@ -24,7 +27,7 @@ struct AnimNode {
 	std::vector<Keyframe> rotation;
 	std::vector<Keyframe> scale;
 
-	// The current index of each keyframe, blended
+	// The current index of each keyframe including blending
 	float translationKeyframeIndex;
 	float rotationKeyframeIndex;
 	float scaleKeyframeIndex;
@@ -41,6 +44,9 @@ struct Bone {
 
 	// The name of this bone
 	std::string name;
+
+	// The parent bone
+	const Bone* parent;
 
 	// Matrix that transforms vertices from model space to bone space
 	glm::mat4 bindPose;
@@ -89,6 +95,18 @@ public:
 
 	int GetNumIndices() const {
 		return numIndices;
+	}
+
+public:
+	// Tools
+	// Finds a bone by its name
+	Bone* FindBoneByName(std::string name) {
+		for (Bone& b : bones) {
+			if (b.name == name) {
+				return &b;
+			}
+		}
+		return nullptr;
 	}
 
 public:

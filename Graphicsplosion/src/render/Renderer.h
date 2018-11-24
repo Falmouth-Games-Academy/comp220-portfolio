@@ -205,6 +205,6 @@ struct Vertex {
 	float normalX, normalY, normalZ;
 	float u, v;
 
-	unsigned __int32 boneIndices[4];
+	unsigned __int8 boneIndices[4];
 	float boneWeights[4];
 };

@@ -74,6 +74,8 @@
     <LinkIncremental>true</LinkIncremental>
     <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);3rdparty\SDL\include;3rdparty\glew\include\GL;3rdparty\glm\;3rdparty\SDL2_image\include;src\;3rdparty\assimp\include;</IncludePath>
     <LibraryPath>$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86;3rdparty\glew\lib\Release\Win32;3rdparty\SDL2_image\lib\x86\;3rdparty\SDL\lib\x86\;3rdparty\assimp\lib\x86\;</LibraryPath>
+    <IntDir>$(Configuration)_\</IntDir>
+    <OutDir>$(SolutionDir)$(Configuration)_\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>

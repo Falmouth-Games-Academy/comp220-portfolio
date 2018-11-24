@@ -72,7 +72,6 @@ bool Model::Create(const char* filename) {
 		}
 
 		// Load bones
-		// Import animations (TEST  --- REFACTOR LATER)
 		aiBone* const* aiBones = currentMesh->mBones;
 		const int maxBonesPerVertex = 4;
 		
@@ -82,12 +81,13 @@ bool Model::Create(const char* filename) {
 			int bIndex = b + (bones.size() - currentMesh->mNumBones);
 			Bone& newBone = bones[bIndex];
 			
-			// Copy name and bind post
+			// Copy name and bind pose
 			newBone.index = bIndex;
 			newBone.name = aiBones[b]->mName.C_Str();
+			newBone.parent = nullptr;
 
 			for (int j = 0; j < 16; j++) {
-				bones[b].bindPose[j/4][j%4] = aiBones[b]->mOffsetMatrix[j/4][j%4];
+				bones[b].bindPose[j%4][j/4] = aiBones[b]->mOffsetMatrix[j/4][j%4];
 			}
 
 			// Copy vertex weights
@@ -121,6 +121,7 @@ bool Model::Create(const char* filename) {
 	// Load animations
 	for (int a = 0; a < scene->mNumAnimations; a++) {
 		const aiAnimation* aiAnim = scene->mAnimations[a];
+		double ticksPerSecond = aiAnim->mTicksPerSecond != 0.0f ? aiAnim->mTicksPerSecond : 30.0f;
 		Anim newAnimation;
 
 		newAnimation.nodes.resize(aiAnim->mNumChannels);
@@ -144,17 +145,49 @@ bool Model::Create(const char* filename) {
 			newNode.rotation.resize(channel->mNumRotationKeys);
 
 			for (int k = 0; k < channel->mNumPositionKeys; k++) {
-				newNode.translation[k].time = channel->mPositionKeys[k].mTime;
+				newNode.translation[k].time = channel->mPositionKeys[k].mTime / aiAnim->mTicksPerSecond;
 				newNode.translation[k].vec = glm::vec3(channel->mPositionKeys[k].mValue.x, channel->mPositionKeys[k].mValue.y, channel->mPositionKeys[k].mValue.z);
 			}
 			
 			for (int k = 0; k < channel->mNumRotationKeys; k++) {
-				newNode.rotation[k].time = channel->mRotationKeys[k].mTime;
-				newNode.rotation[k].vec = glm::vec3(channel->mRotationKeys[k].mValue.x, channel->mRotationKeys[k].mValue.y, channel->mRotationKeys[k].mValue.z);
+				newNode.rotation[k].time = channel->mRotationKeys[k].mTime / aiAnim->mTicksPerSecond;
+				newNode.rotation[k].quat = glm::quat(channel->mRotationKeys[k].mValue.w, channel->mRotationKeys[k].mValue.x, channel->mRotationKeys[k].mValue.y, channel->mRotationKeys[k].mValue.z);
 			}
 		}
 
 		animations.push_back(newAnimation);
+	}
+
+	// Assign bone parents
+	const int maxNodeLevel = 32;
+	aiNode* currentNode = scene->mRootNode;
+	int childIndices[maxNodeLevel] = { 0 };
+	int currentLevel = 1;
+
+	// Begin depth-first search
+	while (currentNode) {
+		// If there are more nodes to explore at this level, dive in!
+		if (childIndices[currentLevel] < currentNode->mNumChildren) {
+			currentNode = currentNode->mChildren[childIndices[currentLevel]];
+
+			childIndices[currentLevel++]++;
+			childIndices[currentLevel] = 0;
+			continue;
+		}
+
+		// See if any bones match this node
+		if (currentNode->mParent) {
+			Bone* childBone = FindBoneByName(currentNode->mName.C_Str());
+			Bone* parentBone = FindBoneByName(currentNode->mParent->mName.C_Str());
+			
+			if (childBone && parentBone) {
+				childBone->parent = parentBone;
+			}
+		}
+
+		// Exit this level
+		currentLevel--;
+		currentNode = currentNode->mParent;
 	}
 
 	// Copy the results to our array
@@ -184,6 +217,8 @@ void Model::Destroy() {
 #include "glm/gtx/transform.hpp"
 #include "glm/gtx/euler_angles.hpp"
 
+#include "main/Time.h"
+
 void Model::Render(Renderer renderer) {
 	// Create the buffers if they don't already exist
 	if (!areBuffersCreated) {
@@ -198,40 +233,72 @@ void Model::Render(Renderer renderer) {
 	renderer.UseIndexBuffer(&indexBuffer);
 
 	// Send the gargblarghs to the vertex shader
+	// Animate bones and shfishfizzle
+	float time = (sin(Time::GetTime()) + 1.0f) / 2.0f;
+
 	for (Anim& anim : animations) {
 		for (AnimNode& node : anim.nodes) {
 			if (node.target) {
-				node.target->index;
-
 				node.translationKeyframeIndex = 0.0f;
 				node.rotationKeyframeIndex = 0.0f;
 				node.scaleKeyframeIndex = 0.0f;
+
+				// Find keyframes that are closest to the current time
+				for (int i = 0; i < node.rotation.size(); i++) {
+					if (node.rotation[i].time < time) {
+						node.rotationKeyframeIndex = i;
+					}
+				}
+
+				for (int i = 0; i < node.translation.size(); i++) {
+					if (node.translation[i].time < time) {
+						node.translationKeyframeIndex = i;
+					}
+				}
 			}
 		}
 	}
 
-	// Animate bones and shfishfizzle
-	glm::mat4 boneMatrices[32];
+	glm::mat4 rootBoneMatrices[32];
+	const Bone* bonePointers[32] = {0};
 
 	for (Anim& anim : animations) {
 		for (AnimNode& node : anim.nodes) {
 			if (node.target) {
 				int matrixIndex = node.target->index;
-				glm::mat4 currentState;
+				glm::quat rotation = node.rotation[(int)node.rotationKeyframeIndex].quat;
+				glm::vec3 translation = node.translation[(int)node.translationKeyframeIndex].vec;
+				glm::mat4 currentState = glm::mat4(rotation);
+				
+				currentState = glm::translate(translation) * currentState;
 
-				currentState *= glm::translate(node.translation[0].vec);
-				currentState *= glm::eulerAngleYXZ(node.rotation[0].vec.z, node.rotation[0].vec.y, node.rotation[0].vec.x);
-
-				boneMatrices[matrixIndex] = node.target->bindPose;
-				//boneMatrices[matrixIndex][0][0] = 3.0f;
-				boneMatrices[matrixIndex] = glm::identity<glm::mat4>();
+				rootBoneMatrices[matrixIndex] = currentState;
+				bonePointers[matrixIndex] = node.target;
 			}
+		}
+	}
+
+	// Move bone matrices along the parent chain
+	glm::mat4 finalBoneMatrices[32] = {};
+
+	for (int i = 0; i < 32; i++) {
+		if (bonePointers[i]) {
+			const Bone* currentBone = bonePointers[i]->parent;
+
+			finalBoneMatrices[i] = rootBoneMatrices[i];
+
+			while (currentBone) {
+				finalBoneMatrices[i] = rootBoneMatrices[currentBone->index] * finalBoneMatrices[i];
+				currentBone = currentBone->parent;
+			}
+
+			finalBoneMatrices[i] = finalBoneMatrices[i] * bonePointers[i]->bindPose;
 		}
 	}
 
 	// Send it to the shader
 	int uniBoneTransforms = glGetUniformLocation(game.GetDefaultShaderProgram().GetGlProgram(), "boneTransforms");
-	glUniformMatrix4fv(uniBoneTransforms, 32, GL_FALSE, (GLfloat*)boneMatrices);
+	glUniformMatrix4fv(uniBoneTransforms, 32, GL_FALSE, (GLfloat*)finalBoneMatrices);
 
 	// Render the triangles
 	renderer.DrawTrianglesIndexed(0, numIndices);

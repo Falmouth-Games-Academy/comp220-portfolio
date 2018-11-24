@@ -4,18 +4,12 @@ layout(location = 0) in vec3 vertexPos;
 layout(location = 1) in vec3 vertexColour;
 layout(location = 2) in vec3 vertexNormal;
 layout(location = 3) in vec2 vertexUv;
-layout(location = 4) in uint boneIndices[4];
-layout(location = 5) in float boneWeights[4];
+layout(location = 4) in uvec4 boneIndices;
+layout(location = 5) in vec4 boneWeights;
 
 out vec3 fragColour;
 out vec2 fragUv;
 out vec3 fragNormal;
-
-out uint val1;
-out uint val2;
-out uint val3;
-out uint val4;
-out uint thisShouldWork;
 
 uniform mat4 matWorld; // the global transformation matrix
 uniform mat4 matViewProj;  // the global view matrix
@@ -33,19 +27,24 @@ void main()
 	// Calculate the position of the vertex based on bones
 	// If there is at least one bone attached, weight this to the bone
 	int numBones = 0;
-	if (boneIndices[0] < 32u) {
-		vec3 animatedPosition = vec3(0.0f, 0.0f, 0.0f);
+	vec3 animatedPosition = vec3(0.0f, 0.0f, 0.0f);
+	if (boneIndices.x < 32u) {
+		animatedPosition += (boneTransforms[boneIndices.x] * vec4(vertexPos, 1.0f)).xyz * boneWeights.x;
 
-		for (int i = 0; i < 4; i++) {
-			if (boneIndices[i] < 32u) {
-				animatedPosition += (boneTransforms[boneIndices[i]] * vec4(vertexPos, 1.0f)).xyz * boneWeights[i];
+		if (boneIndices.y < 32u) {
+			animatedPosition += (boneTransforms[boneIndices.y] * vec4(vertexPos, 1.0f)).xyz * boneWeights.y;
+			
+			if (boneIndices.z < 32u) {
+				animatedPosition += (boneTransforms[boneIndices.z] * vec4(vertexPos, 1.0f)).xyz * boneWeights.z;
+				
+				if (boneIndices.w < 32u) {
+					animatedPosition += (boneTransforms[boneIndices.w] * vec4(vertexPos, 1.0f)).xyz * boneWeights.w;
+				}
 			}
 		}
 
-		gl_Position = matViewProj * matWorld * vec4(animatedPosition, 1);
+		gl_Position = matViewProj * matWorld * vec4(animatedPosition, 1.0f);
 	} else {
-		numBones = -1;
-
 		// Otherwise use the regular position
 		gl_Position = matViewProj * matWorld * vec4(vertexPos, 1);
 	}
@@ -59,10 +58,4 @@ void main()
 
 	// Send normal to frag shader
 	fragNormal = vec3(matWorld * vec4(vertexNormal, 0.0f));
-
-	val1 = boneIndices[0];
-	val2 = boneIndices[1];
-	val3 = boneIndices[2];
-	val4 = boneIndices[3];
-	thisShouldWork = 5u;
 }
