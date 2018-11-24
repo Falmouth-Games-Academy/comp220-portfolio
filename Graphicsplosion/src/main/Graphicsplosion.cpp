@@ -104,8 +104,8 @@ void Graphicsplosion::Init() {
 	triangle.Create(render, triangleVertices, sizeof(triangleVertices));
 	
 	// Load the test model
-	dbgModel.Create("Assets/Pigeon.fbx");
 	dbgSecondModel.Create("Assets/Bunny.fbx");
+	dbgModel.Create("Assets/Pigeon.fbx");
 
 	// Create the background plane
 	static Vertex backPlaneVertices[] = {

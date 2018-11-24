@@ -244,21 +244,22 @@ void Model::Render(Renderer renderer) {
 				node.scaleKeyframeIndex = 0.0f;
 
 				// Find keyframes that are closest to the current time
-				for (int i = 0; i < node.rotation.size(); i++) {
-					if (node.rotation[i].time < time) {
-						node.rotationKeyframeIndex = i;
+				for (int i = 0; i < node.rotation.size() - 1; i++) {
+					if (node.rotation[i].time < time && node.rotation[i + 1].time >= time) {
+						node.rotationKeyframeIndex = i + (time - node.rotation[i].time) / (node.rotation[i + 1].time - node.rotation[i].time);
 					}
 				}
 
-				for (int i = 0; i < node.translation.size(); i++) {
-					if (node.translation[i].time < time) {
-						node.translationKeyframeIndex = i;
+				for (int i = 0; i < node.translation.size() - 1; i++) {
+					if (node.translation[i].time < time && node.translation[i + 1].time >= time) {
+						node.translationKeyframeIndex = i + (time - node.translation[i].time) / (node.translation[i + 1].time - node.translation[i].time);
 					}
 				}
 			}
 		}
 	}
 
+	// Calculate local bone matrices
 	glm::mat4 rootBoneMatrices[32];
 	const Bone* bonePointers[32] = {0};
 
@@ -266,19 +267,20 @@ void Model::Render(Renderer renderer) {
 		for (AnimNode& node : anim.nodes) {
 			if (node.target) {
 				int matrixIndex = node.target->index;
-				glm::quat rotation = node.rotation[(int)node.rotationKeyframeIndex].quat;
-				glm::vec3 translation = node.translation[(int)node.translationKeyframeIndex].vec;
-				glm::mat4 currentState = glm::mat4(rotation);
 				
-				currentState = glm::translate(translation) * currentState;
+				// Linearly interpolate the animated values
+				glm::quat rotation = glm::lerp(node.rotation[(int)node.rotationKeyframeIndex].quat, node.rotation[(int)node.rotationKeyframeIndex + 1].quat, node.rotationKeyframeIndex - (int)node.rotationKeyframeIndex);
+				glm::vec3 translation = glm::lerp(node.translation[(int)node.translationKeyframeIndex].vec, node.translation[(int)node.translationKeyframeIndex + 1].vec, node.translationKeyframeIndex - (int)node.translationKeyframeIndex);
 
-				rootBoneMatrices[matrixIndex] = currentState;
+				// Generate the local matrix
+				rootBoneMatrices[matrixIndex] = glm::mat4(rotation);
+				rootBoneMatrices[matrixIndex] = glm::translate(translation) * rootBoneMatrices[matrixIndex];
 				bonePointers[matrixIndex] = node.target;
 			}
 		}
 	}
 
-	// Move bone matrices along the parent chain
+	// Calculate global bone matrices
 	glm::mat4 finalBoneMatrices[32] = {};
 
 	for (int i = 0; i < 32; i++) {
