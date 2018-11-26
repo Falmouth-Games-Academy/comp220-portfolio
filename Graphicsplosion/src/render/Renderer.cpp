@@ -214,7 +214,11 @@ void ShaderProgram::Create(const Renderer& renderer, GLResource vertexShader, GL
 	glAttachShader(glProgram, vertexShader);
 	glAttachShader(glProgram, fragmentShader);
 
+	// Link the shaders
 	Link();
+
+	// Refresh uniforms
+	RefreshUniformMap();
 }
 
 void ShaderProgram::Destroy() {
@@ -241,6 +245,35 @@ bool ShaderProgram::Link() {
 
 	isLoaded = (programSuccess == GL_TRUE);
 	return isLoaded;
+}
+
+void ShaderProgram::RefreshUniformMap() {
+	// Clear the uniform map
+	uniforms.clear();
+
+	// Iterate every uniform and add it to the map
+	GLint numUniforms = 0;
+	glGetProgramiv(glProgram, GL_ACTIVE_UNIFORMS, &numUniforms);
+
+	printf("Loading %i uniforms: ", numUniforms);
+
+	for (int i = 0; i < numUniforms; i++) {
+		const int maxUniformNameLength = 64;
+		GLchar uniformName[maxUniformNameLength + 1] = "";
+		GLint size = maxUniformNameLength; // allow null terminator
+		GLint uniformSize;
+		GLenum uniformType;
+		GLuint uniformLocation = 0;
+
+		glGetActiveUniform(glProgram, (GLuint)i, size, nullptr, &uniformSize, &uniformType, uniformName);
+		uniformLocation = glGetUniformLocation(glProgram, uniformName);
+
+		printf("%s, ", uniformName);
+
+		uniforms.insert(std::make_pair(std::string(uniformName), uniformLocation));
+	}
+
+	printf("\n");
 }
 
 void GenericBuffer::Create(Renderer& renderer, const void* initialData, int initialDataSize) {

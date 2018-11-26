@@ -3,6 +3,8 @@
 #include "render/Renderer.h"
 #include "sdl/Window.h"
 
+#include <vector>
+
 // The entire game. Call Run() to run it!
 class Game {
 public:
@@ -27,10 +29,34 @@ private:
 	// Called each frame after Update() when the renderer is ready
 	virtual void Render() = 0;
 
+public:
+	// Spawns an actor
+	template <typename ActorType>
+	ActorType* SpawnActor() {
+		ActorType* newActor = new ActorType();
+
+		actors.push_back(newActor);
+
+		return newActor;
+	}
+
+	void DestroyActor(Actor* actor) {
+		// Find and remove the actor in the actor list
+		for (int i = 0; i < actors.size(); i++) {
+			if (actors[i] == actor) {
+				actors.erase(actors.begin() + i);
+				return;
+			}
+		}
+	}
+
 protected:
 	// Main components
 	Renderer render;
 	Window window;
+
+	// Objects
+	std::vector<Actor*> actors;
 
 	// Timing
 	float _deltaTime;  // time since the last frame

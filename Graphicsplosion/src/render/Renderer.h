@@ -2,6 +2,8 @@
 #include "glew.h"
 #include "helpers/math.h"
 
+#include <map>
+
 // lazy wrapper for unsafe GLuint type
 enum GLResource : GLuint {
 	GLRESOURCE_NULL = 0,
@@ -84,6 +86,14 @@ public:
 	bool Link();
 
 public:
+	// SHADER MUST BE BOUND FOR THIS TO WORK!
+	// Sets a uniform's value
+	void SetUniform();
+
+	// Refreshes the uniform map
+	void RefreshUniformMap();
+
+public:
 	// Returns whether the shader is successfully linked and loaded
 	bool IsLoaded() {
 		return isLoaded;
@@ -97,7 +107,11 @@ private:
 	// Whether this was successfully loaded
 	bool isLoaded;
 
+	// Reference to the OpenGL resource
 	GLuint glProgram;
+	
+	// Uniform list
+	std::map<std::string, GLuint> uniforms;
 };
 
 // Generic buffer

@@ -121,6 +121,12 @@ void Graphicsplosion::Init() {
 
 	// Spawn the player
 	player.OnSpawn();
+
+	// Spawn the pigeon and bunny actors
+	Actor* newActor = SpawnActor<Actor>();
+
+	newActor->SetModel(&dbgModel);
+	newActor->SetModel(&dbgSecondModel);
 }
 
 void Graphicsplosion::Shutdown() {
@@ -177,6 +183,7 @@ void Graphicsplosion::Render() {
 
 	const glm::vec3 ambientLight(0.25f, 0.5f, 0.5f);
 
+	// Upload main variables that won't change this frame
 	glUniformMatrix4fv(uniMatWorld, 1, GL_FALSE, glm::value_ptr(matWorld));
 	glUniformMatrix4fv(uniMatViewProj, 1, GL_FALSE, glm::value_ptr(matViewProj));
 	glUniform1f(uniTime, (float)game.frameTime);
@@ -186,11 +193,15 @@ void Graphicsplosion::Render() {
 	glUniform3fv(uniDirectionalLightDirection, 1, glm::value_ptr(directionalLightDirection));
 	glUniform3fv(uniViewDirection, 1, glm::value_ptr(viewDirection));
 
-	// Set the texture
+	// Set the current texture
 	glActiveTexture(GL_TEXTURE1);
 	glBindTexture(GL_TEXTURE_2D, dbgTexture.GetTextureName());
 	glBindSampler(uniTexture, 1);
 
+	// Render every object
+	for (Actor* actor : actors) {
+		actor->Render();
+	}
 	// Draw the two models
 	// Draw the pigeon
 	matWorld = glm::identity<glm::mat4>();
@@ -212,13 +223,7 @@ void Graphicsplosion::Render() {
 	render.UseIndexBuffer(nullptr);
 
 	render.DrawTriangles(0, 6);
-
-	// Draw the triangle
-	/*render.UseVertexBuffer(&triangle);
-	render.UseIndexBuffer(nullptr);
-
-	render.DrawTriangles(0, 36);*/
-
+	
 	// Done!
 	render.EndRender(window);
 }
