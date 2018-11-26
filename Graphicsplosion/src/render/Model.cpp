@@ -219,7 +219,7 @@ void Model::Destroy() {
 
 #include "main/Time.h"
 
-void Model::Render(Renderer renderer) {
+void Model::Render(Renderer& renderer) {
 	// Create the buffers if they don't already exist
 	if (!areBuffersCreated) {
 		vertexBuffer.Create(renderer, vertices, numVertices * sizeof (Vertex));

@@ -4,6 +4,8 @@
 
 #include <map>
 
+#include "glm/glm.hpp"
+
 // lazy wrapper for unsafe GLuint type
 enum GLResource : GLuint {
 	GLRESOURCE_NULL = 0,
@@ -88,7 +90,10 @@ public:
 public:
 	// SHADER MUST BE BOUND FOR THIS TO WORK!
 	// Sets a uniform's value
-	void SetUniform();
+	void SetUniform(const char* uniformName, const glm::mat4& matValue);
+	void SetUniform(const char* uniformName, const glm::vec3& vecValue);
+	void SetUniform(const char* uniformName, int intValue);
+	void SetUniform(const char* uniformName, float floatValue);
 
 	// Refreshes the uniform map
 	void RefreshUniformMap();

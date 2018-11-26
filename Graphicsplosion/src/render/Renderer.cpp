@@ -4,6 +4,8 @@
 #include <fstream>
 #include <iostream>
 
+#include "glm/gtc/type_ptr.hpp"
+
 #include "SDL.h"
 #include "glew.h"
 #include "sdl_image.h"
@@ -247,6 +249,50 @@ bool ShaderProgram::Link() {
 	return isLoaded;
 }
 
+void ShaderProgram::SetUniform(const char* uniformName, const glm::mat4& value) {
+	// Make sure the value exists first
+	auto mapValue = uniforms.find(uniformName);
+
+	if (mapValue != uniforms.end()) {
+		glUniformMatrix4fv(mapValue->second, 1, GL_FALSE, glm::value_ptr(value));
+	} else {
+		printf("Warning: uniform '%s' does not exist\n", uniformName);
+	}
+}
+
+void ShaderProgram::SetUniform(const char* uniformName, float value) {
+	// Make sure the value exists first
+	auto mapValue = uniforms.find(uniformName);
+
+	if (mapValue != uniforms.end()) {
+		glUniform1f(mapValue->second, value);
+	} else {
+		printf("Warning: uniform '%s' does not exist\n", uniformName);
+	}
+}
+
+void ShaderProgram::SetUniform(const char* uniformName, int value) {
+	// Make sure the value exists first
+	auto mapValue = uniforms.find(uniformName);
+
+	if (mapValue != uniforms.end()) {
+		glUniform1i(mapValue->second, value);
+	} else {
+		printf("Warning: uniform '%s' does not exist\n", uniformName);
+	}
+}
+
+void ShaderProgram::SetUniform(const char* uniformName, const glm::vec3& value) {
+	// Make sure the value exists first
+	auto mapValue = uniforms.find(uniformName);
+
+	if (mapValue != uniforms.end()) {
+		glUniform3fv(mapValue->second, 1, glm::value_ptr(value));
+	} else {
+		printf("Warning: uniform '%s' does not exist\n", uniformName);
+	}
+}
+
 void ShaderProgram::RefreshUniformMap() {
 	// Clear the uniform map
 	uniforms.clear();
@@ -255,7 +301,7 @@ void ShaderProgram::RefreshUniformMap() {
 	GLint numUniforms = 0;
 	glGetProgramiv(glProgram, GL_ACTIVE_UNIFORMS, &numUniforms);
 
-	printf("Loading %i uniforms: ", numUniforms);
+	printf("Loading %i uniforms:", numUniforms);
 
 	for (int i = 0; i < numUniforms; i++) {
 		const int maxUniformNameLength = 64;
