@@ -82,6 +82,7 @@ void Graphicsplosion::Init() {
 
 	// Setup the default shader program
 	defaultShaderProgram.Create(render, vertexShader, fragmentShader);
+	defaultVertexFormat.CreateFromStructVars(&Vertex::position, &Vertex::colour, &Vertex::normal, &Vertex::uvs, &Vertex::boneIndices, &Vertex::boneWeights);
 
 	// Load the test model
 	dbgModel.Create("Assets/Pigeon.fbx");
@@ -100,8 +101,7 @@ void Graphicsplosion::Init() {
 		 1.0f, -1.0f, 0.9999f, 0.20f, 0.20f, 0.75f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, 255, 0, 0, 0, 0.0f, 0.0f, 0.0f, 0.0f,
 	};
 
-	VertexFormat derp;
-	backPlane.Create(render, derp, backPlaneVertices, sizeof(backPlaneVertices));
+	backPlane.Create(render, defaultVertexFormat, backPlaneVertices, sizeof(backPlaneVertices));
 
 	// Spawn the player
 	player.OnSpawn();
@@ -114,6 +114,7 @@ void Graphicsplosion::Init() {
 
 	Actor* bunny = SpawnActor<Actor>();
 
+	bunny->SetPosition(glm::vec3(10.0f, 0.0f, 0.0f));
 	bunny->SetScale(glm::vec3(0.15f, 0.15f, 0.15f));
 	bunny->SetShaderProgram(&defaultShaderProgram);
 	bunny->SetModel(&dbgSecondModel);

@@ -22,6 +22,7 @@ private:
 
 	// Rendering components
 	ShaderProgram defaultShaderProgram;
+	VertexFormat defaultVertexFormat;
 
 	// The triangle to render
 	VertexBuffer triangle;

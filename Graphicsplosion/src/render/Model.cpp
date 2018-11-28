@@ -222,8 +222,9 @@ void Model::Destroy() {
 void Model::Render(Renderer& renderer) {
 	// Create the buffers if they don't already exist
 	if (!areBuffersCreated) {
-		VertexFormat derp;
-		vertexBuffer.Create(renderer, derp, vertices, numVertices * sizeof (Vertex));
+		static VertexFormat vertexFormat(&Vertex::position, &Vertex::colour, &Vertex::normal, &Vertex::uvs, &Vertex::boneIndices, &Vertex::boneWeights);
+
+		vertexBuffer.Create(renderer, vertexFormat, vertices, numVertices * sizeof (Vertex));
 		indexBuffer.Create(renderer, indices, numIndices * sizeof (unsigned int));
 
 		areBuffersCreated = true;

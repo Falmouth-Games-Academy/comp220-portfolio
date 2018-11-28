@@ -323,20 +323,17 @@ void VertexBuffer::Create(Renderer& renderer, const VertexFormat& vertexFormat, 
 	GenericBuffer::Create(renderer, initialData, initialDataSize);
 
 	// Set attribute pointers
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, x));
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, r));
-	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, normalX));
-	glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, u));
-	glVertexAttribIPointer(4, 4, GL_UNSIGNED_BYTE, sizeof(Vertex), (void*)offsetof(Vertex, boneIndices));
-	glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, boneWeights));
+	for (const VertexFormat::VertexAttribute& attribute : vertexFormat.GetAttributeList()) {
+		// Send this attribute to OpenGL
+		if (attribute.type == GL_INT || attribute.type == GL_UNSIGNED_INT || attribute.type == GL_BYTE || attribute.type == GL_UNSIGNED_BYTE) {
+			glVertexAttribIPointer(attribute.location, attribute.size, attribute.type, vertexFormat.GetVertexSize(), (const void*)attribute.offset);
+		} else {
+			glVertexAttribPointer(attribute.location, attribute.size, attribute.type, GL_FALSE, vertexFormat.GetVertexSize(), (const void*)attribute.offset);
+		}
 
-	// Enable the vertex attributes
-	glEnableVertexAttribArray(0);
-	glEnableVertexAttribArray(1);
-	glEnableVertexAttribArray(2);
-	glEnableVertexAttribArray(3);
-	glEnableVertexAttribArray(4);
-	glEnableVertexAttribArray(5);
+		// Enable it!
+		glEnableVertexAttribArray(attribute.location);
+	}
 
 	// DONT TOUCH IT
 	glBindVertexArray(0);

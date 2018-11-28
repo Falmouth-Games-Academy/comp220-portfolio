@@ -63,9 +63,9 @@ public:
 		if (transformIsDirty) {
 			// Refresh the transform matrix if it's not valid
 			transform = glm::identity<glm::mat4>();
-			transform = glm::scale(transform, scale);
-			transform *= glm::toMat4(rotation);
 			transform = glm::translate(transform, position);
+			transform *= glm::toMat4(rotation);
+			transform = glm::scale(transform, scale);
 
 			// We're up-to-date!
 			transformIsDirty = false;
