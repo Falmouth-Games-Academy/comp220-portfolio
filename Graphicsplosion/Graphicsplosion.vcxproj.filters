@@ -96,6 +96,7 @@
     <ClInclude Include="src\stdafx.h">
       <Filter>src</Filter>
     </ClInclude>
+    <ClInclude Include="src\render\VertexFormat.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />

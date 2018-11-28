@@ -172,6 +172,7 @@
     <ClInclude Include="src\main\Time.h" />
     <ClInclude Include="src\render\Model.h" />
     <ClInclude Include="src\render\Renderer.h" />
+    <ClInclude Include="src\render\VertexFormat.h" />
     <ClInclude Include="src\sdl\SdlWrapper.h" />
     <ClInclude Include="src\sdl\Window.h" />
     <ClInclude Include="src\stdafx.h" />

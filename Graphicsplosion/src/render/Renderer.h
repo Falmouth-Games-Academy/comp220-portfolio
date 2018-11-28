@@ -6,6 +6,8 @@
 
 #include "glm/glm.hpp"
 
+#include "render/VertexFormat.h" // todo possibly remove
+
 // lazy wrapper for unsafe GLuint type
 enum GLResource : GLuint {
 	GLRESOURCE_NULL = 0,
@@ -153,11 +155,11 @@ protected:
 // Vertex buffer
 class VertexBuffer : public GenericBuffer {
 public:
-	VertexBuffer() = default;
+	VertexBuffer() : vaoName(0) {};
 
 	// Creates a buffer from an optional initial vertex array
-	VertexBuffer(Renderer& renderer, const void* initialData = nullptr, int initialDataSize = 0) {
-		Create(renderer, initialData, initialDataSize);
+	VertexBuffer(Renderer& renderer, const class VertexFormat& vertexFormat, const void* initialData = nullptr, int initialDataSize = 0) {
+		Create(renderer, vertexFormat, initialData, initialDataSize);
 	}
 
 	~VertexBuffer() {
@@ -165,8 +167,19 @@ public:
 	}
 
 public:
-	// Sets the data to a new array of vertices
+	// Creates the buffer
+	void Create(Renderer& renderer, const class VertexFormat& vertexFormat, const void* initialData = nullptr, int initialDataSize = 0);
+	// Destroys the buffer
+	void Destroy() override;
+
+	// Sets the buffer data to a new array of vertices
 	void SetData(const void* arrayData, int size);
+
+	GLuint GetVAO() const { return vaoName; }
+
+private:
+	// GL buffer for the VAO
+	GLuint vaoName;
 };
 
 // Index buffer
@@ -215,15 +228,4 @@ public:
 
 private:
 	GLuint textureName;
-};
-
-// Default vertex type
-struct Vertex {
-	float x, y, z;
-	float r, g, b;
-	float normalX, normalY, normalZ;
-	float u, v;
-
-	unsigned __int8 boneIndices[4];
-	float boneWeights[4];
 };

@@ -100,7 +100,8 @@ void Graphicsplosion::Init() {
 		 1.0f, -1.0f, 0.9999f, 0.20f, 0.20f, 0.75f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, 255, 0, 0, 0, 0.0f, 0.0f, 0.0f, 0.0f,
 	};
 
-	backPlane.Create(render, backPlaneVertices, sizeof(backPlaneVertices));
+	VertexFormat derp;
+	backPlane.Create(render, derp, backPlaneVertices, sizeof(backPlaneVertices));
 
 	// Spawn the player
 	player.OnSpawn();

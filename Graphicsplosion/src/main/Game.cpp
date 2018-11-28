@@ -60,35 +60,3 @@ void Game::Run() {
 
 	Shutdown();
 }
-
-/*struct VertAttribs {
-	int stride;
-	GLenum type;
-	int offset;
-	int numItems;
-	VertAttribs* previous;
-};
-
-template<typename T> void GetGlVertAttribs(VertAttribs* previous, T* dudeWtf);
-
-template<> void GetGlVertAttribs<int>(VertAttribs* previous, int* dudeWtf) {
-	VertAttribs attribs = { 0, GL_FLOAT, };
-	printf("Parameter is an int!\n");
-}
-
-template<> void GetGlVertAttribs<float>(VertAttribs* previous, float* dudeWtf) {
-	printf("Parmeter is a float!\n");
-}
-
-template<typename VertexType, typename VarType, typename ...types> void Iterate(VertexType* vertex, VarType VertexType::*, types... arguments) {
-	VertAttribs initialAttribs = { sizeof(vertex) };
-	initialAttribs.previous = nullptr;
-
-	GetGlParameter(initialAttribs, &);
-
-	Iterate(vertex, arguments...);
-}
-
-void Iterate(Vertex* vertex) {
-	printf("Done\n");
-}*/

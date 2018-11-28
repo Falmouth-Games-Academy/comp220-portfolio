@@ -10,6 +10,8 @@
 #include "glew.h"
 #include "sdl_image.h"
 
+#include "VertexFormat.h"
+
 GLuint vao;
 
 void Renderer::Init(Window& renderWindow) {
@@ -31,26 +33,11 @@ void Renderer::Init(Window& renderWindow) {
 	glewExperimental = GL_TRUE;
 	glewInit();
 
-	// Test vertex array structure
-	glGenVertexArrays(1, &vao);
-	glBindVertexArray(vao);
-
-	// Enable the vertex attributes
-	glEnableVertexAttribArray(0);
-	glEnableVertexAttribArray(1);
-	glEnableVertexAttribArray(2);
-	glEnableVertexAttribArray(3);
-	glEnableVertexAttribArray(4);
-	glEnableVertexAttribArray(5);
-
 	// Init variables
 	viewportSize = renderWindow.GetSize();
 }
 
 void Renderer::Shutdown() {
-	// Free resources
-	glDeleteVertexArrays(1, &vao);
-
 	return;
 }
 
@@ -74,30 +61,11 @@ void Renderer::EndRender(Window& renderWindow) {
 }
 
 void Renderer::DrawTriangles(int startVertexIndex, int numVerticesToDraw) {
-	// Bind vertex array (todo: How to not need to use glVertexAttribPointer every call...?)
-	glBindVertexArray(vao);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, x));
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, r));
-	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, normalX));
-	glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, u));
-	glVertexAttribIPointer(4, 4, GL_UNSIGNED_BYTE, sizeof(Vertex), (void*)offsetof(Vertex, boneIndices));
-	glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, boneWeights));
-
 	// Draw the triangles
 	glDrawArrays(GL_TRIANGLES, startVertexIndex, numVerticesToDraw);
 }
 
 void Renderer::DrawTrianglesIndexed(int startIndex, int numIndicesToDraw) {
-	// Bind vertex array (todo: How to not need to use glVertexAttribPointer every call...?)
-	glBindVertexArray(vao);
-
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, x));
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, r));
-	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, normalX));
-	glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, u));
-	glVertexAttribIPointer(4, 4, GL_UNSIGNED_BYTE, sizeof(Vertex), (void*)offsetof(Vertex, boneIndices));
-	glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, boneWeights));
-
 	// Draw the triangles
 	glDrawElements(GL_TRIANGLES, numIndicesToDraw, GL_UNSIGNED_INT, nullptr);
 }
@@ -122,8 +90,10 @@ void Renderer::UseVertexBuffer(const VertexBuffer* vertexBuffer) {
 	// Bind the vertex buffer, if it exists (unbind otherwise)
 	if (vertexBuffer) {
 		glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer->GetBufferName());
+		glBindVertexArray(vertexBuffer->GetVAO());
 	} else {
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		glBindVertexArray(0);
 	}
 }
 
@@ -340,7 +310,48 @@ void GenericBuffer::Destroy() {
 	if (renderer) {
 		renderer->DestroyBuffer(bufferName);
 	}
+
 	bufferName = 0;
+}
+
+void VertexBuffer::Create(Renderer& renderer, const VertexFormat& vertexFormat, const void* initialData, int initialDataSize) {
+	// Create the vertex array object
+	glGenVertexArrays(1, &vaoName);
+	glBindVertexArray(vaoName);
+
+	// Create the buffer as per usual
+	GenericBuffer::Create(renderer, initialData, initialDataSize);
+
+	// Set attribute pointers
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, x));
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, r));
+	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, normalX));
+	glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, u));
+	glVertexAttribIPointer(4, 4, GL_UNSIGNED_BYTE, sizeof(Vertex), (void*)offsetof(Vertex, boneIndices));
+	glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, boneWeights));
+
+	// Enable the vertex attributes
+	glEnableVertexAttribArray(0);
+	glEnableVertexAttribArray(1);
+	glEnableVertexAttribArray(2);
+	glEnableVertexAttribArray(3);
+	glEnableVertexAttribArray(4);
+	glEnableVertexAttribArray(5);
+
+	// DONT TOUCH IT
+	glBindVertexArray(0);
+}
+
+void VertexBuffer::Destroy()  {
+	// Destroy base buffer
+	GenericBuffer::Destroy();
+
+	// Destroy VAO
+	if (renderer) {
+		renderer->DestroyBuffer(vaoName);
+	}
+
+	vaoName = 0;
 }
 
 void VertexBuffer::SetData(const void* arrayData, int size) {
