@@ -5,10 +5,10 @@ out vec3 color;
 in vec3 fragColour;
 in vec2 fragUv;
 in vec3 fragNormal;
+in vec3 viewDirection;
 
 uniform sampler2D textureSampler;
 
-uniform vec3 viewDirection;
 uniform vec3 directionalLightDirection;
 
 void main()
@@ -17,9 +17,9 @@ void main()
 	color = fragColour * texture(textureSampler, fragUv).xyz;
 
 	// Specular lighting
-	vec3 halfWay = normalize(-directionalLightDirection + viewDirection);
+	vec3 halfWay = normalize(directionalLightDirection + viewDirection);
 	float specularPower = 7.0f;
-	float nDoth = clamp(pow(dot(normalize(fragNormal), halfWay), specularPower), 0.0f, 1.0f);
+	float nDoth = clamp(pow(dot(fragNormal, halfWay), specularPower), 0.0f, 1.0f);
 
 	color += vec3(0.8f, 0.8f, 0.8f) * nDoth;
 }

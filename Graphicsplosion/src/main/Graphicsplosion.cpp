@@ -157,7 +157,7 @@ void Graphicsplosion::Render() {
 	// Setup the lights!
 	const glm::vec3 directionalLightDirection = glm::normalize(glm::vec3(-1.0f, -1.0f, -1.0f));
 	const glm::vec3 directionalLightColour = glm::vec3(0.4f, 0.4f, 0.4f);
-	const glm::vec3 viewDirection = glm::normalize(glm::vec3(matViewProj[2][0], matViewProj[2][1], matViewProj[2][2]));
+	const glm::vec3 cameraPosition = playerEye;
 
 	const glm::vec3 ambientLight(0.25f, 0.5f, 0.5f);
 
@@ -167,7 +167,7 @@ void Graphicsplosion::Render() {
 	defaultShaderProgram.SetUniform("ambientLightColour", ambientLight);
 	defaultShaderProgram.SetUniform("directionalLightColour", directionalLightColour);
 	defaultShaderProgram.SetUniform("directionalLightDirection", directionalLightDirection);
-	defaultShaderProgram.SetUniform("viewDirection", viewDirection);
+	defaultShaderProgram.SetUniform("cameraPosition", cameraPosition);
 
 	// Set the current texture
 	int uniTexture = glGetUniformLocation(defaultShaderProgram.GetGlProgram(), "textureSampler");
