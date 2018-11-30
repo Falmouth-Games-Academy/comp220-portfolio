@@ -1,5 +1,4 @@
 # Comp220  
-
 # Journal of Debugging, Pain and Suffering
 See my painful experience learning that sending arrays to the vertex shader is no simple process:  
 
@@ -7,7 +6,7 @@ https://docs.google.com/document/d/1lxwIw97dXd98MP8qnqwXaFcf5OI3C4ArnbVfRzrBhM0/
 
 # Plan for next iteration
 * Due to scope, project will be scaled down and focus will be shifted toward rendering shadows.  
-* Some errors were generated with the bunny model. This seems to be an error with assimp not loading in hiearchal information for the head. Rather than investigate the issue, the pigeon will be used instead.
+* Some errors were generated with the bunny model. This seems to be an error with assimp not loading in hiearchal information for the head. Rather than investigate the issue, the pigeon will be used instead.  
 * Frame rate has dropped significantly since animations were added. This turns out to be because of the keyframe search occurring for each bone, each frame. This will be mitigated by using a map or similar data structure for the next iteration. Interestingly, this only seems to affect the Debug build.  
 
 # Resources
@@ -15,7 +14,7 @@ https://docs.google.com/document/d/1lxwIw97dXd98MP8qnqwXaFcf5OI3C4ArnbVfRzrBhM0/
 https://www.khronos.org/opengl/wiki/Skeletal_Animation  - Guide to the shader code behind bone animation. It recommends sending a quaternion and offset to the shader, which could be an optimisation in a future revision.  
 http://ogldev.atspace.co.uk/www/tutorial38/tutorial38.html - Skeletal programming with assimp in specific.  
 https://research.ncl.ac.uk/game/mastersdegree/graphicsforgames/skeletalanimation/Tutorial%209%20-%20Skeletal%20Animation.pdf  - Highly informative source on skeletal animation  
-* Apparently some developers store transformation data as textures! This is really interesting as the interpolation between them could be affected by filters like trilinear or bilinear. 
+* Apparently some developers store transformation data as textures! This is really interesting as the interpolation between them could be affected by filters like trilinear or bilinear.  
 https://www.gamasutra.com/blogs/TequilaWorks/20160620/275347/How_to_take_advantage_of_textures_in_the_vertex_shader.php - Further information on how animation data could be stored in textures!  
 * Texture sizes can be massive: a big improvement over uniform variables for example.  
 * A future iteration of this project could do all keyframe interpolation simply by running over the texture data. This could save valuable CPU time used on the keyframe searches.  
@@ -23,7 +22,7 @@ https://www.gamasutra.com/blogs/TequilaWorks/20160620/275347/How_to_take_advanta
 https://www.researchgate.net/publication/37444994_Human_Body_Deformations_Using_Joint-dependent_Local_Operators_and_Finite-Element_Theory - Early historical journal on bone animation  
 * Noteworthy for accounting for muscle inflation during bone movement, something that would not be seen in games until many years later. Further accounts for contact of animated figures with their surrounding environments.  
 https://ieeexplore.ieee.org/document/5397589 - Compression techniques for future development. Explores the usage of existing video encoding tools for animation data  
-https://ieeexplore.ieee.org/document/6469773 - More advanced interpolation methods for a future iteration. Quadratic and cubic interpolation methods are interesting!
+https://ieeexplore.ieee.org/document/6469773 - More advanced interpolation methods for a future iteration. Quadratic and cubic interpolation methods are interesting!  
 
 
 # Areas of interest
