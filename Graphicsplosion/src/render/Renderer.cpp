@@ -106,6 +106,22 @@ void Renderer::UseIndexBuffer(const IndexBuffer* indexBuffer) {
 	}
 }
 
+void Renderer::UseTexture(const Texture* texture, const ShaderProgram* shaderProgram) {
+	if (texture) {
+		// Temporary: get the texture sampler uniform
+		int uniTexture = glGetUniformLocation(shaderProgram->GetGlProgram(), "textureSampler");
+
+		//defaultShaderProgram.BindSampler("textureSampler", 1);
+		// Bind the texture to the sampler
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, texture->GetTextureName());
+
+		glBindSampler(uniTexture, 1);
+	} else {
+		glBindTexture(GL_TEXTURE_2D, 0);
+	}
+}
+
 GLResource Renderer::LoadShaderFromSourceFile(const char* filename, GLenum glShaderType) {
 	// Try to open the shader file
 	std::ifstream file(filename, std::ios::in | std::ios::binary);
@@ -390,6 +406,18 @@ bool Texture::Create(Renderer& renderer, const char* textureFilename) {
 		} else if (image->format->Rmask == 0xFF0000) {
 			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8, image->w, image->h, 0, GL_BGR, GL_UNSIGNED_BYTE, image->pixels);
 		} else {
+			return false;
+		}
+	}
+	else if (image->format->BytesPerPixel == 4) {
+		// Texture has alpha channel
+		if (image->format->Rmask == 0xFF) {
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, image->w, image->h, 0, GL_RGBA, GL_UNSIGNED_BYTE, image->pixels);
+		}
+		else if (image->format->Rmask == 0xFF0000) {
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, image->w, image->h, 0, GL_BGRA, GL_UNSIGNED_BYTE, image->pixels);
+		}
+		else {
 			return false;
 		}
 	}

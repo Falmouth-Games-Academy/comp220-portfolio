@@ -79,6 +79,11 @@ public:
 		this->model = model_;
 	}
 
+	// Sets the texture to be used by this actor when rendering. Set to nullptr for no texture.
+	void SetTexture(class Texture* texture_) {
+		this->texture = texture_;
+	}
+
 	// Sets the shader program to be used by this actor when rendering
 	void SetShaderProgram(class ShaderProgram* shaderProgram_) {
 		this->shader = shaderProgram_;
@@ -95,6 +100,9 @@ protected:
 
 	// Pointer to the model we'll use for rendering
 	class Model* model;
+
+	// Pointer to the texture we'll use for rendering, or nullptr if none applicable
+	class Texture* texture;
 
 	// Pointer to the shader we'll use for rendering
 	// matWorld will be used to position the model

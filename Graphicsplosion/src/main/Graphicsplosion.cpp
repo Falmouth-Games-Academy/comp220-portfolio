@@ -9,11 +9,6 @@
 
 Graphicsplosion game;
 
-Texture dbgTexture;
-Model dbgModel;
-Model dbgSecondModel;
-VertexBuffer dbgModelBuffer;
-
 // Week 9 session
 /*GLuint CreateTexture(int width, int height) {
 	GLuint textureId = 0;
@@ -85,11 +80,12 @@ void Graphicsplosion::Init() {
 	defaultVertexFormat.CreateFromStructVars(&Vertex::position, &Vertex::colour, &Vertex::normal, &Vertex::uvs, &Vertex::boneIndices, &Vertex::boneWeights);
 
 	// Load the test model
-	dbgModel.Create("Assets/Pigeon.fbx");
-	dbgSecondModel.Create("Assets/Bunny.fbx");
+	pigeonModel.Create("Assets/Models/Pigeon.fbx");
+	bunnyModel.Create("Assets/Models/Bunny.fbx");
 
 	// Load the test texture
-	dbgTexture.Create(render, "texture.jpg");
+	pigeonTexture.Create(render, "Assets/Textures/PigeonDiffuse.png");
+	bunnyTexture.Create(render, "Assets/Textures/BunnyDiffuse.png");
 
 	// Create the background plane
 	static Vertex backPlaneVertices[] = {
@@ -106,27 +102,31 @@ void Graphicsplosion::Init() {
 	// Spawn the player
 	player.OnSpawn();
 
-	// Spawn the pigeon and bunny actors
+	// Spawn and initialise the pigeon and bunny actors
 	Actor* pigeon = SpawnActor<Actor>();
 
-	pigeon->SetModel(&dbgModel);
+	pigeon->SetTexture(&pigeonTexture);
+	pigeon->SetModel(&pigeonModel);
 	pigeon->SetShaderProgram(&defaultShaderProgram);
 
 	Actor* bunny = SpawnActor<Actor>();
 
+	bunny->SetTexture(&bunnyTexture);
 	bunny->SetPosition(glm::vec3(10.0f, 0.0f, 0.0f));
 	bunny->SetScale(glm::vec3(0.15f, 0.15f, 0.15f));
 	bunny->SetShaderProgram(&defaultShaderProgram);
-	bunny->SetModel(&dbgSecondModel);
+	bunny->SetModel(&bunnyModel);
 }
 
 void Graphicsplosion::Shutdown() {
 	// Clean up the test vertex buffer
 	triangle.Destroy();
 
-	dbgTexture.Destroy();
-	dbgModel.Destroy();
-	dbgSecondModel.Destroy();
+	// Cleanup the loaded assets
+	pigeonTexture.Destroy();
+	bunnyTexture.Destroy();
+	pigeonModel.Destroy();
+	bunnyModel.Destroy();
 
 	// Clean up the renderer and other resources
 	render.Shutdown();
@@ -168,14 +168,6 @@ void Graphicsplosion::Render() {
 	defaultShaderProgram.SetUniform("directionalLightColour", directionalLightColour);
 	defaultShaderProgram.SetUniform("directionalLightDirection", directionalLightDirection);
 	defaultShaderProgram.SetUniform("cameraPosition", cameraPosition);
-
-	// Set the current texture
-	int uniTexture = glGetUniformLocation(defaultShaderProgram.GetGlProgram(), "textureSampler");
-
-	glActiveTexture(GL_TEXTURE1);
-	glBindTexture(GL_TEXTURE_2D, dbgTexture.GetTextureName());
-	glBindSampler(uniTexture, 1);
-	//defaultShaderProgram.BindSampler("textureSampler", 1);
 
 	// Render every object
 	for (Actor* actor : actors) {

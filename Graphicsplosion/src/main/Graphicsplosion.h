@@ -1,10 +1,10 @@
 #pragma once
 #include "Game.h"
+#include "render/Renderer.h"
+#include "render/Model.h"
 
 class Graphicsplosion : public Game {
 public:
-	Graphicsplosion() : triangleAngle(0.0f) {}
-
 	ShaderProgram& GetDefaultShaderProgram() {
 		return defaultShaderProgram;
 	}
@@ -30,8 +30,11 @@ private:
 	// The background plane for a sky effect
 	VertexBuffer backPlane;
 
-	// Current rotation angle of the triangle
-	float triangleAngle;
+	// Things to render
+	Texture pigeonTexture;
+	Texture bunnyTexture;
+	Model pigeonModel;
+	Model bunnyModel;
 };
 
 extern Graphicsplosion game; // The entire game lies here

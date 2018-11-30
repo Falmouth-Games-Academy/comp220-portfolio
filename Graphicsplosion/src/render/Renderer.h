@@ -61,6 +61,10 @@ public:
 	// Sets the index buffer to be rendered in a draw call. If nullptr, the buffer is unbound
 	void UseIndexBuffer(const class IndexBuffer* indexBuffer);
 
+public:
+	// Sets the texture to be used in a draw call. If nullptr, the texture is unbound
+	void UseTexture(const class Texture* texture, const class ShaderProgram* shaderProgram);
+
 private:
 	Vec2I viewportSize;
 };
@@ -224,7 +228,7 @@ public:
 
 public:
 	// Returns the internal OpenGL texture name
-	GLuint GetTextureName() { return textureName; }
+	GLuint GetTextureName() const { return textureName; }
 
 private:
 	GLuint textureName;
