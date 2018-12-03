@@ -9,61 +9,6 @@
 
 Graphicsplosion game;
 
-// Week 9 session
-/*GLuint CreateTexture(int width, int height) {
-	GLuint textureId = 0;
-
-	glGenTextures(1, &textureId);
-	glBindTexture(GL_TEXTURE_2D, textureId);
-
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8/*GL_RGB*//*, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
-
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
-
-	return textureId;
-}
-
-GLuint CreateDepthBuffer(int width, int height) {
-	GLuint bufferId;
-
-	glGenRenderbuffers(1, &bufferId);
-
-	glBindRenderbuffer(GL_RENDERBUFFER, bufferId);
-
-	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT16, width, height);
-}
-
-GLuint CreateFrameBuffer(int width, int height) {
-	GLuint bufferId;
-
-	// Create and bind the frame buffer
-	glGenFramebuffers(1, &bufferId);
-	glBindFramebuffer(GL_RENDERBUFFER, bufferId);
-	
-	// Attach the frame buffer to the renderer
-	glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, textureId, 0);
-
-	// Attach the depth buffer to the renderer
-	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthBuffer);
-
-	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
-		std::cout << "Error creating and attaching frame buffer!";
-		return 0;
-	}
-}
-
-
-glDisable(GL_DEPTH_TEST) before rendering the postprocess texture
-*/
-
-/*
-In the main bit maybe bit lolasfdfsl
-	GLuint colourBufferId = CreateTexture(screenWidth, screenHeight);
-
-	Don't forget to cleanup everything!
-*/
-
 void Graphicsplosion::Init() {
 	// Create window and initialise renderer
 	window.Create("Zomg, it's a game! M: Unlock mouse F: Fullscreen and pay respects", Vec2I(640, 480));

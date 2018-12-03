@@ -101,5 +101,6 @@
   <ItemGroup>
     <Text Include="ReadMe.txt" />
     <Text Include="src\shaders\vertexPassthrough.txt" />
+    <Text Include="src\shaders\fragmentPostProcess.txt" />
   </ItemGroup>
 </Project>

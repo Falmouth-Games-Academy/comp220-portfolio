@@ -160,6 +160,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
+    <Text Include="src\shaders\fragmentPostProcess.txt" />
     <Text Include="src\shaders\vertexPassthrough.txt" />
   </ItemGroup>
   <ItemGroup>

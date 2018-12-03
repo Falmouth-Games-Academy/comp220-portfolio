@@ -63,7 +63,7 @@ public:
 
 public:
 	// Sets the texture to be used in a draw call. If nullptr, the texture is unbound
-	void UseTexture(const class Texture* texture, const class ShaderProgram* shaderProgram);
+	void UseTexture(const class Texture* texture, const class ShaderProgram* shaderProgram, const char* samplerName = "textureSampler");
 
 private:
 	Vec2I viewportSize;
@@ -214,6 +214,10 @@ public:
 		Create(renderer, textureFilename);
 	}
 
+	Texture(Renderer& renderer, int width, int height) {
+		Create(renderer, width, height);
+	}
+
 	~Texture() {
 		// Destroy the texture (todo: might break if destructed after GL)
 		Destroy();
@@ -222,6 +226,9 @@ public:
 public:
 	// Creates a texture from a file
 	bool Create(Renderer& renderer, const char* textureFilename);
+
+	// Creates an empty texture
+	bool Create(Renderer& renderer, int width, int height);
 
 	// Destroys the texture
 	void Destroy();

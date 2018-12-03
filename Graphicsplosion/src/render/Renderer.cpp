@@ -12,7 +12,16 @@
 
 #include "VertexFormat.h"
 
-GLuint vao;
+Texture renderTexture;
+GLuint frameBufferId;
+GLuint renderBufferId;
+
+ShaderProgram postProcessShader;
+VertexBuffer postProcessBuffer;
+
+struct PostProcessVertex {
+	glm::vec2 position;
+};
 
 void Renderer::Init(Window& renderWindow) {
 	// Initialise OpenGL attributes (may move later)
@@ -35,6 +44,38 @@ void Renderer::Init(Window& renderWindow) {
 
 	// Init variables
 	viewportSize = renderWindow.GetSize();
+
+	// Init render texture
+	renderTexture.Create(*this, viewportSize.x, viewportSize.y);
+
+	// Init the depth buffer
+	glGenRenderbuffers(1, &renderBufferId);
+
+	glBindRenderbuffer(GL_RENDERBUFFER, renderBufferId);
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT16, viewportSize.x, viewportSize.y);
+
+	// Create and bind the frame buffer
+	glGenFramebuffers(1, &frameBufferId);
+	glBindFramebuffer(GL_FRAMEBUFFER, frameBufferId);
+
+	// Attach the depth buffer to the framebuffer
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, renderBufferId);
+
+	// Attach the texture to the framebuffer
+	glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, renderTexture.GetTextureName(), 0);
+
+	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+		printf("Error creating and attaching frame buffer!\n");
+	}
+
+	// Create the postprocessor
+	static PostProcessVertex postProcessorPlane[6] {
+		glm::vec2(-1.0f, -1.0f), glm::vec2(-1.0f, 1.0f), glm::vec2(1.0f, 1.0f),
+		glm::vec2(-1.0f, -1.0f), glm::vec2(1.0f, 1.0f), glm::vec2(1.0f, -1.0f)
+	};
+
+	postProcessShader.Create(*this, LoadShaderFromSourceFile("src/shaders/vertexPassthrough.txt", GL_VERTEX_SHADER), LoadShaderFromSourceFile("src/shaders/fragmentPostProcess.txt", GL_FRAGMENT_SHADER));
+	postProcessBuffer.Create(*this, VertexFormat(&PostProcessVertex::position), postProcessorPlane, sizeof (postProcessorPlane));
 }
 
 void Renderer::Shutdown() {
@@ -42,19 +83,38 @@ void Renderer::Shutdown() {
 }
 
 void Renderer::BeginRender(bool doClear) {
-	// Clear the backbuffers before render
-	glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
+	// Set render-to-texture
+	glEnable(GL_DEPTH_TEST);
+	glBindFramebuffer(GL_FRAMEBUFFER, frameBufferId);
 
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	if (doClear) {
+		// Clear the backbuffers before render
+		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	}
 }
+
+/*glDisable(GL_DEPTH_TEST) before rendering the postprocess texture*/
 
 void Renderer::EndRender(Window& renderWindow) {
 	// Resize the renderer to the window if the size has changed
-	if (viewportSize != renderWindow.GetSize()) {
+	// This needs updating for the post-processor!
+	/*if (viewportSize != renderWindow.GetSize()) {
 		viewportSize = renderWindow.GetSize();
 
 		glViewport(0, 0, viewportSize.x, viewportSize.y);
-	}
+	}*/
+
+	// Perform post-processing
+	glDisable(GL_DEPTH_TEST);
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+	UseShaderProgram(postProcessShader);
+	UseVertexBuffer(&postProcessBuffer);
+	UseTexture(&renderTexture, &postProcessShader, "colorSampler");
+
+	DrawTriangles(0, 6);
 
 	// Swap to the screen
 	SDL_GL_SwapWindow(renderWindow.GetSdlWindow());
@@ -106,10 +166,10 @@ void Renderer::UseIndexBuffer(const IndexBuffer* indexBuffer) {
 	}
 }
 
-void Renderer::UseTexture(const Texture* texture, const ShaderProgram* shaderProgram) {
+void Renderer::UseTexture(const Texture* texture, const ShaderProgram* shaderProgram, const char* samplerName) {
 	if (texture) {
 		// Temporary: get the texture sampler uniform
-		int uniTexture = glGetUniformLocation(shaderProgram->GetGlProgram(), "textureSampler");
+		int uniTexture = glGetUniformLocation(shaderProgram->GetGlProgram(), samplerName);
 
 		//defaultShaderProgram.BindSampler("textureSampler", 1);
 		// Bind the texture to the sampler
@@ -429,6 +489,27 @@ bool Texture::Create(Renderer& renderer, const char* textureFilename) {
 	// Cleanup
 	SDL_UnlockSurface(image);
 
+	return true;
+}
+
+bool Texture::Create(Renderer & renderer, int width, int height) {
+	// Generate the texture
+	glGenTextures(1, &textureName);
+
+	if (!textureName) {
+		printf("Error creating an empty texture of size %i by %i", width, height);
+		return false;
+	}
+
+	// Setup the texture data and parameters
+	glBindTexture(GL_TEXTURE_2D, textureName);
+
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
+
+	// Done
 	return true;
 }
 
