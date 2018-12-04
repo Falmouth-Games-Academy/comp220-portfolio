@@ -24,11 +24,12 @@ void Graphicsplosion::Init() {
 	defaultShaderProgram.Create(render, vertexShader, fragmentShader);
 	defaultVertexFormat.CreateFromStructVars(&Vertex::position, &Vertex::colour, &Vertex::normal, &Vertex::uvs, &Vertex::boneIndices, &Vertex::boneWeights);
 
-	// Load the test model
+	// Load the models
 	pigeonModel.Create("Assets/Models/Pigeon.fbx");
 	bunnyModel.Create("Assets/Models/Bunny.fbx");
+	sceneModel.Create("Assets/Models/MainScene.fbx");
 
-	// Load the test texture
+	// Load the textures
 	pigeonTexture.Create(render, "Assets/Textures/PigeonDiffuse.png");
 	bunnyTexture.Create(render, "Assets/Textures/BunnyDiffuse.png");
 
@@ -43,6 +44,19 @@ void Graphicsplosion::Init() {
 	};
 
 	backPlane.Create(render, defaultVertexFormat, backPlaneVertices, sizeof(backPlaneVertices));
+
+	// Create the ground plane
+	const float groundPlaneSize = 20.0f;
+	static Vertex groundPlaneVertices[] = {
+		-groundPlaneSize, -groundPlaneSize, 0.0f, 0.09f, 0.7f, 0.75f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, 255, 0, 0, 0, 0.0f, 0.0f, 0.0f, 0.0f,
+		-groundPlaneSize,  groundPlaneSize, 0.0f, 0.09f, 0.7f, 0.75f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, 255, 0, 0, 0, 0.0f, 0.0f, 0.0f, 0.0f,
+		 groundPlaneSize,  groundPlaneSize, 0.0f, 0.09f, 0.7f, 0.75f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, 255, 0, 0, 0, 0.0f, 0.0f, 0.0f, 0.0f,
+		-groundPlaneSize, -groundPlaneSize, 0.0f, 0.09f, 0.7f, 0.75f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, 255, 0, 0, 0, 0.0f, 0.0f, 0.0f, 0.0f,
+		 groundPlaneSize,  groundPlaneSize, 0.0f, 0.09f, 0.7f, 0.75f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, 255, 0, 0, 0, 0.0f, 0.0f, 0.0f, 0.0f,
+		 groundPlaneSize, -groundPlaneSize, 0.0f, 0.09f, 0.7f, 0.75f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, 255, 0, 0, 0, 0.0f, 0.0f, 0.0f, 0.0f,
+	};
+
+	groundPlane.Create(render, defaultVertexFormat, groundPlaneVertices, sizeof(groundPlaneVertices));
 
 	// Spawn the player
 	player.OnSpawn();
@@ -119,6 +133,15 @@ void Graphicsplosion::Render() {
 		actor->Render(&render);
 	}
 	
+	// Draw the scene
+	defaultShaderProgram.SetUniform("matWorld", glm::identity<glm::mat4>());
+	//sceneModel.Render(render);
+
+	// Draw the ground
+	render.UseVertexBuffer(&groundPlane);
+
+	render.DrawTriangles(0, 6);
+
 	// Draw the background plane
 	defaultShaderProgram.SetUniform("matViewProj", glm::identity<glm::mat4>());
 	defaultShaderProgram.SetUniform("matWorld", glm::identity<glm::mat4>());

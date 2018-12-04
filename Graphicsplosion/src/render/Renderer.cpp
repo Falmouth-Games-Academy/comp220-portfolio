@@ -95,7 +95,7 @@ void Renderer::BeginRender(bool doClear) {
 	}
 }
 
-/*glDisable(GL_DEPTH_TEST) before rendering the postprocess texture*/
+#include "main/Time.h"
 
 void Renderer::EndRender(Window& renderWindow) {
 	// Resize the renderer to the window if the size has changed
@@ -113,6 +113,8 @@ void Renderer::EndRender(Window& renderWindow) {
 	UseShaderProgram(postProcessShader);
 	UseVertexBuffer(&postProcessBuffer);
 	UseTexture(&renderTexture, &postProcessShader, "colorSampler");
+
+	postProcessShader.SetUniform("time", (float)Time::GetTime());
 
 	DrawTriangles(0, 6);
 

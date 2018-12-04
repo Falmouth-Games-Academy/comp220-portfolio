@@ -29,12 +29,14 @@ private:
 
 	// The background plane for a sky effect
 	VertexBuffer backPlane;
+	VertexBuffer groundPlane;
 
 	// Things to render
 	Texture pigeonTexture;
 	Texture bunnyTexture;
 	Model pigeonModel;
 	Model bunnyModel;
+	Model sceneModel;
 };
 
 extern Graphicsplosion game; // The entire game lies here

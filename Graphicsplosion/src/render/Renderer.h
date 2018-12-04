@@ -214,6 +214,7 @@ public:
 		Create(renderer, textureFilename);
 	}
 
+	// Constructs and creates an empty texture of the specified size
 	Texture(Renderer& renderer, int width, int height) {
 		Create(renderer, width, height);
 	}

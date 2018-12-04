@@ -27,7 +27,8 @@ bool Model::Create(const char* filename) {
 		aiMesh *currentMesh = scene->mMeshes[i];
 
 		// Load vertices
-		vertices.resize(currentMesh->mNumVertices);
+		int vertexBase = vertices.size();
+		vertices.resize(vertexBase + currentMesh->mNumVertices);
 
 		for (int v = 0; v < currentMesh->mNumVertices; v++) {
 			aiVector3D currentModelVertex = currentMesh->mVertices[v];
@@ -59,16 +60,16 @@ bool Model::Create(const char* filename) {
 
 			currentVertex.boneIndices[0] = 255;
 
-			vertices[v] = currentVertex;
+			vertices[vertexBase + v] = currentVertex;
 		}
 
 		// Load faces/vertex indices
 		for (int f = 0; f < currentMesh->mNumFaces; f++) {
 			aiFace currentModelFace = currentMesh->mFaces[f];
 
-			indices.push_back(currentModelFace.mIndices[0]);
-			indices.push_back(currentModelFace.mIndices[1]);
-			indices.push_back(currentModelFace.mIndices[2]);
+			indices.push_back(currentModelFace.mIndices[0] + vertexBase);
+			indices.push_back(currentModelFace.mIndices[1] + vertexBase);
+			indices.push_back(currentModelFace.mIndices[2] + vertexBase);
 		}
 
 		// Load bones
@@ -93,7 +94,7 @@ bool Model::Create(const char* filename) {
 			// Copy vertex weights
 			newBone.vertexWeights.resize(aiBones[b]->mNumWeights);
 			for (int w = 0; w < aiBones[b]->mNumWeights; w++) {
-				int vIndex = aiBones[b]->mWeights[w].mVertexId;
+				int vIndex = vertexBase + aiBones[b]->mWeights[w].mVertexId;
 
 				newBone.vertexWeights[w].index = vIndex;
 				newBone.vertexWeights[w].weight = aiBones[b]->mWeights[w].mWeight;
@@ -104,7 +105,7 @@ bool Model::Create(const char* filename) {
 						// Replace the lowest -1 with this vertex and shift the -1 to the next one
 						if (vertices[vIndex].boneIndices[boneIndex] == 255) {
 							vertices[vIndex].boneIndices[boneIndex] = bIndex;
-							vertices[vIndex].boneWeights[boneIndex] = newBone.vertexWeights[w].weight;
+							vertices[vIndex].boneWeights[boneIndex] = newBone.vertexWeights[w].weight; 
 
 							if (boneIndex < maxBonesPerVertex - 1) {
 								vertices[vIndex].boneIndices[boneIndex + 1] = 255;
