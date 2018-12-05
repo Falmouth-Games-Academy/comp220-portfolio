@@ -111,7 +111,7 @@ public:
 
 public:
 	// Renders the model with the given renderer
-	void Render(Renderer& renderer);
+	void Render(Renderer& renderer, const ShaderProgram& shaderProgram);
 
 private:
 	// Array of the vertices in this mesh

@@ -160,8 +160,11 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
+    <Text Include="src\shaders\fragmentDepthDebug.txt" />
     <Text Include="src\shaders\fragmentPostProcess.txt" />
+    <Text Include="src\shaders\fragmentShadow.txt" />
     <Text Include="src\shaders\vertexPassthrough.txt" />
+    <Text Include="src\shaders\vertexShadow.txt" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\actors\Actor.h" />
@@ -171,6 +174,7 @@
     <ClInclude Include="src\main\Graphicsplosion.h" />
     <ClInclude Include="src\main\Input.h" />
     <ClInclude Include="src\main\Time.h" />
+    <ClInclude Include="src\render\Light.h" />
     <ClInclude Include="src\render\Model.h" />
     <ClInclude Include="src\render\Renderer.h" />
     <ClInclude Include="src\render\VertexFormat.h" />

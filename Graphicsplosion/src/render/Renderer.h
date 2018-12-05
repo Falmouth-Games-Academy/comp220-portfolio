@@ -30,8 +30,8 @@ public:
 
 public:
 	// Render functions
-	void BeginRender(bool doClear = true);
-	void EndRender(class Window& renderWindow);
+	void BeginRender(bool doClear = true, int passIndex = 0);
+	void EndRender(class Window& renderWindow, int passIndex = 0);
 
 public:
 	// Draw calls
@@ -63,7 +63,10 @@ public:
 
 public:
 	// Sets the texture to be used in a draw call. If nullptr, the texture is unbound
-	void UseTexture(const class Texture* texture, const class ShaderProgram* shaderProgram, const char* samplerName = "textureSampler");
+	void UseTexture(const class Texture* texture, const class ShaderProgram* shaderProgram, const char* samplerName = "textureSampler", int textureUnit = 0);
+
+	// Returns the shadow map texture
+	class Texture* GetShadowMap();
 
 private:
 	Vec2I viewportSize;
@@ -94,12 +97,12 @@ public:
 	bool Link();
 
 public:
-	// SHADER MUST BE BOUND FOR THIS TO WORK!
+	// SHADER MUST BE BOUND FOR THIS TO WORK! (also these are const because state machines...)
 	// Sets a uniform's value
-	void SetUniform(const char* uniformName, const glm::mat4& matValue);
-	void SetUniform(const char* uniformName, const glm::vec3& vecValue);
-	void SetUniform(const char* uniformName, int intValue);
-	void SetUniform(const char* uniformName, float floatValue);
+	void SetUniform(const char* uniformName, const glm::mat4& matValue) const;
+	void SetUniform(const char* uniformName, const glm::vec3& vecValue) const;
+	void SetUniform(const char* uniformName, int intValue) const;
+	void SetUniform(const char* uniformName, float floatValue) const;
 
 	// Refreshes the uniform map
 	void RefreshUniformMap();
@@ -230,6 +233,9 @@ public:
 
 	// Creates an empty texture
 	bool Create(Renderer& renderer, int width, int height);
+
+	// Creates an empty depth texture
+	bool CreateAsDepth(Renderer& renderer, int width, int height);
 
 	// Destroys the texture
 	void Destroy();

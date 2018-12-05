@@ -21,7 +21,7 @@ public:
 	virtual void Update(float deltaTime) {return;}
 
 	// Called every frame, by default renders the model. Overridable
-	virtual void Render(class Renderer* renderer) const;
+	virtual void Render(class Renderer* renderer, const class ShaderProgram* shaderOverride = nullptr) const;
 
 public:
 	// Returns / sets the actor's position

@@ -7,6 +7,11 @@
 #include "glm/gtx/transform.hpp"
 #include "glm/gtc/type_ptr.hpp"
 
+// Matrix for shadow rendering
+glm::mat4 shadowMVP;
+
+ShaderProgram debugShadowmapShader;
+
 Graphicsplosion game;
 
 void Graphicsplosion::Init() {
@@ -19,9 +24,14 @@ void Graphicsplosion::Init() {
 	// Load the default shaders
 	GLResource fragmentShader = render.LoadShaderFromSourceFile("src/shaders/fragment.txt", GL_FRAGMENT_SHADER);
 	GLResource vertexShader = render.LoadShaderFromSourceFile("src/shaders/vertex.txt", GL_VERTEX_SHADER);
+	GLResource shadowFragmentShader = render.LoadShaderFromSourceFile("src/shaders/fragmentShadow.txt", GL_FRAGMENT_SHADER);
+	GLResource shadowVertexShader = render.LoadShaderFromSourceFile("src/shaders/vertexShadow.txt", GL_VERTEX_SHADER);
+	GLResource depthTextureShader = render.LoadShaderFromSourceFile("src/shaders/fragmentDepthDebug.txt", GL_FRAGMENT_SHADER);
 
 	// Setup the default shader program
 	defaultShaderProgram.Create(render, vertexShader, fragmentShader);
+	shadowShaderProgram.Create(render, vertexShader, shadowFragmentShader);
+	debugShadowmapShader.Create(render, vertexShader, depthTextureShader);
 	defaultVertexFormat.CreateFromStructVars(&Vertex::position, &Vertex::colour, &Vertex::normal, &Vertex::uvs, &Vertex::boneIndices, &Vertex::boneWeights);
 
 	// Load the models
@@ -97,42 +107,67 @@ void Graphicsplosion::Update() {
 	player.Update(deltaTime);
 }
 
+glm::mat4 matShadowView;
+
 void Graphicsplosion::Render() {
+	RenderShadowPass();
+	RenderColourPass();
+}
+
+void Graphicsplosion::RenderColourPass() {
 	// Render here
 	render.BeginRender();
 
 	// Use our default shader
 	render.UseShaderProgram(defaultShaderProgram);
 
+	// First: draw the background plane
+	defaultShaderProgram.SetUniform("matViewProj", glm::identity<glm::mat4>());
+	defaultShaderProgram.SetUniform("matWorld", glm::identity<glm::mat4>());
+
+	render.UseVertexBuffer(&backPlane);
+	render.UseIndexBuffer(nullptr);
+	render.UseTexture(nullptr, &defaultShaderProgram);
+
+	render.DrawTriangles(0, 6);
+
 	// Set up the camera!
 	const float playerHeight = 0.5f;
 	glm::vec3 playerEye = player.GetPosition() + player.GetUp() * playerHeight;
-
 	glm::mat4 matViewProj = glm::lookAtRH(playerEye, playerEye + player.GetForward(), player.GetUp());
+
 	matViewProj = glm::perspectiveFov(70.0f, (float)window.GetSize().x, (float)window.GetSize().y, 0.1f, 100.0f) * matViewProj;
 
 	defaultShaderProgram.SetUniform("matViewProj", matViewProj);
 
+	// Setup the shadow map
+	glm::mat4 shadowUvCorrection(
+		0.5f, 0.0f, 0.0f, 0.0f,
+		0.0f, 0.5f, 0.0f, 0.0f,
+		0.0f, 0.0f, 0.5f, 0.0f,
+		0.5f, 0.5f, 0.5f, 1.0f
+	);
+
+	defaultShaderProgram.SetUniform("matShadowView", shadowUvCorrection * matShadowView);
+
 	// Setup the lights!
-	const glm::vec3 directionalLightDirection = glm::normalize(glm::vec3(-1.0f, -1.0f, -1.0f));
 	const glm::vec3 directionalLightColour = glm::vec3(0.4f, 0.4f, 0.4f);
 	const glm::vec3 cameraPosition = playerEye;
 
 	const glm::vec3 ambientLight(0.25f, 0.5f, 0.5f);
 
 	// Setup the lights!
-	//defaultShaderProgram.SetUniform("time", (float)game.frameTime);
 	defaultShaderProgram.SetUniform("textureSampler", 0);
 	defaultShaderProgram.SetUniform("ambientLightColour", ambientLight);
 	defaultShaderProgram.SetUniform("directionalLightColour", directionalLightColour);
-	defaultShaderProgram.SetUniform("directionalLightDirection", directionalLightDirection);
+	defaultShaderProgram.SetUniform("directionalLightDirection", sunLight.GetDirection());
 	defaultShaderProgram.SetUniform("cameraPosition", cameraPosition);
 
 	// Render every object
 	for (Actor* actor : actors) {
 		actor->Render(&render);
 	}
-	
+
 	// Draw the scene
 	defaultShaderProgram.SetUniform("matWorld", glm::identity<glm::mat4>());
 	//sceneModel.Render(render);
@@ -142,15 +177,50 @@ void Graphicsplosion::Render() {
 
 	render.DrawTriangles(0, 6);
 
-	// Draw the background plane
-	defaultShaderProgram.SetUniform("matViewProj", glm::identity<glm::mat4>());
-	defaultShaderProgram.SetUniform("matWorld", glm::identity<glm::mat4>());
+	// Draw the shadow map using a rotated version of the ground plane
+	glm::mat4 shadowMapDebug(
+		0.0f, 0.0f, 0.1f, 0.0f,
+		0.1f, 0.0f, 0.0f, 0.0f,
+		0.0f, 0.1f, 0.0f, 0.0f,
+		0.0f, -6.0f, 5.0f, 1.0f
+	);
 
-	render.UseVertexBuffer(&backPlane);
-	render.UseIndexBuffer(nullptr);
+	render.UseShaderProgram(debugShadowmapShader);
+	render.UseTexture(render.GetShadowMap(), &debugShadowmapShader);
+
+	defaultShaderProgram.SetUniform("matWorld", shadowMapDebug);
 
 	render.DrawTriangles(0, 6);
-	
+
 	// Done!
 	render.EndRender(window);
+}
+
+void Graphicsplosion::RenderShadowPass() {
+	// Render here
+	render.BeginRender(true, 1);
+
+	// Use our default shader
+	render.UseShaderProgram(shadowShaderProgram);
+
+	// Setup the shadow render matrix
+	matShadowView = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, 0.0f, 50.0f) * glm::lookAt(sunLight.GetPosition(), sunLight.GetDirection(), glm::vec3(0.0f, 0.0f, 1.0f));
+	shadowShaderProgram.SetUniform("matViewProj", matShadowView);
+	
+	// Render every object with the shadow shader
+	for (Actor* actor : actors) {
+		actor->Render(&render, &shadowShaderProgram);
+	}
+
+	// Draw the scene
+	defaultShaderProgram.SetUniform("matWorld", glm::identity<glm::mat4>());
+	//sceneModel.Render(render);
+
+	// Draw the ground
+	render.UseVertexBuffer(&groundPlane);
+
+	render.DrawTriangles(0, 6);
+
+	// Done!
+	render.EndRender(window, 1);
 }

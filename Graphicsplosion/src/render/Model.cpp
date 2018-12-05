@@ -214,13 +214,12 @@ void Model::Destroy() {
 	indices = nullptr;
 }
 
-#include "main/Graphicsplosion.h"
 #include "glm/gtx/transform.hpp"
 #include "glm/gtx/euler_angles.hpp"
 
 #include "main/Time.h"
 
-void Model::Render(Renderer& renderer) {
+void Model::Render(Renderer& renderer, const ShaderProgram& shaderProgram) {
 	// Create the buffers if they don't already exist
 	if (!areBuffersCreated) {
 		static VertexFormat vertexFormat(&Vertex::position, &Vertex::colour, &Vertex::normal, &Vertex::uvs, &Vertex::boneIndices, &Vertex::boneWeights);
@@ -302,9 +301,10 @@ void Model::Render(Renderer& renderer) {
 	}
 
 	// Send it to the shader
-	int uniBoneTransforms = glGetUniformLocation(game.GetDefaultShaderProgram().GetGlProgram(), "boneTransforms");
+	int uniBoneTransforms = glGetUniformLocation(shaderProgram.GetGlProgram(), "boneTransforms");
 	glUniformMatrix4fv(uniBoneTransforms, 32, GL_FALSE, (GLfloat*)finalBoneMatrices);
 
 	// Render the triangles
+	renderer.UseShaderProgram(shaderProgram);
 	renderer.DrawTrianglesIndexed(0, numIndices);
 }

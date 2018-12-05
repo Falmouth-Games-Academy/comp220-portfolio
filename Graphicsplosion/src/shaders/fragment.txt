@@ -5,9 +5,11 @@ out vec3 color;
 in vec3 fragColour;
 in vec2 fragUv;
 in vec3 fragNormal;
+in vec3 fragShadowPosition;
 in vec3 viewDirection;
 
 uniform sampler2D textureSampler;
+uniform sampler2D shadowSampler;
 
 uniform vec3 directionalLightDirection;
 
@@ -22,4 +24,9 @@ void main()
 	float nDoth = clamp(pow(dot(fragNormal, halfWay), specularPower), 0.0f, 1.0f);
 
 	color += vec3(0.8f, 0.8f, 0.8f) * nDoth;
+
+	float bias = clamp(0.01f * dot(fragNormal, directionalLightDirection), 0.0f, 0.01f);
+	if (fragShadowPosition.z >= texture(shadowSampler, fragShadowPosition.xy).x + bias) {
+		color = vec3(0.0f, 0.0f, 0.0f);
+	}
 }
