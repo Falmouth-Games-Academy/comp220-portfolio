@@ -12,9 +12,11 @@
 
 #include "VertexFormat.h"
 
-Texture renderTexture;
+const int numRenderTargets = 2;
+Texture renderTextures[numRenderTargets];
 GLuint frameBufferId;
 GLuint renderBufferId;
+GLuint shadowRenderBufferId;
 
 ShaderProgram postProcessShader;
 VertexBuffer postProcessBuffer;
@@ -45,16 +47,17 @@ void Renderer::Init(Window& renderWindow) {
 	// Init variables
 	viewportSize = renderWindow.GetSize();
 
-	// Init render texture
-	renderTexture.Create(*this, viewportSize.x, viewportSize.y);
+	// Init render textures
+	renderTextures[0].Create(*this, viewportSize.x, viewportSize.y);
+	renderTextures[1].CreateAsDepth(*this, viewportSize.x, viewportSize.y);
 
-	// Init the depth buffer
+	// Create the depth buffers
 	glGenRenderbuffers(1, &renderBufferId);
 
 	glBindRenderbuffer(GL_RENDERBUFFER, renderBufferId);
 	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT16, viewportSize.x, viewportSize.y);
 
-	// Create and bind the frame buffer
+	// Create and bind the frame buffers
 	glGenFramebuffers(1, &frameBufferId);
 	glBindFramebuffer(GL_FRAMEBUFFER, frameBufferId);
 
@@ -62,7 +65,7 @@ void Renderer::Init(Window& renderWindow) {
 	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, renderBufferId);
 
 	// Attach the texture to the framebuffer
-	glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, renderTexture.GetTextureName(), 0);
+	glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, renderTextures[0].GetTextureName(), 0);
 
 	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
 		printf("Error creating and attaching frame buffer!\n");
@@ -82,14 +85,28 @@ void Renderer::Shutdown() {
 	return;
 }
 
-void Renderer::BeginRender(bool doClear) {
-	// Set render-to-texture
-	glEnable(GL_DEPTH_TEST);
+void Renderer::BeginRender(bool doClear, int passIndex) {
+	// Attach renderbuffer stuff....!?!!?11
 	glBindFramebuffer(GL_FRAMEBUFFER, frameBufferId);
 
+	if (passIndex == 0) {
+		// Attach the depth buffer to the framebuffer
+		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, renderBufferId);
+
+		// Attach the texture to the framebuffer
+		glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, renderTextures[0].GetTextureName(), 0);
+	} else {
+		// Attach the shadow depth texture to the framebuffer
+		glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, renderTextures[1].GetTextureName(), 0);
+		glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, 0, 0);
+	}
+
+	// Set render-to-texture
+	glEnable(GL_DEPTH_TEST);
+
+	// Clear the backbuffers before render if desired
 	if (doClear) {
-		// Clear the backbuffers before render
-		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	}
@@ -97,7 +114,7 @@ void Renderer::BeginRender(bool doClear) {
 
 #include "main/Time.h"
 
-void Renderer::EndRender(Window& renderWindow) {
+void Renderer::EndRender(Window& renderWindow, int passIndex) {
 	// Resize the renderer to the window if the size has changed
 	// This needs updating for the post-processor!
 	/*if (viewportSize != renderWindow.GetSize()) {
@@ -107,19 +124,22 @@ void Renderer::EndRender(Window& renderWindow) {
 	}*/
 
 	// Perform post-processing
-	glDisable(GL_DEPTH_TEST);
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	if (passIndex == 0) {
+		glDisable(GL_DEPTH_TEST);
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-	UseShaderProgram(postProcessShader);
-	UseVertexBuffer(&postProcessBuffer);
-	UseTexture(&renderTexture, &postProcessShader, "colorSampler");
+		UseShaderProgram(postProcessShader);
+		UseVertexBuffer(&postProcessBuffer);
+		UseTexture(&renderTextures[0], &postProcessShader, "colorSampler");
+		UseTexture(&renderTextures[1], &postProcessShader, "shadowSampler");
 
-	postProcessShader.SetUniform("time", (float)Time::GetTime());
+		postProcessShader.SetUniform("time", (float)Time::GetTime());
 
-	DrawTriangles(0, 6);
+		DrawTriangles(0, 6);
 
-	// Swap to the screen
-	SDL_GL_SwapWindow(renderWindow.GetSdlWindow());
+		// Swap to the screen
+		SDL_GL_SwapWindow(renderWindow.GetSdlWindow());
+	}
 }
 
 void Renderer::DrawTriangles(int startVertexIndex, int numVerticesToDraw) {
@@ -146,6 +166,9 @@ void Renderer::DestroyBuffer(GLuint bufferName) {
 
 void Renderer::UseShaderProgram(const ShaderProgram& program) {
 	glUseProgram(program.GetGlProgram());
+
+	// Temporary: bind shadow map
+	UseTexture(&renderTextures[1], &program, "shadowSampler", 1);
 }
 
 void Renderer::UseVertexBuffer(const VertexBuffer* vertexBuffer) {
@@ -168,20 +191,26 @@ void Renderer::UseIndexBuffer(const IndexBuffer* indexBuffer) {
 	}
 }
 
-void Renderer::UseTexture(const Texture* texture, const ShaderProgram* shaderProgram, const char* samplerName) {
+void Renderer::UseTexture(const Texture* texture, const ShaderProgram* shaderProgram, const char* samplerName, int textureUnit) {
 	if (texture) {
 		// Temporary: get the texture sampler uniform
 		int uniTexture = glGetUniformLocation(shaderProgram->GetGlProgram(), samplerName);
+		
+		if (uniTexture != -1) {
+			// Bind the texture to the sampler
+			glActiveTexture(GL_TEXTURE0 + textureUnit);
+			glBindTexture(GL_TEXTURE_2D, texture->GetTextureName());
+			glBindSampler(textureUnit, uniTexture);
+			glUniform1i(uniTexture, textureUnit);
+		}
 
-		//defaultShaderProgram.BindSampler("textureSampler", 1);
-		// Bind the texture to the sampler
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, texture->GetTextureName());
-
-		glBindSampler(uniTexture, 1);
 	} else {
 		glBindTexture(GL_TEXTURE_2D, 0);
 	}
+}
+
+Texture* Renderer::GetShadowMap() {
+	return &renderTextures[1];
 }
 
 GLResource Renderer::LoadShaderFromSourceFile(const char* filename, GLenum glShaderType) {
@@ -297,7 +326,7 @@ bool ShaderProgram::Link() {
 	return isLoaded;
 }
 
-void ShaderProgram::SetUniform(const char* uniformName, const glm::mat4& value) {
+void ShaderProgram::SetUniform(const char* uniformName, const glm::mat4& value) const {
 	// Make sure the value exists first
 	auto mapValue = uniforms.find(uniformName);
 
@@ -308,7 +337,7 @@ void ShaderProgram::SetUniform(const char* uniformName, const glm::mat4& value) 
 	}
 }
 
-void ShaderProgram::SetUniform(const char* uniformName, float value) {
+void ShaderProgram::SetUniform(const char* uniformName, float value) const {
 	// Make sure the value exists first
 	auto mapValue = uniforms.find(uniformName);
 
@@ -319,7 +348,7 @@ void ShaderProgram::SetUniform(const char* uniformName, float value) {
 	}
 }
 
-void ShaderProgram::SetUniform(const char* uniformName, int value) {
+void ShaderProgram::SetUniform(const char* uniformName, int value) const {
 	// Make sure the value exists first
 	auto mapValue = uniforms.find(uniformName);
 
@@ -330,7 +359,7 @@ void ShaderProgram::SetUniform(const char* uniformName, int value) {
 	}
 }
 
-void ShaderProgram::SetUniform(const char* uniformName, const glm::vec3& value) {
+void ShaderProgram::SetUniform(const char* uniformName, const glm::vec3& value) const {
 	// Make sure the value exists first
 	auto mapValue = uniforms.find(uniformName);
 
@@ -494,7 +523,7 @@ bool Texture::Create(Renderer& renderer, const char* textureFilename) {
 	return true;
 }
 
-bool Texture::Create(Renderer & renderer, int width, int height) {
+bool Texture::Create(Renderer& renderer, int width, int height) {
 	// Generate the texture
 	glGenTextures(1, &textureName);
 
@@ -507,6 +536,27 @@ bool Texture::Create(Renderer & renderer, int width, int height) {
 	glBindTexture(GL_TEXTURE_2D, textureName);
 
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
+
+	// Done
+	return true;
+}
+
+bool Texture::CreateAsDepth(Renderer& renderer, int width, int height) {
+	// Generate the texture
+	glGenTextures(1, &textureName);
+
+	if (!textureName) {
+		printf("Error creating an empty texture of size %i by %i", width, height);
+		return false;
+	}
+
+	// Setup the texture data and parameters
+	glBindTexture(GL_TEXTURE_2D, textureName);
+
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT16, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
 
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);

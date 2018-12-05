@@ -2,9 +2,12 @@
 #include "Game.h"
 #include "render/Renderer.h"
 #include "render/Model.h"
+#include "render/Light.h"
 
 class Graphicsplosion : public Game {
 public:
+	Graphicsplosion() : sunLight(glm::vec3(-10.0f, -10.0f, 10.0f), glm::vec3(1.0f, 1.0f, -1.0f)) {}
+
 	ShaderProgram& GetDefaultShaderProgram() {
 		return defaultShaderProgram;
 	}
@@ -16,12 +19,16 @@ private:
 	void Update() override;
 	void Render() override;
 
+	void RenderShadowPass();
+	void RenderColourPass();
+
 private:
 	// Player and objects
 	Player player;
 
 	// Rendering components
 	ShaderProgram defaultShaderProgram;
+	ShaderProgram shadowShaderProgram;
 	VertexFormat defaultVertexFormat;
 
 	// The triangle to render
@@ -37,6 +44,9 @@ private:
 	Model pigeonModel;
 	Model bunnyModel;
 	Model sceneModel;
+
+	// The light
+	Light sunLight;
 };
 
 extern Graphicsplosion game; // The entire game lies here
