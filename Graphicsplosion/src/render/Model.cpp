@@ -224,13 +224,13 @@ void Model::PoseBones(float time) {
 
 				// Find keyframes that are closest to the current time
 				for (int i = 0; i < node.rotation.size() - 1; i++) {
-					if (node.rotation[i].time < time && node.rotation[i + 1].time >= time) {
+					if (node.rotation[i].time <= time && node.rotation[i + 1].time > time) {
 						node.rotationKeyframeIndex = i + (time - node.rotation[i].time) / (node.rotation[i + 1].time - node.rotation[i].time);
 					}
 				}
 
 				for (int i = 0; i < node.translation.size() - 1; i++) {
-					if (node.translation[i].time < time && node.translation[i + 1].time >= time) {
+					if (node.translation[i].time <= time && node.translation[i + 1].time > time) {
 						node.translationKeyframeIndex = i + (time - node.translation[i].time) / (node.translation[i + 1].time - node.translation[i].time);
 					}
 				}
@@ -270,7 +270,7 @@ void Model::Render(Renderer& renderer, const ShaderProgram& shaderProgram) {
 
 	// Send the gargblarghs to the vertex shader
 	// Animate bones and shfishfizzle
-	float time = (sin(Time::GetTime()) + 1.0f) / 2.0f;
+	float time = Time::GetTime() - ((int)Time::GetTime() / 3 * 3);
 
 	PoseBones(time);
 
@@ -284,8 +284,21 @@ void Model::Render(Renderer& renderer, const ShaderProgram& shaderProgram) {
 				int matrixIndex = node.target->index;
 				
 				// Linearly interpolate the animated values
-				glm::quat rotation = glm::lerp(node.rotation[(int)node.rotationKeyframeIndex].quat, node.rotation[(int)node.rotationKeyframeIndex + 1].quat, node.rotationKeyframeIndex - (int)node.rotationKeyframeIndex);
-				glm::vec3 translation = glm::lerp(node.translation[(int)node.translationKeyframeIndex].vec, node.translation[(int)node.translationKeyframeIndex + 1].vec, node.translationKeyframeIndex - (int)node.translationKeyframeIndex);
+				glm::quat rotation;
+				glm::vec3 translation;
+
+				// .. but only if they exist
+				if (node.rotationKeyframeIndex + 1 < node.rotation.size()) {
+					rotation = glm::lerp(node.rotation[(int)node.rotationKeyframeIndex].quat, node.rotation[(int)node.rotationKeyframeIndex + 1].quat, node.rotationKeyframeIndex - (int)node.rotationKeyframeIndex);
+				} else {
+					rotation = glm::identity<glm::quat>();
+				}
+
+				if (node.translationKeyframeIndex + 1 < node.translation.size()) {
+					translation = glm::lerp(node.translation[(int)node.translationKeyframeIndex].vec, node.translation[(int)node.translationKeyframeIndex + 1].vec, node.translationKeyframeIndex - (int)node.translationKeyframeIndex);
+				} else {
+					translation = glm::vec3(0.0f, 0.0f, 0.0f);
+				}
 
 				// Generate the local matrix
 				rootBoneMatrices[matrixIndex] = glm::mat4(rotation);
