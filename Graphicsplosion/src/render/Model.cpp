@@ -219,30 +219,10 @@ void Model::Destroy() {
 
 #include "main/Time.h"
 
-void Model::Render(Renderer renderer) {
-	// Create the buffers if they don't already exist
-	if (!areBuffersCreated) {
-		vertexBuffer.Create(renderer, vertices, numVertices * sizeof (Vertex));
-		indexBuffer.Create(renderer, indices, numIndices * sizeof (unsigned int));
-
-		areBuffersCreated = true;
-	}
-
-	// Bind the buffers
-	renderer.UseVertexBuffer(&vertexBuffer);
-	renderer.UseIndexBuffer(&indexBuffer);
-
-	// Send the gargblarghs to the vertex shader
-	// Animate bones and shfishfizzle
-	float time = (sin(Time::GetTime()) + 1.0f) / 2.0f;
-
+void Model::PoseBones(float time) {
 	for (Anim& anim : animations) {
 		for (AnimNode& node : anim.nodes) {
 			if (node.target) {
-				node.translationKeyframeIndex = 0.0f;
-				node.rotationKeyframeIndex = 0.0f;
-				node.scaleKeyframeIndex = 0.0f;
-
 				// Find keyframes that are closest to the current time
 				for (int i = 0; i < node.rotation.size() - 1; i++) {
 					if (node.rotation[i].time < time && node.rotation[i + 1].time >= time) {
@@ -258,6 +238,23 @@ void Model::Render(Renderer renderer) {
 			}
 		}
 	}
+}
+
+void Model::Render(Renderer renderer) {
+	// Create the buffers if they don't already exist
+	if (!areBuffersCreated) {
+		vertexBuffer.Create(renderer, vertices, numVertices * sizeof (Vertex));
+		indexBuffer.Create(renderer, indices, numIndices * sizeof (unsigned int));
+
+		areBuffersCreated = true;
+	}
+
+	// Bind the buffers
+	renderer.UseVertexBuffer(&vertexBuffer);
+	renderer.UseIndexBuffer(&indexBuffer);
+
+	// Pose the bones (temporary)
+	PoseBones((sin(Time::GetTime()) + 1.0f) / 2.0f);
 
 	// Calculate local bone matrices
 	glm::mat4 rootBoneMatrices[32];

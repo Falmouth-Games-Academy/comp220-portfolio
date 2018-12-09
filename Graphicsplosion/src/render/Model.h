@@ -110,6 +110,10 @@ public:
 	}
 
 public:
+	// Poses the model's bones according to animationTime
+	void PoseBones(float animationTime);
+
+public:
 	// Renders the model with the given renderer
 	void Render(Renderer renderer);
 
