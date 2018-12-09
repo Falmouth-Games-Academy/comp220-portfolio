@@ -54,6 +54,7 @@
     <ClCompile Include="src\stdafx.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="src\actors\Actor.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\sdl\Window.h">
@@ -95,9 +96,15 @@
     <ClInclude Include="src\stdafx.h">
       <Filter>src</Filter>
     </ClInclude>
+    <ClInclude Include="src\render\VertexFormat.h" />
+    <ClInclude Include="src\render\Light.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
     <Text Include="src\shaders\vertexPassthrough.txt" />
+    <Text Include="src\shaders\fragmentPostProcess.txt" />
+    <Text Include="src\shaders\vertexShadow.txt" />
+    <Text Include="src\shaders\fragmentShadow.txt" />
+    <Text Include="src\shaders\fragmentDepthDebug.txt" />
   </ItemGroup>
 </Project>

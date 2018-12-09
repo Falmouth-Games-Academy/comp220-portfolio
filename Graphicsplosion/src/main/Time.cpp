@@ -18,7 +18,6 @@ double Time::GetTime() {
 		// Set initial time
 		QueryPerformanceCounter(&performanceCount);
 		*((LARGE_INTEGER*)&timeAtStartup) = performanceCount;
-		timeAtStartup = 0;
 		hasInitialised = true;
 	}
 

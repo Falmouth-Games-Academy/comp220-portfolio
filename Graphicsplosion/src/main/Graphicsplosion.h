@@ -1,9 +1,12 @@
 #pragma once
 #include "Game.h"
+#include "render/Renderer.h"
+#include "render/Model.h"
+#include "render/Light.h"
 
 class Graphicsplosion : public Game {
 public:
-	Graphicsplosion() : triangleAngle(0.0f) {}
+	Graphicsplosion() : sunLight(glm::vec3(-10.0f, -10.0f, 10.0f), glm::vec3(1.0f, 1.0f, -1.0f)) {}
 
 	ShaderProgram& GetDefaultShaderProgram() {
 		return defaultShaderProgram;
@@ -16,21 +19,37 @@ private:
 	void Update() override;
 	void Render() override;
 
+	void RenderShadowPass();
+	void RenderColourPass();
+
 private:
 	// Player and objects
 	Player player;
 
 	// Rendering components
 	ShaderProgram defaultShaderProgram;
+	ShaderProgram shadowShaderProgram;
+	VertexFormat defaultVertexFormat;
 
 	// The triangle to render
 	VertexBuffer triangle;
 
 	// The background plane for a sky effect
 	VertexBuffer backPlane;
+	VertexBuffer groundPlane;
 
-	// Current rotation angle of the triangle
-	float triangleAngle;
+	// Things to render
+	Texture groundTexture;
+	Texture pigeonTexture;
+	Texture bunnyTexture;
+	Texture whiteTexture;
+
+	Model pigeonModel;
+	Model bunnyModel;
+	Model sceneModel;
+
+	// The light
+	Light sunLight;
 };
 
 extern Graphicsplosion game; // The entire game lies here

@@ -27,7 +27,8 @@ bool Model::Create(const char* filename) {
 		aiMesh *currentMesh = scene->mMeshes[i];
 
 		// Load vertices
-		vertices.resize(currentMesh->mNumVertices);
+		int vertexBase = vertices.size();
+		vertices.resize(vertexBase + currentMesh->mNumVertices);
 
 		for (int v = 0; v < currentMesh->mNumVertices; v++) {
 			aiVector3D currentModelVertex = currentMesh->mVertices[v];
@@ -59,16 +60,16 @@ bool Model::Create(const char* filename) {
 
 			currentVertex.boneIndices[0] = 255;
 
-			vertices[v] = currentVertex;
+			vertices[vertexBase + v] = currentVertex;
 		}
 
 		// Load faces/vertex indices
 		for (int f = 0; f < currentMesh->mNumFaces; f++) {
 			aiFace currentModelFace = currentMesh->mFaces[f];
 
-			indices.push_back(currentModelFace.mIndices[0]);
-			indices.push_back(currentModelFace.mIndices[1]);
-			indices.push_back(currentModelFace.mIndices[2]);
+			indices.push_back(currentModelFace.mIndices[0] + vertexBase);
+			indices.push_back(currentModelFace.mIndices[1] + vertexBase);
+			indices.push_back(currentModelFace.mIndices[2] + vertexBase);
 		}
 
 		// Load bones
@@ -93,7 +94,7 @@ bool Model::Create(const char* filename) {
 			// Copy vertex weights
 			newBone.vertexWeights.resize(aiBones[b]->mNumWeights);
 			for (int w = 0; w < aiBones[b]->mNumWeights; w++) {
-				int vIndex = aiBones[b]->mWeights[w].mVertexId;
+				int vIndex = vertexBase + aiBones[b]->mWeights[w].mVertexId;
 
 				newBone.vertexWeights[w].index = vIndex;
 				newBone.vertexWeights[w].weight = aiBones[b]->mWeights[w].mWeight;
@@ -104,7 +105,7 @@ bool Model::Create(const char* filename) {
 						// Replace the lowest -1 with this vertex and shift the -1 to the next one
 						if (vertices[vIndex].boneIndices[boneIndex] == 255) {
 							vertices[vIndex].boneIndices[boneIndex] = bIndex;
-							vertices[vIndex].boneWeights[boneIndex] = newBone.vertexWeights[w].weight;
+							vertices[vIndex].boneWeights[boneIndex] = newBone.vertexWeights[w].weight; 
 
 							if (boneIndex < maxBonesPerVertex - 1) {
 								vertices[vIndex].boneIndices[boneIndex + 1] = 255;
@@ -213,16 +214,14 @@ void Model::Destroy() {
 	indices = nullptr;
 }
 
-#include "main/Graphicsplosion.h"
-#include "glm/gtx/transform.hpp"
-#include "glm/gtx/euler_angles.hpp"
-
-#include "main/Time.h"
-
 void Model::PoseBones(float time) {
 	for (Anim& anim : animations) {
 		for (AnimNode& node : anim.nodes) {
 			if (node.target) {
+				node.translationKeyframeIndex = 0.0f;
+				node.rotationKeyframeIndex = 0.0f;
+				node.scaleKeyframeIndex = 0.0f;
+
 				// Find keyframes that are closest to the current time
 				for (int i = 0; i < node.rotation.size() - 1; i++) {
 					if (node.rotation[i].time < time && node.rotation[i + 1].time >= time) {
@@ -235,15 +234,31 @@ void Model::PoseBones(float time) {
 						node.translationKeyframeIndex = i + (time - node.translation[i].time) / (node.translation[i + 1].time - node.translation[i].time);
 					}
 				}
+
+				// Clamp bone rotations to the last frame if we're beyond that
+				if (node.rotation.size() > 0 && node.rotation[node.rotation.size() - 1].time < time) {
+					node.rotationKeyframeIndex = node.rotation.size() - 1;
+				}
+
+				if (node.translation.size() > 0 && node.translation[node.translation.size() - 1].time < time) {
+					node.translationKeyframeIndex = node.translation.size() - 1;
+				}
 			}
 		}
 	}
 }
 
-void Model::Render(Renderer renderer) {
+#include "glm/gtx/transform.hpp"
+#include "glm/gtx/euler_angles.hpp"
+
+#include "main/Time.h"
+
+void Model::Render(Renderer& renderer, const ShaderProgram& shaderProgram) {
 	// Create the buffers if they don't already exist
 	if (!areBuffersCreated) {
-		vertexBuffer.Create(renderer, vertices, numVertices * sizeof (Vertex));
+		static VertexFormat vertexFormat(&Vertex::position, &Vertex::colour, &Vertex::normal, &Vertex::uvs, &Vertex::boneIndices, &Vertex::boneWeights);
+
+		vertexBuffer.Create(renderer, vertexFormat, vertices, numVertices * sizeof (Vertex));
 		indexBuffer.Create(renderer, indices, numIndices * sizeof (unsigned int));
 
 		areBuffersCreated = true;
@@ -253,8 +268,11 @@ void Model::Render(Renderer renderer) {
 	renderer.UseVertexBuffer(&vertexBuffer);
 	renderer.UseIndexBuffer(&indexBuffer);
 
-	// Pose the bones (temporary)
-	PoseBones((sin(Time::GetTime()) + 1.0f) / 2.0f);
+	// Send the gargblarghs to the vertex shader
+	// Animate bones and shfishfizzle
+	float time = (sin(Time::GetTime()) + 1.0f) / 2.0f;
+
+	PoseBones(time);
 
 	// Calculate local bone matrices
 	glm::mat4 rootBoneMatrices[32];
@@ -296,9 +314,10 @@ void Model::Render(Renderer renderer) {
 	}
 
 	// Send it to the shader
-	int uniBoneTransforms = glGetUniformLocation(game.GetDefaultShaderProgram().GetGlProgram(), "boneTransforms");
+	int uniBoneTransforms = glGetUniformLocation(shaderProgram.GetGlProgram(), "boneTransforms");
 	glUniformMatrix4fv(uniBoneTransforms, 32, GL_FALSE, (GLfloat*)finalBoneMatrices);
 
 	// Render the triangles
+	renderer.UseShaderProgram(shaderProgram);
 	renderer.DrawTrianglesIndexed(0, numIndices);
 }

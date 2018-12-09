@@ -7,67 +7,12 @@
 #include "glm/gtx/transform.hpp"
 #include "glm/gtc/type_ptr.hpp"
 
+// Matrix for shadow rendering
+glm::mat4 shadowMVP;
+
+ShaderProgram debugShadowmapShader;
+
 Graphicsplosion game;
-
-Texture dbgTexture;
-Model dbgModel;
-Model dbgSecondModel;
-VertexBuffer dbgModelBuffer;
-
-// Week 9 session
-/*GLuint CreateTexture(int width, int height) {
-	GLuint textureId = 0;
-
-	glGenTextures(1, &textureId);
-	glBindTexture(GL_TEXTURE_2D, textureId);
-
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8/*GL_RGB*//*, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
-
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
-
-	return textureId;
-}
-
-GLuint CreateDepthBuffer(int width, int height) {
-	GLuint bufferId;
-
-	glGenRenderbuffers(1, &bufferId);
-
-	glBindRenderbuffer(GL_RENDERBUFFER, bufferId);
-
-	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT16, width, height);
-}
-
-GLuint CreateFrameBuffer(int width, int height) {
-	GLuint bufferId;
-
-	// Create and bind the frame buffer
-	glGenFramebuffers(1, &bufferId);
-	glBindFramebuffer(GL_RENDERBUFFER, bufferId);
-	
-	// Attach the frame buffer to the renderer
-	glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, textureId, 0);
-
-	// Attach the depth buffer to the renderer
-	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthBuffer);
-
-	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
-		std::cout << "Error creating and attaching frame buffer!";
-		return 0;
-	}
-}
-
-
-glDisable(GL_DEPTH_TEST) before rendering the postprocess texture
-*/
-
-/*
-In the main bit maybe bit lolasfdfsl
-	GLuint colourBufferId = CreateTexture(screenWidth, screenHeight);
-
-	Don't forget to cleanup everything!
-*/
 
 void Graphicsplosion::Init() {
 	// Create window and initialise renderer
@@ -76,36 +21,29 @@ void Graphicsplosion::Init() {
 
 	render.Init(window);
 
-	dbgTexture.Create(render, "texture.jpg");
-
 	// Load the default shaders
 	GLResource fragmentShader = render.LoadShaderFromSourceFile("src/shaders/fragment.txt", GL_FRAGMENT_SHADER);
 	GLResource vertexShader = render.LoadShaderFromSourceFile("src/shaders/vertex.txt", GL_VERTEX_SHADER);
+	GLResource shadowFragmentShader = render.LoadShaderFromSourceFile("src/shaders/fragmentShadow.txt", GL_FRAGMENT_SHADER);
+	GLResource shadowVertexShader = render.LoadShaderFromSourceFile("src/shaders/vertexShadow.txt", GL_VERTEX_SHADER);
+	GLResource depthTextureShader = render.LoadShaderFromSourceFile("src/shaders/fragmentDepthDebug.txt", GL_FRAGMENT_SHADER);
 
 	// Setup the default shader program
 	defaultShaderProgram.Create(render, vertexShader, fragmentShader);
+	shadowShaderProgram.Create(render, vertexShader, shadowFragmentShader);
+	debugShadowmapShader.Create(render, vertexShader, depthTextureShader);
+	defaultVertexFormat.CreateFromStructVars(&Vertex::position, &Vertex::colour, &Vertex::normal, &Vertex::uvs, &Vertex::boneIndices, &Vertex::boneWeights);
 
-	// Generate the test triangle
-	static Vertex triangleVertices[] = {
-		-1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f,
-		1.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f,
-		0.0f,  0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.5f, 0.0f,
+	// Load the models
+	pigeonModel.Create("Assets/Models/Pigeon.fbx");
+	bunnyModel.Create("Assets/Models/Bunny.fbx");
+	sceneModel.Create("Assets/Models/MainScene.fbx");
 
-		-5.0f, -5.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
-		-5.0f, 5.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f,
-		5.0f, 5.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f,
-
-		-5.0f, -5.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
-		5.0f, 5.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f,
-		5.0f, -5.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f,
-	};
-
-	// Create the test triangle
-	triangle.Create(render, triangleVertices, sizeof(triangleVertices));
-	
-	// Load the test model
-	dbgSecondModel.Create("Assets/Bunny.fbx");
-	dbgModel.Create("Assets/Pigeon.fbx");
+	// Load the textures
+	pigeonTexture.Create(render, "Assets/Textures/PigeonDiffuse.png");
+	bunnyTexture.Create(render, "Assets/Textures/BunnyDiffuse.png");
+	groundTexture.Create(render, "Assets/Textures/Ground.png");
+	whiteTexture.Create(render, "Assets/Textures/White.png");
 
 	// Create the background plane
 	static Vertex backPlaneVertices[] = {
@@ -117,18 +55,49 @@ void Graphicsplosion::Init() {
 		 1.0f, -1.0f, 0.9999f, 0.20f, 0.20f, 0.75f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, 255, 0, 0, 0, 0.0f, 0.0f, 0.0f, 0.0f,
 	};
 
-	backPlane.Create(render, backPlaneVertices, sizeof(backPlaneVertices));
+	backPlane.Create(render, defaultVertexFormat, backPlaneVertices, sizeof(backPlaneVertices));
+
+	// Create the ground plane
+	const float groundPlaneSize = 20.0f;
+	static Vertex groundPlaneVertices[] = {
+		-groundPlaneSize, -groundPlaneSize, 0.0f, 0.09f, 0.7f, 0.75f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, 255, 0, 0, 0, 0.0f, 0.0f, 0.0f, 0.0f,
+		-groundPlaneSize,  groundPlaneSize, 0.0f, 0.09f, 0.7f, 0.75f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, 255, 0, 0, 0, 0.0f, 0.0f, 0.0f, 0.0f,
+		 groundPlaneSize,  groundPlaneSize, 0.0f, 0.09f, 0.7f, 0.75f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, 255, 0, 0, 0, 0.0f, 0.0f, 0.0f, 0.0f,
+		-groundPlaneSize, -groundPlaneSize, 0.0f, 0.09f, 0.7f, 0.75f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, 255, 0, 0, 0, 0.0f, 0.0f, 0.0f, 0.0f,
+		 groundPlaneSize,  groundPlaneSize, 0.0f, 0.09f, 0.7f, 0.75f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, 255, 0, 0, 0, 0.0f, 0.0f, 0.0f, 0.0f,
+		 groundPlaneSize, -groundPlaneSize, 0.0f, 0.09f, 0.7f, 0.75f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, 255, 0, 0, 0, 0.0f, 0.0f, 0.0f, 0.0f,
+	};
+
+	groundPlane.Create(render, defaultVertexFormat, groundPlaneVertices, sizeof(groundPlaneVertices));
 
 	// Spawn the player
 	player.OnSpawn();
+
+	// Spawn and initialise the pigeon and bunny actors
+	Actor* pigeon = SpawnActor<Actor>();
+
+	pigeon->SetTexture(&pigeonTexture);
+	pigeon->SetModel(&pigeonModel);
+	pigeon->SetShaderProgram(&defaultShaderProgram);
+
+	Actor* bunny = SpawnActor<Actor>();
+
+	bunny->SetTexture(&bunnyTexture);
+	bunny->SetPosition(glm::vec3(10.0f, 0.0f, 0.0f));
+	bunny->SetScale(glm::vec3(0.15f, 0.15f, 0.15f));
+	bunny->SetShaderProgram(&defaultShaderProgram);
+	bunny->SetModel(&bunnyModel);
 }
 
 void Graphicsplosion::Shutdown() {
 	// Clean up the test vertex buffer
 	triangle.Destroy();
 
-	dbgTexture.Destroy();
-	dbgModel.Destroy();
+	// Cleanup the loaded assets
+	pigeonTexture.Destroy();
+	bunnyTexture.Destroy();
+	pigeonModel.Destroy();
+	bunnyModel.Destroy();
 
 	// Clean up the renderer and other resources
 	render.Shutdown();
@@ -140,85 +109,124 @@ void Graphicsplosion::Update() {
 	player.Update(deltaTime);
 }
 
+glm::mat4 matShadowView;
+
 void Graphicsplosion::Render() {
+	RenderShadowPass();
+	RenderColourPass();
+}
+
+void Graphicsplosion::RenderColourPass() {
 	// Render here
 	render.BeginRender();
 
-	// Use our test shader
+	// Use our default shader
 	render.UseShaderProgram(defaultShaderProgram);
 
-	// Test rotate the triangle
-	triangleAngle += 6.28f * deltaTime * 0.25f;
+	// First: draw the background plane
+	defaultShaderProgram.SetUniform("matViewProj", glm::identity<glm::mat4>());
+	defaultShaderProgram.SetUniform("matWorld", glm::identity<glm::mat4>());
 
-	// Set up the view/proj matrix
-	const float playerHeight = 0.5f;
-	glm::vec3 playerEye = player.GetPosition() + player.GetUp() * playerHeight;
-
-	glm::mat4 matViewProj = glm::lookAtRH(playerEye, playerEye + player.GetForward(), player.GetUp());
-	matViewProj = glm::perspectiveFov(70.0f, (float)window.GetSize().x, (float)window.GetSize().y, 0.1f, 100.0f) * matViewProj;
-
-	// Set up the world matrix (just a fun rotation around angle)
-	glm::mat4 matWorld = glm::rotate(triangleAngle, glm::vec3(0.0f, 0.0f, 1.0f));
-
-	// Find the uniform variables
-	int uniMatWorld = glGetUniformLocation(defaultShaderProgram.GetGlProgram(), "matWorld");
-	int uniMatViewProj = glGetUniformLocation(defaultShaderProgram.GetGlProgram(), "matViewProj");
-	int uniTime = glGetUniformLocation(defaultShaderProgram.GetGlProgram(), "time");
-	int uniTexture = glGetUniformLocation(defaultShaderProgram.GetGlProgram(), "textureSampler");
-	int uniAmbientLightColour = glGetUniformLocation(defaultShaderProgram.GetGlProgram(), "ambientLightColour");
-	int uniDirectionalLightColour = glGetUniformLocation(defaultShaderProgram.GetGlProgram(), "directionalLightColour");
-	int uniDirectionalLightDirection = glGetUniformLocation(defaultShaderProgram.GetGlProgram(), "directionalLightDirection");
-	int uniViewDirection = glGetUniformLocation(defaultShaderProgram.GetGlProgram(), "uniViewDirection");
-
-	// Upload the uniform variables
-	const glm::vec3 directionalLightDirection = glm::normalize(glm::vec3(-1.0f, -1.0f, -1.0f));
-	const glm::vec3 directionalLightColour = glm::vec3(0.4f, 0.4f, 0.4f);
-	const glm::vec3 viewDirection = glm::normalize(glm::vec3(matViewProj[2][0], matViewProj[2][1], matViewProj[2][2]));
-
-	const glm::vec3 ambientLight(0.25f, 0.5f, 0.5f);
-
-	glUniformMatrix4fv(uniMatWorld, 1, GL_FALSE, glm::value_ptr(matWorld));
-	glUniformMatrix4fv(uniMatViewProj, 1, GL_FALSE, glm::value_ptr(matViewProj));
-	glUniform1f(uniTime, (float)game.frameTime);
-	glUniform1i(uniTexture, 0);
-	glUniform3fv(uniAmbientLightColour, 1, glm::value_ptr(ambientLight));
-	glUniform3fv(uniDirectionalLightColour, 1, glm::value_ptr(directionalLightColour));
-	glUniform3fv(uniDirectionalLightDirection, 1, glm::value_ptr(directionalLightDirection));
-	glUniform3fv(uniViewDirection, 1, glm::value_ptr(viewDirection));
-
-	// Set the texture
-	glActiveTexture(GL_TEXTURE1);
-	glBindTexture(GL_TEXTURE_2D, dbgTexture.GetTextureName());
-	glBindSampler(uniTexture, 1);
-
-	// Draw the two models
-	// Draw the pigeon
-	matWorld = glm::identity<glm::mat4>();
-	glm::mat4 pigeonTransform = matWorld;
-	glUniformMatrix4fv(uniMatWorld, 1, GL_FALSE, glm::value_ptr(pigeonTransform));
-	dbgModel.Render(render);
-
-	// Draw the bunny
-	glm::mat4 bunnyTransform = glm::scale(glm::vec3(0.15f, 0.15f, 0.15f)) * matWorld/* * glm::rotate(glm::half_pi<float>(), glm::vec3(1.0f, 0.0f, 0.0f))*/;
-	bunnyTransform = glm::translate(glm::vec3(15.0f, 0.0f, 0.0f)) * bunnyTransform;
-
-	glUniformMatrix4fv(uniMatWorld, 1, GL_FALSE, glm::value_ptr(bunnyTransform));
-	dbgSecondModel.Render(render);
-
-	// Draw the background plane
-	glUniformMatrix4fv(uniMatViewProj, 1, GL_FALSE, glm::value_ptr(glm::identity<glm::mat4>()));
-	glUniformMatrix4fv(uniMatWorld, 1, GL_FALSE, glm::value_ptr(glm::identity<glm::mat4>()));
 	render.UseVertexBuffer(&backPlane);
 	render.UseIndexBuffer(nullptr);
+	render.UseTexture(&whiteTexture, &defaultShaderProgram);
 
 	render.DrawTriangles(0, 6);
 
-	// Draw the triangle
-	/*render.UseVertexBuffer(&triangle);
-	render.UseIndexBuffer(nullptr);
+	// Set up the camera!
+	const float playerHeight = 0.5f;
+	glm::vec3 playerEye = player.GetPosition() + player.GetUp() * playerHeight;
+	glm::mat4 matViewProj = glm::lookAtRH(playerEye, playerEye + player.GetForward(), player.GetUp());
 
-	render.DrawTriangles(0, 36);*/
+	matViewProj = glm::perspectiveFov(70.0f, (float)window.GetSize().x, (float)window.GetSize().y, 0.1f, 100.0f) * matViewProj;
+
+	defaultShaderProgram.SetUniform("matViewProj", matViewProj);
+
+	// Setup the shadow map
+	glm::mat4 shadowUvCorrection(
+		0.5f, 0.0f, 0.0f, 0.0f,
+		0.0f, 0.5f, 0.0f, 0.0f,
+		0.0f, 0.0f, 0.5f, 0.0f,
+		0.5f, 0.5f, 0.5f, 1.0f
+	);
+
+	defaultShaderProgram.SetUniform("matShadowView", shadowUvCorrection * matShadowView);
+
+	// Setup the lights!
+	const glm::vec3 directionalLightColour = glm::vec3(0.4f, 0.4f, 0.4f);
+	const glm::vec3 cameraPosition = playerEye;
+
+	const glm::vec3 ambientLight(0.25f, 0.5f, 0.5f);
+
+	// Setup the lights!
+	defaultShaderProgram.SetUniform("textureSampler", 0);
+	defaultShaderProgram.SetUniform("ambientLightColour", ambientLight);
+	defaultShaderProgram.SetUniform("directionalLightColour", directionalLightColour);
+	defaultShaderProgram.SetUniform("directionalLightDirection", sunLight.GetDirection());
+	defaultShaderProgram.SetUniform("cameraPosition", cameraPosition);
+
+	// Render every object
+	for (Actor* actor : actors) {
+		actor->Render(&render);
+	}
+
+	// Draw the scene
+	defaultShaderProgram.SetUniform("matWorld", glm::identity<glm::mat4>());
+	//sceneModel.Render(render);
+
+	// Draw the ground
+	render.UseTexture(&groundTexture, &defaultShaderProgram);
+	render.UseVertexBuffer(&groundPlane);
+
+	render.DrawTriangles(0, 6);
+
+	// Draw the shadow map
+	glm::mat4 shadowMapDebug(
+		0.0f, 0.0f, 0.1f, 0.0f,
+		0.1f, 0.0f, 0.0f, 0.0f,
+		0.0f, 0.1f, 0.0f, 0.0f,
+		-10.0f, -6.0f, 2.5f, 1.0f
+	);
+
+	render.UseShaderProgram(debugShadowmapShader);
+
+	debugShadowmapShader.SetUniform("matWorld", shadowMapDebug);
+	debugShadowmapShader.SetUniform("matViewProj", matViewProj);
+
+	render.UseTexture(render.GetShadowMap(), &debugShadowmapShader);
+	render.UseVertexBuffer(&groundPlane);
+
+	render.DrawTriangles(0, 6);
 
 	// Done!
 	render.EndRender(window);
+}
+
+void Graphicsplosion::RenderShadowPass() {
+	// Render here
+	render.BeginRender(true, RenderPass::Shadow);
+
+	// Use our default shader
+	render.UseShaderProgram(shadowShaderProgram);
+
+	// Setup the shadow render matrix
+	matShadowView = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, 0.0f, 50.0f) * glm::lookAt(sunLight.GetPosition(), sunLight.GetDirection(), glm::vec3(0.0f, 0.0f, 1.0f));
+	shadowShaderProgram.SetUniform("matViewProj", matShadowView);
+	
+	// Render every object with the shadow shader
+	for (Actor* actor : actors) {
+		actor->Render(&render, &shadowShaderProgram);
+	}
+
+	// Draw the scene
+	defaultShaderProgram.SetUniform("matWorld", glm::identity<glm::mat4>());
+	//sceneModel.Render(render);
+
+	// Draw the ground
+	render.UseVertexBuffer(&groundPlane);
+
+	render.DrawTriangles(0, 6);
+
+	// Done!
+	render.EndRender(window, RenderPass::Shadow);
 }

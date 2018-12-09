@@ -2,9 +2,20 @@
 #include "glew.h"
 #include "helpers/math.h"
 
+#include <map>
+
+#include "glm/glm.hpp"
+
+#include "render/VertexFormat.h" // todo possibly remove
+
 // lazy wrapper for unsafe GLuint type
 enum GLResource : GLuint {
 	GLRESOURCE_NULL = 0,
+};
+
+enum class RenderPass {
+	Shadow = 0,
+	Main = 1,
 };
 
 // 3D renderer wrapper for OpenGL (by default)
@@ -24,8 +35,8 @@ public:
 
 public:
 	// Render functions
-	void BeginRender(bool doClear = true);
-	void EndRender(class Window& renderWindow);
+	void BeginRender(bool doClear = true, RenderPass renderPass = RenderPass::Main);
+	void EndRender(class Window& renderWindow, RenderPass renderPass = RenderPass::Main);
 
 public:
 	// Draw calls
@@ -54,6 +65,13 @@ public:
 
 	// Sets the index buffer to be rendered in a draw call. If nullptr, the buffer is unbound
 	void UseIndexBuffer(const class IndexBuffer* indexBuffer);
+
+public:
+	// Sets the texture to be used in a draw call. If nullptr, the texture is unbound
+	void UseTexture(const class Texture* texture, const class ShaderProgram* shaderProgram, const char* samplerName = "textureSampler", int textureUnit = 0);
+
+	// Returns the shadow map texture
+	class Texture* GetShadowMap();
 
 private:
 	Vec2I viewportSize;
@@ -84,6 +102,17 @@ public:
 	bool Link();
 
 public:
+	// SHADER MUST BE BOUND FOR THIS TO WORK! (also these are const because state machines...)
+	// Sets a uniform's value
+	void SetUniform(const char* uniformName, const glm::mat4& matValue) const;
+	void SetUniform(const char* uniformName, const glm::vec3& vecValue) const;
+	void SetUniform(const char* uniformName, int intValue) const;
+	void SetUniform(const char* uniformName, float floatValue) const;
+
+	// Refreshes the uniform map
+	void RefreshUniformMap();
+
+public:
 	// Returns whether the shader is successfully linked and loaded
 	bool IsLoaded() {
 		return isLoaded;
@@ -97,7 +126,11 @@ private:
 	// Whether this was successfully loaded
 	bool isLoaded;
 
+	// Reference to the OpenGL resource
 	GLuint glProgram;
+	
+	// Uniform list
+	std::map<std::string, GLuint> uniforms;
 };
 
 // Generic buffer
@@ -134,11 +167,11 @@ protected:
 // Vertex buffer
 class VertexBuffer : public GenericBuffer {
 public:
-	VertexBuffer() = default;
+	VertexBuffer() : vaoName(0) {};
 
 	// Creates a buffer from an optional initial vertex array
-	VertexBuffer(Renderer& renderer, const void* initialData = nullptr, int initialDataSize = 0) {
-		Create(renderer, initialData, initialDataSize);
+	VertexBuffer(Renderer& renderer, const class VertexFormat& vertexFormat, const void* initialData = nullptr, int initialDataSize = 0) {
+		Create(renderer, vertexFormat, initialData, initialDataSize);
 	}
 
 	~VertexBuffer() {
@@ -146,8 +179,19 @@ public:
 	}
 
 public:
-	// Sets the data to a new array of vertices
+	// Creates the buffer
+	void Create(Renderer& renderer, const class VertexFormat& vertexFormat, const void* initialData = nullptr, int initialDataSize = 0);
+	// Destroys the buffer
+	void Destroy() override;
+
+	// Sets the buffer data to a new array of vertices
 	void SetData(const void* arrayData, int size);
+
+	GLuint GetVAO() const { return vaoName; }
+
+private:
+	// GL buffer for the VAO
+	GLuint vaoName;
 };
 
 // Index buffer
@@ -178,6 +222,11 @@ public:
 		Create(renderer, textureFilename);
 	}
 
+	// Constructs and creates an empty texture of the specified size
+	Texture(Renderer& renderer, int width, int height) {
+		Create(renderer, width, height);
+	}
+
 	~Texture() {
 		// Destroy the texture (todo: might break if destructed after GL)
 		Destroy();
@@ -187,24 +236,19 @@ public:
 	// Creates a texture from a file
 	bool Create(Renderer& renderer, const char* textureFilename);
 
+	// Creates an empty texture
+	bool Create(Renderer& renderer, int width, int height);
+
+	// Creates an empty depth texture
+	bool CreateAsDepth(Renderer& renderer, int width, int height);
+
 	// Destroys the texture
 	void Destroy();
 
 public:
 	// Returns the internal OpenGL texture name
-	GLuint GetTextureName() { return textureName; }
+	GLuint GetTextureName() const { return textureName; }
 
 private:
 	GLuint textureName;
-};
-
-// Default vertex type
-struct Vertex {
-	float x, y, z;
-	float r, g, b;
-	float normalX, normalY, normalZ;
-	float u, v;
-
-	unsigned __int8 boneIndices[4];
-	float boneWeights[4];
 };

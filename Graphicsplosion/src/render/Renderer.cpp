@@ -4,11 +4,26 @@
 #include <fstream>
 #include <iostream>
 
+#include "glm/gtc/type_ptr.hpp"
+
 #include "SDL.h"
 #include "glew.h"
 #include "sdl_image.h"
 
-GLuint vao;
+#include "VertexFormat.h"
+
+const int numRenderTargets = 2;
+Texture renderTextures[numRenderTargets];
+GLuint frameBufferId;
+GLuint renderBufferId;
+GLuint shadowRenderBufferId;
+
+ShaderProgram postProcessShader;
+VertexBuffer postProcessBuffer;
+
+struct PostProcessVertex {
+	glm::vec2 position;
+};
 
 void Renderer::Init(Window& renderWindow) {
 	// Initialise OpenGL attributes (may move later)
@@ -29,73 +44,115 @@ void Renderer::Init(Window& renderWindow) {
 	glewExperimental = GL_TRUE;
 	glewInit();
 
-	// Test vertex array structure
-	glGenVertexArrays(1, &vao);
-	glBindVertexArray(vao);
-
-	// Enable the vertex attributes
-	glEnableVertexAttribArray(0);
-	glEnableVertexAttribArray(1);
-	glEnableVertexAttribArray(2);
-	glEnableVertexAttribArray(3);
-	glEnableVertexAttribArray(4);
-	glEnableVertexAttribArray(5);
-
 	// Init variables
 	viewportSize = renderWindow.GetSize();
+
+	// Init render textures
+	renderTextures[0].Create(*this, viewportSize.x, viewportSize.y);
+	renderTextures[1].CreateAsDepth(*this, viewportSize.x, viewportSize.y);
+
+	// Create the depth buffers
+	glGenRenderbuffers(1, &renderBufferId);
+
+	glBindRenderbuffer(GL_RENDERBUFFER, renderBufferId);
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT16, viewportSize.x, viewportSize.y);
+
+	// Create and bind the frame buffers
+	glGenFramebuffers(1, &frameBufferId);
+	glBindFramebuffer(GL_FRAMEBUFFER, frameBufferId);
+
+	// Attach the depth buffer to the framebuffer
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, renderBufferId);
+
+	// Attach the texture to the framebuffer
+	glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, renderTextures[0].GetTextureName(), 0);
+
+	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+		printf("Error creating and attaching frame buffer!\n");
+	}
+
+	// Create the postprocessor
+	static PostProcessVertex postProcessorPlane[6] {
+		glm::vec2(-1.0f, -1.0f), glm::vec2(-1.0f, 1.0f), glm::vec2(1.0f, 1.0f),
+		glm::vec2(-1.0f, -1.0f), glm::vec2(1.0f, 1.0f), glm::vec2(1.0f, -1.0f)
+	};
+
+	postProcessShader.Create(*this, LoadShaderFromSourceFile("src/shaders/vertexPassthrough.txt", GL_VERTEX_SHADER), LoadShaderFromSourceFile("src/shaders/fragmentPostProcess.txt", GL_FRAGMENT_SHADER));
+	postProcessBuffer.Create(*this, VertexFormat(&PostProcessVertex::position), postProcessorPlane, sizeof (postProcessorPlane));
 }
 
 void Renderer::Shutdown() {
-	// Free resources
-	glDeleteVertexArrays(1, &vao);
-
 	return;
 }
 
-void Renderer::BeginRender(bool doClear) {
-	// Clear the backbuffers before render
-	glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
+void Renderer::BeginRender(bool doClear, RenderPass renderPass) {
+	// Attach renderbuffer stuff....!?!!?11
+	glBindFramebuffer(GL_FRAMEBUFFER, frameBufferId);
 
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	if (renderPass == RenderPass::Main) {
+		// Attach the depth buffer to the framebuffer
+		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, renderBufferId);
+
+		// Attach the texture to the framebuffer
+		glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, renderTextures[0].GetTextureName(), 0);
+	} else if (renderPass == RenderPass::Shadow) {
+		// Attach the shadow depth texture to the framebuffer
+		glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, renderTextures[1].GetTextureName(), 0);
+
+		// Attach a blank colour attachment to the framebuffer
+		glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, 0, 0);
+	}
+
+	// Set render-to-texture
+	glEnable(GL_DEPTH_TEST);
+
+	// Clear the backbuffers before render if desired
+	if (doClear) {
+		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	}
 }
 
-void Renderer::EndRender(Window& renderWindow) {
+#include "main/Time.h"
+
+void Renderer::EndRender(Window& renderWindow, RenderPass renderPass) {
 	// Resize the renderer to the window if the size has changed
-	if (viewportSize != renderWindow.GetSize()) {
+	// This needs updating for the post-processor!
+	/*if (viewportSize != renderWindow.GetSize()) {
 		viewportSize = renderWindow.GetSize();
 
 		glViewport(0, 0, viewportSize.x, viewportSize.y);
-	}
+	}*/
 
-	// Swap to the screen
-	SDL_GL_SwapWindow(renderWindow.GetSdlWindow());
+	// Perform post-processing
+	if (renderPass == RenderPass::Main) {
+		// Bind the post-process frame buffer
+		glDisable(GL_DEPTH_TEST);
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+		// Use the postprocessor texture
+		UseShaderProgram(postProcessShader);
+		UseVertexBuffer(&postProcessBuffer);
+		UseTexture(&renderTextures[0], &postProcessShader, "colorSampler");
+		UseTexture(&renderTextures[1], &postProcessShader, "shadowSampler");
+
+		//postProcessShader.SetUniform("time", (float)Time::GetTime());
+
+		// Draw it!
+		DrawTriangles(0, 6);
+
+		// Swap to the screen
+		SDL_GL_SwapWindow(renderWindow.GetSdlWindow());
+	}
 }
 
 void Renderer::DrawTriangles(int startVertexIndex, int numVerticesToDraw) {
-	// Bind vertex array (todo: How to not need to use glVertexAttribPointer every call...?)
-	glBindVertexArray(vao);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, x));
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, r));
-	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, normalX));
-	glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, u));
-	glVertexAttribIPointer(4, 4, GL_UNSIGNED_BYTE, sizeof(Vertex), (void*)offsetof(Vertex, boneIndices));
-	glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, boneWeights));
-
 	// Draw the triangles
 	glDrawArrays(GL_TRIANGLES, startVertexIndex, numVerticesToDraw);
 }
 
 void Renderer::DrawTrianglesIndexed(int startIndex, int numIndicesToDraw) {
-	// Bind vertex array (todo: How to not need to use glVertexAttribPointer every call...?)
-	glBindVertexArray(vao);
-
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, x));
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, r));
-	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, normalX));
-	glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, u));
-	glVertexAttribIPointer(4, 4, GL_UNSIGNED_BYTE, sizeof(Vertex), (void*)offsetof(Vertex, boneIndices));
-	glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, boneWeights));
-
 	// Draw the triangles
 	glDrawElements(GL_TRIANGLES, numIndicesToDraw, GL_UNSIGNED_INT, nullptr);
 }
@@ -114,14 +171,19 @@ void Renderer::DestroyBuffer(GLuint bufferName) {
 
 void Renderer::UseShaderProgram(const ShaderProgram& program) {
 	glUseProgram(program.GetGlProgram());
+
+	// Temporary: bind shadow map
+	UseTexture(&renderTextures[1], &program, "shadowSampler", 1);
 }
 
 void Renderer::UseVertexBuffer(const VertexBuffer* vertexBuffer) {
 	// Bind the vertex buffer, if it exists (unbind otherwise)
 	if (vertexBuffer) {
 		glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer->GetBufferName());
+		glBindVertexArray(vertexBuffer->GetVAO());
 	} else {
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		glBindVertexArray(0);
 	}
 }
 
@@ -132,6 +194,28 @@ void Renderer::UseIndexBuffer(const IndexBuffer* indexBuffer) {
 	} else {
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 	}
+}
+
+void Renderer::UseTexture(const Texture* texture, const ShaderProgram* shaderProgram, const char* samplerName, int textureUnit) {
+	if (texture) {
+		// Temporary: get the texture sampler uniform
+		int uniTexture = glGetUniformLocation(shaderProgram->GetGlProgram(), samplerName);
+		
+		if (uniTexture != -1) {
+			// Bind the texture to the sampler
+			glActiveTexture(GL_TEXTURE0 + textureUnit);
+			glBindTexture(GL_TEXTURE_2D, texture->GetTextureName());
+			glBindSampler(textureUnit, uniTexture);
+			glUniform1i(uniTexture, textureUnit);
+		}
+
+	} else {
+		glBindTexture(GL_TEXTURE_2D, 0);
+	}
+}
+
+Texture* Renderer::GetShadowMap() {
+	return &renderTextures[1];
 }
 
 GLResource Renderer::LoadShaderFromSourceFile(const char* filename, GLenum glShaderType) {
@@ -214,7 +298,11 @@ void ShaderProgram::Create(const Renderer& renderer, GLResource vertexShader, GL
 	glAttachShader(glProgram, vertexShader);
 	glAttachShader(glProgram, fragmentShader);
 
+	// Link the shaders
 	Link();
+
+	// Refresh uniforms
+	RefreshUniformMap();
 }
 
 void ShaderProgram::Destroy() {
@@ -243,6 +331,79 @@ bool ShaderProgram::Link() {
 	return isLoaded;
 }
 
+void ShaderProgram::SetUniform(const char* uniformName, const glm::mat4& value) const {
+	// Make sure the value exists first
+	auto mapValue = uniforms.find(uniformName);
+
+	if (mapValue != uniforms.end()) {
+		glUniformMatrix4fv(mapValue->second, 1, GL_FALSE, glm::value_ptr(value));
+	} else {
+		printf("Warning: uniform '%s' does not exist\n", uniformName);
+	}
+}
+
+void ShaderProgram::SetUniform(const char* uniformName, float value) const {
+	// Make sure the value exists first
+	auto mapValue = uniforms.find(uniformName);
+
+	if (mapValue != uniforms.end()) {
+		glUniform1f(mapValue->second, value);
+	} else {
+		printf("Warning: uniform '%s' does not exist\n", uniformName);
+	}
+}
+
+void ShaderProgram::SetUniform(const char* uniformName, int value) const {
+	// Make sure the value exists first
+	auto mapValue = uniforms.find(uniformName);
+
+	if (mapValue != uniforms.end()) {
+		glUniform1i(mapValue->second, value);
+	} else {
+		printf("Warning: uniform '%s' does not exist\n", uniformName);
+	}
+}
+
+void ShaderProgram::SetUniform(const char* uniformName, const glm::vec3& value) const {
+	// Make sure the value exists first
+	auto mapValue = uniforms.find(uniformName);
+
+	if (mapValue != uniforms.end()) {
+		glUniform3fv(mapValue->second, 1, glm::value_ptr(value));
+	} else {
+		printf("Warning: uniform '%s' does not exist\n", uniformName);
+	}
+}
+
+void ShaderProgram::RefreshUniformMap() {
+	// Clear the uniform map
+	uniforms.clear();
+
+	// Iterate every uniform and add it to the map
+	GLint numUniforms = 0;
+	glGetProgramiv(glProgram, GL_ACTIVE_UNIFORMS, &numUniforms);
+
+	printf("Loading %i uniforms:", numUniforms);
+
+	for (int i = 0; i < numUniforms; i++) {
+		const int maxUniformNameLength = 64;
+		GLchar uniformName[maxUniformNameLength + 1] = "";
+		GLint size = maxUniformNameLength; // allow null terminator
+		GLint uniformSize;
+		GLenum uniformType;
+		GLuint uniformLocation = 0;
+
+		glGetActiveUniform(glProgram, (GLuint)i, size, nullptr, &uniformSize, &uniformType, uniformName);
+		uniformLocation = glGetUniformLocation(glProgram, uniformName);
+
+		printf("%s, ", uniformName);
+
+		uniforms.insert(std::make_pair(std::string(uniformName), uniformLocation));
+	}
+
+	printf("\n");
+}
+
 void GenericBuffer::Create(Renderer& renderer, const void* initialData, int initialDataSize) {
 	// Initialise with a new buffer
 	bufferName = renderer.CreateBuffer();
@@ -261,7 +422,45 @@ void GenericBuffer::Destroy() {
 	if (renderer) {
 		renderer->DestroyBuffer(bufferName);
 	}
+
 	bufferName = 0;
+}
+
+void VertexBuffer::Create(Renderer& renderer, const VertexFormat& vertexFormat, const void* initialData, int initialDataSize) {
+	// Create the vertex array object
+	glGenVertexArrays(1, &vaoName);
+	glBindVertexArray(vaoName);
+
+	// Create the buffer as per usual
+	GenericBuffer::Create(renderer, initialData, initialDataSize);
+
+	// Set attribute pointers
+	for (const VertexFormat::VertexAttribute& attribute : vertexFormat.GetAttributeList()) {
+		// Send this attribute to OpenGL
+		if (attribute.type == GL_INT || attribute.type == GL_UNSIGNED_INT || attribute.type == GL_BYTE || attribute.type == GL_UNSIGNED_BYTE) {
+			glVertexAttribIPointer(attribute.location, attribute.size, attribute.type, vertexFormat.GetVertexSize(), (const void*)attribute.offset);
+		} else {
+			glVertexAttribPointer(attribute.location, attribute.size, attribute.type, GL_FALSE, vertexFormat.GetVertexSize(), (const void*)attribute.offset);
+		}
+
+		// Enable it!
+		glEnableVertexAttribArray(attribute.location);
+	}
+
+	// DONT TOUCH IT
+	glBindVertexArray(0);
+}
+
+void VertexBuffer::Destroy()  {
+	// Destroy base buffer
+	GenericBuffer::Destroy();
+
+	// Destroy VAO
+	if (renderer) {
+		renderer->DestroyBuffer(vaoName);
+	}
+
+	vaoName = 0;
 }
 
 void VertexBuffer::SetData(const void* arrayData, int size) {
@@ -306,6 +505,18 @@ bool Texture::Create(Renderer& renderer, const char* textureFilename) {
 			return false;
 		}
 	}
+	else if (image->format->BytesPerPixel == 4) {
+		// Texture has alpha channel
+		if (image->format->Rmask == 0xFF) {
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, image->w, image->h, 0, GL_RGBA, GL_UNSIGNED_BYTE, image->pixels);
+		}
+		else if (image->format->Rmask == 0xFF0000) {
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, image->w, image->h, 0, GL_BGRA, GL_UNSIGNED_BYTE, image->pixels);
+		}
+		else {
+			return false;
+		}
+	}
 
 	// Setup parameters and mipmaps
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
@@ -314,6 +525,48 @@ bool Texture::Create(Renderer& renderer, const char* textureFilename) {
 	// Cleanup
 	SDL_UnlockSurface(image);
 
+	return true;
+}
+
+bool Texture::Create(Renderer& renderer, int width, int height) {
+	// Generate the texture
+	glGenTextures(1, &textureName);
+
+	if (!textureName) {
+		printf("Error creating an empty texture of size %i by %i", width, height);
+		return false;
+	}
+
+	// Setup the texture data and parameters
+	glBindTexture(GL_TEXTURE_2D, textureName);
+
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
+
+	// Done
+	return true;
+}
+
+bool Texture::CreateAsDepth(Renderer& renderer, int width, int height) {
+	// Generate the texture
+	glGenTextures(1, &textureName);
+
+	if (!textureName) {
+		printf("Error creating an empty texture of size %i by %i", width, height);
+		return false;
+	}
+
+	// Setup the texture data and parameters
+	glBindTexture(GL_TEXTURE_2D, textureName);
+
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT16, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
+
+	// Done
 	return true;
 }
 
