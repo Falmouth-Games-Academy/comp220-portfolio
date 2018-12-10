@@ -42,6 +42,8 @@ void Graphicsplosion::Init() {
 	// Load the textures
 	pigeonTexture.Create(render, "Assets/Textures/PigeonDiffuse.png");
 	bunnyTexture.Create(render, "Assets/Textures/BunnyDiffuse.png");
+	groundTexture.Create(render, "Assets/Textures/Ground.png");
+	whiteTexture.Create(render, "Assets/Textures/White.png");
 
 	// Create the background plane
 	static Vertex backPlaneVertices[] = {
@@ -127,7 +129,7 @@ void Graphicsplosion::RenderColourPass() {
 
 	render.UseVertexBuffer(&backPlane);
 	render.UseIndexBuffer(nullptr);
-	render.UseTexture(nullptr, &defaultShaderProgram);
+	render.UseTexture(&whiteTexture, &defaultShaderProgram);
 
 	render.DrawTriangles(0, 6);
 
@@ -173,22 +175,26 @@ void Graphicsplosion::RenderColourPass() {
 	//sceneModel.Render(render);
 
 	// Draw the ground
+	render.UseTexture(&groundTexture, &defaultShaderProgram);
 	render.UseVertexBuffer(&groundPlane);
 
 	render.DrawTriangles(0, 6);
 
-	// Draw the shadow map using a rotated version of the ground plane
+	// Draw the shadow map
 	glm::mat4 shadowMapDebug(
 		0.0f, 0.0f, 0.1f, 0.0f,
 		0.1f, 0.0f, 0.0f, 0.0f,
 		0.0f, 0.1f, 0.0f, 0.0f,
-		0.0f, -6.0f, 5.0f, 1.0f
+		-10.0f, -6.0f, 2.5f, 1.0f
 	);
 
 	render.UseShaderProgram(debugShadowmapShader);
-	render.UseTexture(render.GetShadowMap(), &debugShadowmapShader);
 
-	defaultShaderProgram.SetUniform("matWorld", shadowMapDebug);
+	debugShadowmapShader.SetUniform("matWorld", shadowMapDebug);
+	debugShadowmapShader.SetUniform("matViewProj", matViewProj);
+
+	render.UseTexture(render.GetShadowMap(), &debugShadowmapShader);
+	render.UseVertexBuffer(&groundPlane);
 
 	render.DrawTriangles(0, 6);
 
@@ -198,7 +204,7 @@ void Graphicsplosion::RenderColourPass() {
 
 void Graphicsplosion::RenderShadowPass() {
 	// Render here
-	render.BeginRender(true, 1);
+	render.BeginRender(true, RenderPass::Shadow);
 
 	// Use our default shader
 	render.UseShaderProgram(shadowShaderProgram);
@@ -222,5 +228,5 @@ void Graphicsplosion::RenderShadowPass() {
 	render.DrawTriangles(0, 6);
 
 	// Done!
-	render.EndRender(window, 1);
+	render.EndRender(window, RenderPass::Shadow);
 }

@@ -13,6 +13,11 @@ enum GLResource : GLuint {
 	GLRESOURCE_NULL = 0,
 };
 
+enum class RenderPass {
+	Shadow = 0,
+	Main = 1,
+};
+
 // 3D renderer wrapper for OpenGL (by default)
 class Renderer {
 public:
@@ -30,8 +35,8 @@ public:
 
 public:
 	// Render functions
-	void BeginRender(bool doClear = true, int passIndex = 0);
-	void EndRender(class Window& renderWindow, int passIndex = 0);
+	void BeginRender(bool doClear = true, RenderPass renderPass = RenderPass::Main);
+	void EndRender(class Window& renderWindow, RenderPass renderPass = RenderPass::Main);
 
 public:
 	// Draw calls

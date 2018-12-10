@@ -25,8 +25,14 @@ void main()
 
 	color += vec3(0.8f, 0.8f, 0.8f) * nDoth;
 
-	float bias = clamp(0.01f * dot(fragNormal, directionalLightDirection), 0.0f, 0.01f);
+	// Add shadowing
+	float minBias = 0.05f, maxBias = 0.08f;
+
+	/*float bias = clamp(0.01f / abs(dot(fragNormal, directionalLightDirection)), 0.0f, 0.01f);
+	
 	if (fragShadowPosition.z >= texture(shadowSampler, fragShadowPosition.xy).x + bias) {
 		color = vec3(0.0f, 0.0f, 0.0f);
-	}
+	}*/
+
+	color *= vec3(clamp((texture(shadowSampler, clamp(fragShadowPosition.xy, 0.0f, 1.0f)).x - fragShadowPosition.z + minBias) / (maxBias - minBias), 0.0f, 1.0f));
 }

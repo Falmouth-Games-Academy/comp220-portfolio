@@ -39,8 +39,11 @@ private:
 	VertexBuffer groundPlane;
 
 	// Things to render
+	Texture groundTexture;
 	Texture pigeonTexture;
 	Texture bunnyTexture;
+	Texture whiteTexture;
+
 	Model pigeonModel;
 	Model bunnyModel;
 	Model sceneModel;

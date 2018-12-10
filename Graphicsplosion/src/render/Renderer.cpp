@@ -85,19 +85,21 @@ void Renderer::Shutdown() {
 	return;
 }
 
-void Renderer::BeginRender(bool doClear, int passIndex) {
+void Renderer::BeginRender(bool doClear, RenderPass renderPass) {
 	// Attach renderbuffer stuff....!?!!?11
 	glBindFramebuffer(GL_FRAMEBUFFER, frameBufferId);
 
-	if (passIndex == 0) {
+	if (renderPass == RenderPass::Main) {
 		// Attach the depth buffer to the framebuffer
 		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, renderBufferId);
 
 		// Attach the texture to the framebuffer
 		glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, renderTextures[0].GetTextureName(), 0);
-	} else {
+	} else if (renderPass == RenderPass::Shadow) {
 		// Attach the shadow depth texture to the framebuffer
 		glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, renderTextures[1].GetTextureName(), 0);
+
+		// Attach a blank colour attachment to the framebuffer
 		glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, 0, 0);
 	}
 
@@ -114,7 +116,7 @@ void Renderer::BeginRender(bool doClear, int passIndex) {
 
 #include "main/Time.h"
 
-void Renderer::EndRender(Window& renderWindow, int passIndex) {
+void Renderer::EndRender(Window& renderWindow, RenderPass renderPass) {
 	// Resize the renderer to the window if the size has changed
 	// This needs updating for the post-processor!
 	/*if (viewportSize != renderWindow.GetSize()) {
@@ -124,17 +126,20 @@ void Renderer::EndRender(Window& renderWindow, int passIndex) {
 	}*/
 
 	// Perform post-processing
-	if (passIndex == 0) {
+	if (renderPass == RenderPass::Main) {
+		// Bind the post-process frame buffer
 		glDisable(GL_DEPTH_TEST);
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
+		// Use the postprocessor texture
 		UseShaderProgram(postProcessShader);
 		UseVertexBuffer(&postProcessBuffer);
 		UseTexture(&renderTextures[0], &postProcessShader, "colorSampler");
 		UseTexture(&renderTextures[1], &postProcessShader, "shadowSampler");
 
-		postProcessShader.SetUniform("time", (float)Time::GetTime());
+		//postProcessShader.SetUniform("time", (float)Time::GetTime());
 
+		// Draw it!
 		DrawTriangles(0, 6);
 
 		// Swap to the screen
