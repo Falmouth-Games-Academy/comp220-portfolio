@@ -126,6 +126,7 @@ void Graphicsplosion::RenderColourPass() {
 	// First: draw the background plane
 	defaultShaderProgram.SetUniform("matViewProj", glm::identity<glm::mat4>());
 	defaultShaderProgram.SetUniform("matWorld", glm::identity<glm::mat4>());
+	defaultShaderProgram.SetUniform("isShadowEnabled", 0);
 
 	render.UseVertexBuffer(&backPlane);
 	render.UseIndexBuffer(nullptr);
@@ -164,6 +165,7 @@ void Graphicsplosion::RenderColourPass() {
 	defaultShaderProgram.SetUniform("directionalLightColour", directionalLightColour);
 	defaultShaderProgram.SetUniform("directionalLightDirection", sunLight.GetDirection());
 	defaultShaderProgram.SetUniform("cameraPosition", cameraPosition);
+	defaultShaderProgram.SetUniform("isShadowEnabled", 1);
 
 	// Render every object
 	for (Actor* actor : actors) {

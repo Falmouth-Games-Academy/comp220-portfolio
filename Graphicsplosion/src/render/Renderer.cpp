@@ -1,6 +1,8 @@
 #include "stdafx.h"
 #include "Renderer.h"
 #include "sdl/Window.h"
+#include "IndexBuffer.h"
+#include "main/Time.h"
 #include <fstream>
 #include <iostream>
 
@@ -8,22 +10,6 @@
 
 #include "SDL.h"
 #include "glew.h"
-#include "sdl_image.h"
-
-#include "VertexFormat.h"
-
-const int numRenderTargets = 2;
-Texture renderTextures[numRenderTargets];
-GLuint frameBufferId;
-GLuint renderBufferId;
-GLuint shadowRenderBufferId;
-
-ShaderProgram postProcessShader;
-VertexBuffer postProcessBuffer;
-
-struct PostProcessVertex {
-	glm::vec2 position;
-};
 
 void Renderer::Init(Window& renderWindow) {
 	// Initialise OpenGL attributes (may move later)
@@ -46,6 +32,7 @@ void Renderer::Init(Window& renderWindow) {
 
 	// Init variables
 	viewportSize = renderWindow.GetSize();
+	frontBufferResolution = viewportSize;
 
 	// Init render textures
 	renderTextures[0].Create(*this, viewportSize.x, viewportSize.y);
@@ -114,16 +101,24 @@ void Renderer::BeginRender(bool doClear, RenderPass renderPass) {
 	}
 }
 
-#include "main/Time.h"
-
 void Renderer::EndRender(Window& renderWindow, RenderPass renderPass) {
 	// Resize the renderer to the window if the size has changed
-	// This needs updating for the post-processor!
-	/*if (viewportSize != renderWindow.GetSize()) {
+	if (viewportSize != renderWindow.GetSize()) {
 		viewportSize = renderWindow.GetSize();
 
+		// Recreate the postprocessor texture
+		renderTextures[0].Destroy();
+		renderTextures[0].Create(*this, viewportSize.x, viewportSize.y);
+
+		glBindRenderbuffer(GL_RENDERBUFFER, renderBufferId);
+		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT16, viewportSize.x, viewportSize.y);
+
+		glGenFramebuffers(1, &frameBufferId);
+		glBindFramebuffer(GL_FRAMEBUFFER, frameBufferId);
+
+		// Resize the viewport
 		glViewport(0, 0, viewportSize.x, viewportSize.y);
-	}*/
+	}
 
 	// Perform post-processing
 	if (renderPass == RenderPass::Main) {
@@ -208,8 +203,8 @@ void Renderer::UseTexture(const Texture* texture, const ShaderProgram* shaderPro
 			glBindSampler(textureUnit, uniTexture);
 			glUniform1i(uniTexture, textureUnit);
 		}
-
 	} else {
+		// Otherwise bind a blank texture
 		glBindTexture(GL_TEXTURE_2D, 0);
 	}
 }
@@ -281,129 +276,6 @@ GLResource Renderer::LoadShaderFromSourceFile(const char* filename, GLenum glSha
 	return (GLResource)result;
 }
 
-ShaderProgram::ShaderProgram() : isLoaded(false) {
-}
-
-ShaderProgram::ShaderProgram(const Renderer& renderer, GLResource vertexShader, GLResource fragmentShader) {
-	
-}
-
-void ShaderProgram::Create(const Renderer& renderer, GLResource vertexShader, GLResource fragmentShader) {
-	// Initialise the GL program
-	glProgram = glCreateProgram();
-
-	// Try and load the provided shaders
-	isLoaded = true;
-
-	glAttachShader(glProgram, vertexShader);
-	glAttachShader(glProgram, fragmentShader);
-
-	// Link the shaders
-	Link();
-
-	// Refresh uniforms
-	RefreshUniformMap();
-}
-
-void ShaderProgram::Destroy() {
-	// Delete the program if it hasn't already been deleted
-	if (glProgram) {
-		glDeleteProgram(glProgram);
-
-		glProgram = 0;
-	}
-}
-
-bool ShaderProgram::AttachShader(GLResource shader) {
-	glAttachShader(glProgram, shader);
-	return true;
-}
-
-bool ShaderProgram::Link() {
-	// Link the program!
-	glLinkProgram(glProgram);
-
-	// Check for errors and return
-	GLint programSuccess = GL_TRUE;
-	glGetProgramiv(glProgram, GL_LINK_STATUS, &programSuccess);
-
-	isLoaded = (programSuccess == GL_TRUE);
-	return isLoaded;
-}
-
-void ShaderProgram::SetUniform(const char* uniformName, const glm::mat4& value) const {
-	// Make sure the value exists first
-	auto mapValue = uniforms.find(uniformName);
-
-	if (mapValue != uniforms.end()) {
-		glUniformMatrix4fv(mapValue->second, 1, GL_FALSE, glm::value_ptr(value));
-	} else {
-		printf("Warning: uniform '%s' does not exist\n", uniformName);
-	}
-}
-
-void ShaderProgram::SetUniform(const char* uniformName, float value) const {
-	// Make sure the value exists first
-	auto mapValue = uniforms.find(uniformName);
-
-	if (mapValue != uniforms.end()) {
-		glUniform1f(mapValue->second, value);
-	} else {
-		printf("Warning: uniform '%s' does not exist\n", uniformName);
-	}
-}
-
-void ShaderProgram::SetUniform(const char* uniformName, int value) const {
-	// Make sure the value exists first
-	auto mapValue = uniforms.find(uniformName);
-
-	if (mapValue != uniforms.end()) {
-		glUniform1i(mapValue->second, value);
-	} else {
-		printf("Warning: uniform '%s' does not exist\n", uniformName);
-	}
-}
-
-void ShaderProgram::SetUniform(const char* uniformName, const glm::vec3& value) const {
-	// Make sure the value exists first
-	auto mapValue = uniforms.find(uniformName);
-
-	if (mapValue != uniforms.end()) {
-		glUniform3fv(mapValue->second, 1, glm::value_ptr(value));
-	} else {
-		printf("Warning: uniform '%s' does not exist\n", uniformName);
-	}
-}
-
-void ShaderProgram::RefreshUniformMap() {
-	// Clear the uniform map
-	uniforms.clear();
-
-	// Iterate every uniform and add it to the map
-	GLint numUniforms = 0;
-	glGetProgramiv(glProgram, GL_ACTIVE_UNIFORMS, &numUniforms);
-
-	printf("Loading %i uniforms:", numUniforms);
-
-	for (int i = 0; i < numUniforms; i++) {
-		const int maxUniformNameLength = 64;
-		GLchar uniformName[maxUniformNameLength + 1] = "";
-		GLint size = maxUniformNameLength; // allow null terminator
-		GLint uniformSize;
-		GLenum uniformType;
-		GLuint uniformLocation = 0;
-
-		glGetActiveUniform(glProgram, (GLuint)i, size, nullptr, &uniformSize, &uniformType, uniformName);
-		uniformLocation = glGetUniformLocation(glProgram, uniformName);
-
-		printf("%s, ", uniformName);
-
-		uniforms.insert(std::make_pair(std::string(uniformName), uniformLocation));
-	}
-
-	printf("\n");
-}
-
 void GenericBuffer::Create(Renderer& renderer, const void* initialData, int initialDataSize) {
 	// Initialise with a new buffer
 	bufferName = renderer.CreateBuffer();
@@ -473,106 +345,4 @@ void IndexBuffer::SetData(const void* arrayData, int size) {
 	// Index buffers: Upload the data to the GL element buffer
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, bufferName);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, size, arrayData, GL_STATIC_DRAW);
-}
-
-bool Texture::Create(Renderer& renderer, const char* textureFilename) {
-	// Try to load the texture file with SDL2_image
-	SDL_Surface* image;
-	if (!(image = IMG_Load(textureFilename))) {
-		return false;
-	}
-
-	// Generate the textures in OpenGL
-	glGenTextures(1, &textureName);
-
-	if (!textureName) {
-		SDL_FreeSurface(image);
-		return false;
-	}
-
-	// Copy the image data into OpenGL
-	SDL_LockSurface(image);
-
-	glBindTexture(GL_TEXTURE_2D, textureName);
-
-	// Copy the surface data based on its format
-	if (image->format->BytesPerPixel == 3) {
-		if (image->format->Rmask == 0xFF) {
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8, image->w, image->h, 0, GL_RGB, GL_UNSIGNED_BYTE, image->pixels);
-		} else if (image->format->Rmask == 0xFF0000) {
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8, image->w, image->h, 0, GL_BGR, GL_UNSIGNED_BYTE, image->pixels);
-		} else {
-			return false;
-		}
-	}
-	else if (image->format->BytesPerPixel == 4) {
-		// Texture has alpha channel
-		if (image->format->Rmask == 0xFF) {
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, image->w, image->h, 0, GL_RGBA, GL_UNSIGNED_BYTE, image->pixels);
-		}
-		else if (image->format->Rmask == 0xFF0000) {
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, image->w, image->h, 0, GL_BGRA, GL_UNSIGNED_BYTE, image->pixels);
-		}
-		else {
-			return false;
-		}
-	}
-
-	// Setup parameters and mipmaps
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glGenerateMipmap(GL_TEXTURE_2D);
-
-	// Cleanup
-	SDL_UnlockSurface(image);
-
-	return true;
-}
-
-bool Texture::Create(Renderer& renderer, int width, int height) {
-	// Generate the texture
-	glGenTextures(1, &textureName);
-
-	if (!textureName) {
-		printf("Error creating an empty texture of size %i by %i", width, height);
-		return false;
-	}
-
-	// Setup the texture data and parameters
-	glBindTexture(GL_TEXTURE_2D, textureName);
-
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
-
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
-
-	// Done
-	return true;
-}
-
-bool Texture::CreateAsDepth(Renderer& renderer, int width, int height) {
-	// Generate the texture
-	glGenTextures(1, &textureName);
-
-	if (!textureName) {
-		printf("Error creating an empty texture of size %i by %i", width, height);
-		return false;
-	}
-
-	// Setup the texture data and parameters
-	glBindTexture(GL_TEXTURE_2D, textureName);
-
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT16, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
-
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
-
-	// Done
-	return true;
-}
-
-void Texture::Destroy() {
-	// Cleanup the texture
-	if (textureName) {
-		glDeleteTextures(1, &textureName);
-	}
 }

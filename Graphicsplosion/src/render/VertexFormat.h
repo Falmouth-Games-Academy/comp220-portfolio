@@ -31,6 +31,12 @@ struct Vertex {
 	float boneWeights[4];
 };
 
+// Post-processing vertex type (2D normalized)
+struct PostProcessVertex {
+	glm::vec2 position;
+};
+
+// Custom vertex format used when creating vertex buffers
 class VertexFormat {
 public:
 	struct VertexAttribute {
@@ -45,7 +51,7 @@ public:
 
 	VertexFormat() : vertexSize(0) {};
 
-	// Creation constructor:
+public:
 	// Creates the vertex format from a list of struct member variables. Each var is treated assigned the consecutive location index.
 	// An example usage of the function with a vertex struct called 'Vertex' could be: CreateFromStructVars(&Vertex::position, &Vertex::boneWeights[0], ...)
 	// This is useful for quickly creating vertex formats with no implicit conversions or ambiguity between vectors and sets of floats
@@ -54,11 +60,12 @@ public:
 		CreateFromStructVars(attribute, arguments...);
 	}
 
-	// Same as the creation constructor
+	// Deferred creation constructor: same behaviour as VertexFormat(VarType ...)
 	template<typename VertexType, typename VarType, typename ...types>
 	void CreateFromStructVars(VarType VertexType::* attribute, types... arguments);
 
 public:
+	// Getters
 	int GetVertexSize() const { return vertexSize; }
 	const std::vector<VertexAttribute>& GetAttributeList() const { return attributeList; };
 
@@ -66,7 +73,6 @@ private:
 	// Iterates through the struct variables
 	template<typename VertexType, typename VarType, typename ...types>
 	void IterateStructVars(VertexAttribute* lastAttribute, VarType VertexType::* attribute, types... arguments);
-	//template<typename VertexType, typename VarType>
 	void IterateStructVars(VertexAttribute* lastAttribute);
 
 	template<typename VertexType, size_t arraySize> void SetAttribInfo(VertexAttribute* attributeDef, unsigned char (VertexType::* attributePtr)[arraySize]) {

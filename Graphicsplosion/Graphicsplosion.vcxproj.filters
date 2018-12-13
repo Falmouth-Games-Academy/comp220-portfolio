@@ -55,6 +55,8 @@
       <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="src\actors\Actor.cpp" />
+    <ClCompile Include="src\render\Texture.cpp" />
+    <ClCompile Include="src\render\ShaderProgram.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\sdl\Window.h">
@@ -98,6 +100,12 @@
     </ClInclude>
     <ClInclude Include="src\render\VertexFormat.h" />
     <ClInclude Include="src\render\Light.h" />
+    <ClInclude Include="src\render\ShaderProgram.h" />
+    <ClInclude Include="src\render\RenderResource.h" />
+    <ClInclude Include="src\render\GenericBuffer.h" />
+    <ClInclude Include="src\render\VertexBuffer.h" />
+    <ClInclude Include="src\render\IndexBuffer.h" />
+    <ClInclude Include="src\render\Texture.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
