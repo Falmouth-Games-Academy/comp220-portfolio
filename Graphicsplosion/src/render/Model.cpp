@@ -9,10 +9,11 @@
 
 #include <iostream>
 
-bool Model::Create(const char* filename) {
+bool Model::Create(const char* filename, bool doPrecalculateInstances) {
+	doPrecalculateInstances = false;
 	// Load the scene from the file
 	Assimp::Importer importer;
-	const aiScene* scene = importer.ReadFile(filename, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_GenSmoothNormals | aiProcess_GenUVCoords | aiProcess_CalcTangentSpace);
+	const aiScene* scene = importer.ReadFile(filename, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_GenSmoothNormals | aiProcess_GenUVCoords | aiProcess_CalcTangentSpace | (doPrecalculateInstances ? aiProcess_PreTransformVertices : 0));
 
 	if (!scene) {
 		printf("Model Loading Error - %s\n", importer.GetErrorString());
@@ -117,6 +118,15 @@ bool Model::Create(const char* filename) {
 				}
 			}
 		}
+	}
+
+	// Load textures
+	for (int m = 0; m < scene->mNumMaterials; m++) {
+		// Get the path of the texture
+		aiMaterial* material = scene->mMaterials[m];
+		aiString path;
+
+		material->GetTexture(aiTextureType_DIFFUSE, 0, &path);
 	}
 
 	// Load animations

@@ -37,7 +37,7 @@ void Graphicsplosion::Init() {
 	// Load the models
 	pigeonModel.Create("Assets/Models/Pigeon.fbx");
 	bunnyModel.Create("Assets/Models/Bunny.fbx");
-	sceneModel.Create("Assets/Models/MainScene.fbx");
+	sceneModel.Create("Assets/Models/MainScene.fbx", true);
 
 	// Load the textures
 	pigeonTexture.Create(render, "Assets/Textures/PigeonDiffuse.png");
@@ -174,7 +174,7 @@ void Graphicsplosion::RenderColourPass() {
 
 	// Draw the scene
 	defaultShaderProgram.SetUniform("matWorld", glm::identity<glm::mat4>());
-	//sceneModel.Render(render);
+	sceneModel.Render(render, defaultShaderProgram);
 
 	// Draw the ground
 	render.UseTexture(&groundTexture, &defaultShaderProgram);

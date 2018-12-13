@@ -9,6 +9,22 @@ https://docs.google.com/document/d/1lxwIw97dXd98MP8qnqwXaFcf5OI3C4ArnbVfRzrBhM0/
 * Some errors were generated with the bunny model. This seems to be an error with assimp not loading in hiearchal information for the head. Rather than investigate the issue, the pigeon will be used instead.  
 * Frame rate has dropped significantly since animations were added. This turns out to be because of the keyframe search occurring for each bone, each frame. This will be mitigated by using a map or similar data structure for the next iteration. Interestingly, this only seems to affect the Debug build.  
 
+## Updated plan
++ Fix the fullscreen
++ Load in the scene
+- Load textures into the scene
+
+- Ideal Target: You run around as the Bunny in a grassy sunny land and collect the things. Requirements:
+ + Instanced mesh loading
+ + Load the Scene
+ - Load the scene textures
+ - Create a Grass shader
+ - Place the Grass
+ - Add Sphere collision:
+  - Add Collision Mesh object
+  - Add Sphere vs Polygon collision
+    - Collider::Versus<Type>
+
 # Resources
 **Bone animation**  
 https://www.khronos.org/opengl/wiki/Skeletal_Animation  - Guide to the shader code behind bone animation. It recommends sending a quaternion and offset to the shader, which could be an optimisation in a future revision.  

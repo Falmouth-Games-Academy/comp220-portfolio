@@ -75,7 +75,7 @@ public:
 
 public:
 	// Loads the mesh from a file
-	bool Create(const char* filename);
+	bool Create(const char* filename, bool doPrecalculateInstances = false);
 
 	// Destroys the model and frees data
 	void Destroy();
@@ -132,6 +132,9 @@ private:
 
 	// Array of the animations in this model
 	std::vector<Anim> animations;
+
+	// Textures
+	std::vector<class Texture*> textures;
 
 	// Cached buffers
 	mutable class VertexBuffer vertexBuffer;
