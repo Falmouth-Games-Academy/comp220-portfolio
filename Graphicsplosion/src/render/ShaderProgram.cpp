@@ -55,50 +55,53 @@ bool ShaderProgram::Link() {
 }
 
 void ShaderProgram::SetUniform(const char* uniformName, const glm::mat4& value) const {
-	// Make sure the value exists first
-	auto mapValue = uniforms.find(uniformName);
+	int location = GetUniformLocation(uniformName);
 
-	if (mapValue != uniforms.end()) {
-		glUniformMatrix4fv(mapValue->second, 1, GL_FALSE, glm::value_ptr(value));
-	}
-	else {
-		printf("Warning: uniform '%s' does not exist\n", uniformName);
+	if (location != -1) {
+		glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(value));
 	}
 }
 
 void ShaderProgram::SetUniform(const char* uniformName, float value) const {
-	// Make sure the value exists first
-	auto mapValue = uniforms.find(uniformName);
+	int location = GetUniformLocation(uniformName);
 
-	if (mapValue != uniforms.end()) {
-		glUniform1f(mapValue->second, value);
-	}
-	else {
-		printf("Warning: uniform '%s' does not exist\n", uniformName);
+	if (location != -1) {
+		glUniform1f(location, value);
 	}
 }
 
 void ShaderProgram::SetUniform(const char* uniformName, int value) const {
-	// Make sure the value exists first
-	auto mapValue = uniforms.find(uniformName);
+	int location = GetUniformLocation(uniformName);
 
-	if (mapValue != uniforms.end()) {
-		glUniform1i(mapValue->second, value);
-	}
-	else {
-		printf("Warning: uniform '%s' does not exist\n", uniformName);
+	if (location != -1) {
+		glUniform1i(location, value);
 	}
 }
 
 void ShaderProgram::SetUniform(const char* uniformName, const glm::vec3& value) const {
-	// Make sure the value exists first
+	int location = GetUniformLocation(uniformName);
+
+	if (location != -1) {
+		glUniform3fv(location, 1, glm::value_ptr(value));
+	}
+}
+
+void ShaderProgram::SetUniforms(const char* uniformName, const glm::mat4* values, int numValues) const {
+	int location = GetUniformLocation(uniformName);
+
+	if (location != -1) {
+		glUniformMatrix4fv(location, numValues, GL_FALSE, (GLfloat*)values);
+	}
+}
+
+int ShaderProgram::GetUniformLocation(const char* uniformName) const {
 	auto mapValue = uniforms.find(uniformName);
 
 	if (mapValue != uniforms.end()) {
-		glUniform3fv(mapValue->second, 1, glm::value_ptr(value));
-	}
-	else {
+		return mapValue->second;
+	} else {
 		printf("Warning: uniform '%s' does not exist\n", uniformName);
+		return -1;
 	}
 }
 

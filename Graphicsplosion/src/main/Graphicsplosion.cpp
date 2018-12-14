@@ -45,6 +45,20 @@ void Graphicsplosion::Init() {
 	groundTexture.Create(render, "Assets/Textures/Ground.png");
 	whiteTexture.Create(render, "Assets/Textures/White.png");
 
+	// Load the scene textures (todo: possibly move this later)
+	for (const std::string& textureName : sceneModel.GetTextureNames()) {
+		Texture* texture = new Texture(render, textureName.c_str());
+
+		if (texture->IsLoaded()) {
+			// Success!
+			sceneModelTextures.push_back(texture);
+		} else {
+			// Texture failed to load; this texture index can refer to a null texture instead
+			delete texture;
+			sceneModelTextures.push_back(nullptr);
+		}
+	}
+
 	// Create the background plane
 	static Vertex backPlaneVertices[] = {
 		-1.0f, -1.0f, 0.9999f, 0.20f, 0.20f, 0.75f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, 255, 0, 0, 0, 0.0f, 0.0f, 0.0f, 0.0f,
@@ -93,11 +107,22 @@ void Graphicsplosion::Shutdown() {
 	// Clean up the test vertex buffer
 	triangle.Destroy();
 
-	// Cleanup the loaded assets
-	pigeonTexture.Destroy();
-	bunnyTexture.Destroy();
+	// Cleanup the models
 	pigeonModel.Destroy();
 	bunnyModel.Destroy();
+	sceneModel.Destroy();
+
+	// Cleanup the textures
+	pigeonTexture.Destroy();
+	bunnyTexture.Destroy();
+	whiteTexture.Destroy();
+	
+	for (Texture* tex : sceneModelTextures) {
+		if (tex) {
+			tex->Destroy();
+			delete tex;
+		}
+	}
 
 	// Clean up the renderer and other resources
 	render.Shutdown();
@@ -173,8 +198,13 @@ void Graphicsplosion::RenderColourPass() {
 	}
 
 	// Draw the scene
+	Texture* test[35];
+	for (int i = 0; i < 35; i++) {
+		test[i] = sceneModelTextures[i];
+	}
+
 	defaultShaderProgram.SetUniform("matWorld", glm::identity<glm::mat4>());
-	sceneModel.Render(render, defaultShaderProgram);
+	sceneModel.Render(render, defaultShaderProgram, test);
 
 	// Draw the ground
 	render.UseTexture(&groundTexture, &defaultShaderProgram);

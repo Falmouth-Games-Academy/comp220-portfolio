@@ -6,6 +6,9 @@
 #include "sdl_image.h"
 
 bool Texture::Create(Renderer& renderer, const char* textureFilename) {
+	// Reset textureName
+	textureName = 0;
+	
 	// Try to load the texture file with SDL2_image
 	SDL_Surface* image;
 	if (!(image = IMG_Load(textureFilename))) {

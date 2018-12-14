@@ -37,6 +37,10 @@ public:
 	// Returns the internal OpenGL texture name
 	GLuint GetTextureName() const { return textureName; }
 
+public:
+	// Returns whether the texture has been successfully loaded
+	bool IsLoaded() const { return textureName != 0; }
+
 private:
 	GLuint textureName;
 };

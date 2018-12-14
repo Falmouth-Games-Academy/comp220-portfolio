@@ -9,8 +9,12 @@
 
 #include <iostream>
 
+#include "glm/gtx/transform.hpp"
+#include "glm/gtx/euler_angles.hpp"
+
 bool Model::Create(const char* filename, bool doPrecalculateInstances) {
-	doPrecalculateInstances = false;
+	//doPrecalculateInstances = false;
+
 	// Load the scene from the file
 	Assimp::Importer importer;
 	const aiScene* scene = importer.ReadFile(filename, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_GenSmoothNormals | aiProcess_GenUVCoords | aiProcess_CalcTangentSpace | (doPrecalculateInstances ? aiProcess_PreTransformVertices : 0));
@@ -27,7 +31,14 @@ bool Model::Create(const char* filename, bool doPrecalculateInstances) {
 	for (int i = 0; i < scene->mNumMeshes; i++) {
 		aiMesh *currentMesh = scene->mMeshes[i];
 
-		// Load vertices
+		// Create this mesh section
+		MeshSection section;
+		section.startIndex = indices.size();
+		section.numIndices = currentMesh->mNumFaces * 3;
+		section.textureIndex = currentMesh->mMaterialIndex;
+		meshSections.push_back(section);
+
+		// Load the vertices
 		int vertexBase = vertices.size();
 		vertices.resize(vertexBase + currentMesh->mNumVertices);
 
@@ -47,6 +58,7 @@ bool Model::Create(const char* filename, bool doPrecalculateInstances) {
 				currentTextureCoordinates = currentMesh->mTextureCoords[0][v];
 			}
 
+			// Load normals
 			if (currentMesh->HasNormals()) {
 				currentVertexNormal = currentMesh->mNormals[v];
 			}
@@ -65,12 +77,15 @@ bool Model::Create(const char* filename, bool doPrecalculateInstances) {
 		}
 
 		// Load faces/vertex indices
+		int indexBase = indices.size();
+		indices.resize(indexBase + currentMesh->mNumFaces * 3);
+
 		for (int f = 0; f < currentMesh->mNumFaces; f++) {
 			aiFace currentModelFace = currentMesh->mFaces[f];
 
-			indices.push_back(currentModelFace.mIndices[0] + vertexBase);
-			indices.push_back(currentModelFace.mIndices[1] + vertexBase);
-			indices.push_back(currentModelFace.mIndices[2] + vertexBase);
+			indices[indexBase + f * 3] = currentModelFace.mIndices[0] + vertexBase;
+			indices[indexBase + f * 3 + 1] = currentModelFace.mIndices[1] + vertexBase;
+			indices[indexBase + f * 3 + 2] = currentModelFace.mIndices[2] + vertexBase;
 		}
 
 		// Load bones
@@ -127,6 +142,23 @@ bool Model::Create(const char* filename, bool doPrecalculateInstances) {
 		aiString path;
 
 		material->GetTexture(aiTextureType_DIFFUSE, 0, &path);
+
+		// If the path name is relative, insert the model path into it
+		std::string pathString = path.C_Str();
+
+		if (true /*pathString[0] == '/' || pathString[0] == '\\'*/) {
+			std::string modelFolder = std::string(filename);
+			int lastSlashInModelName = modelFolder.find_last_of("/\\");
+
+			if (lastSlashInModelName != std::string::npos) {
+				modelFolder.resize(lastSlashInModelName);
+			}
+
+			pathString.insert(0, modelFolder + "\\");
+		}
+
+		// Add it to the texture name list
+		textureNames.push_back(pathString);
 	}
 
 	// Load animations
@@ -258,41 +290,18 @@ void Model::PoseBones(float time) {
 	}
 }
 
-#include "glm/gtx/transform.hpp"
-#include "glm/gtx/euler_angles.hpp"
-
-#include "main/Time.h"
-
-void Model::Render(Renderer& renderer, const ShaderProgram& shaderProgram) {
-	// Create the buffers if they don't already exist
-	if (!areBuffersCreated) {
-		static VertexFormat vertexFormat(&Vertex::position, &Vertex::colour, &Vertex::normal, &Vertex::uvs, &Vertex::boneIndices, &Vertex::boneWeights);
-
-		vertexBuffer.Create(renderer, vertexFormat, vertices, numVertices * sizeof (Vertex));
-		indexBuffer.Create(renderer, indices, numIndices * sizeof (unsigned int));
-
-		areBuffersCreated = true;
-	}
-
-	// Bind the buffers
-	renderer.UseVertexBuffer(&vertexBuffer);
-	renderer.UseIndexBuffer(&indexBuffer);
-
-	// Send the gargblarghs to the vertex shader
-	// Animate bones and shfishfizzle
-	float time = Time::GetTime() - ((int)Time::GetTime() / 3 * 3);
-
-	PoseBones(time);
-
-	// Calculate local bone matrices
+void Model::CalculateBoneMatrices(glm::mat4 finalBoneMatrices[32]) {
 	glm::mat4 rootBoneMatrices[32];
-	const Bone* bonePointers[32] = {0};
+	const Bone* bonePointers[32] = { 0 };
 
+	finalBoneMatrices[0] = glm::identity<glm::mat4>(); // Initialise the first bone matrix in case this model isn't animated
+
+	// Calculate the local space of each bone
 	for (Anim& anim : animations) {
 		for (AnimNode& node : anim.nodes) {
 			if (node.target) {
 				int matrixIndex = node.target->index;
-				
+
 				// Linearly interpolate the animated values
 				glm::quat rotation;
 				glm::vec3 translation;
@@ -300,13 +309,15 @@ void Model::Render(Renderer& renderer, const ShaderProgram& shaderProgram) {
 				// .. but only if they exist
 				if (node.rotationKeyframeIndex + 1 < node.rotation.size()) {
 					rotation = glm::lerp(node.rotation[(int)node.rotationKeyframeIndex].quat, node.rotation[(int)node.rotationKeyframeIndex + 1].quat, node.rotationKeyframeIndex - (int)node.rotationKeyframeIndex);
-				} else {
+				}
+				else {
 					rotation = glm::identity<glm::quat>();
 				}
 
 				if (node.translationKeyframeIndex + 1 < node.translation.size()) {
 					translation = glm::lerp(node.translation[(int)node.translationKeyframeIndex].vec, node.translation[(int)node.translationKeyframeIndex + 1].vec, node.translationKeyframeIndex - (int)node.translationKeyframeIndex);
-				} else {
+				}
+				else {
 					translation = glm::vec3(0.0f, 0.0f, 0.0f);
 				}
 
@@ -317,9 +328,6 @@ void Model::Render(Renderer& renderer, const ShaderProgram& shaderProgram) {
 			}
 		}
 	}
-
-	// Calculate global bone matrices
-	glm::mat4 finalBoneMatrices[32] = {};
 
 	for (int i = 0; i < 32; i++) {
 		if (bonePointers[i]) {
@@ -335,12 +343,42 @@ void Model::Render(Renderer& renderer, const ShaderProgram& shaderProgram) {
 			finalBoneMatrices[i] = finalBoneMatrices[i] * bonePointers[i]->bindPose;
 		}
 	}
+}
 
-	// Send it to the shader
-	int uniBoneTransforms = glGetUniformLocation(shaderProgram.GetGlProgram(), "boneTransforms");
-	glUniformMatrix4fv(uniBoneTransforms, 32, GL_FALSE, (GLfloat*)finalBoneMatrices);
+void Model::Render(Renderer& renderer, const ShaderProgram& shaderProgram, const Texture* const* textures) {
+	// Create the buffers if they don't already exist
+	if (!areBuffersCreated) {
+		static VertexFormat vertexFormat(&Vertex::position, &Vertex::colour, &Vertex::normal, &Vertex::uvs, &Vertex::boneIndices, &Vertex::boneWeights);
+
+		vertexBuffer.Create(renderer, vertexFormat, vertices, numVertices * sizeof (Vertex));
+		indexBuffer.Create(renderer, indices, numIndices * sizeof (unsigned int));
+
+		areBuffersCreated = true;
+	}
+
+	// Bind the buffers
+	renderer.UseVertexBuffer(&vertexBuffer);
+	renderer.UseIndexBuffer(&indexBuffer);
+
+	// Calculate local bone matrices
+	glm::mat4 finalBoneMatrices[32];
+
+	CalculateBoneMatrices(finalBoneMatrices);
+
+	// Send them to the shader
+	shaderProgram.SetUniforms("boneTransforms[0]", finalBoneMatrices, 32);
 
 	// Render the triangles
 	renderer.UseShaderProgram(shaderProgram);
-	renderer.DrawTrianglesIndexed(0, numIndices);
+
+	if (!textures) {
+		// Render the model as a whole
+		renderer.DrawTrianglesIndexed(0, numIndices);
+	} else {
+		// Model has multiple textures - render each model individually
+		for (MeshSection& section : meshSections) {
+			renderer.UseTexture(textures[section.textureIndex], &shaderProgram);
+			renderer.DrawTrianglesIndexed(section.startIndex, section.numIndices);
+		}
+	}
 }

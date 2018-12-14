@@ -98,6 +98,11 @@ public:
 		return numIndices;
 	}
 
+	// Returns a vector containing the file paths of every texture in this model
+	const std::vector<std::string> GetTextureNames() const {
+		return textureNames;
+	}
+
 public:
 	// Tools
 	// Finds a bone by its name
@@ -114,9 +119,13 @@ public:
 	// Poses the model's bones according to animationTime
 	void PoseBones(float animationTime);
 
+	// Calculates the transformation matrices for each bone
+	void CalculateBoneMatrices(glm::mat4 matrices[32]);
+
 public:
 	// Renders the model with the given renderer
-	void Render(Renderer& renderer, const ShaderProgram& shaderProgram);
+	// 'textures' is an optional parameter for models with multiple textures. Any of these can be nullptr meaning the texture is not available.
+	void Render(Renderer& renderer, const ShaderProgram& shaderProgram, const Texture* const* textures = nullptr);
 
 private:
 	// Array of the vertices in this mesh
@@ -133,8 +142,18 @@ private:
 	// Array of the animations in this model
 	std::vector<Anim> animations;
 
-	// Textures
-	std::vector<class Texture*> textures;
+	// File names of the textures in this model
+	std::vector<std::string> textureNames;
+
+	// Declares a section of the vertex buffer representing a new mesh with potentially new textures etc
+	struct MeshSection {
+		int startIndex;
+		int numIndices;
+
+		int textureIndex;
+	};
+
+	std::vector<MeshSection> meshSections;
 
 	// Cached buffers
 	mutable class VertexBuffer vertexBuffer;

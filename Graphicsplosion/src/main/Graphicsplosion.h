@@ -48,6 +48,9 @@ private:
 	Model bunnyModel;
 	Model sceneModel;
 
+	// The textures for the scene model (todo: possibly move)
+	std::vector<Texture*> sceneModelTextures;
+
 	// The light
 	Light sunLight;
 };

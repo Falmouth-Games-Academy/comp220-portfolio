@@ -39,6 +39,13 @@ public:
 	void SetUniform(const char* uniformName, int intValue) const;
 	void SetUniform(const char* uniformName, float floatValue) const;
 
+	// Sets a uniform array's values
+	void SetUniforms(const char* uniformName, const glm::mat4* matValues, int numValues) const;
+
+public:
+	// Returns the location of a uniform, or -1 if this is not found
+	int GetUniformLocation(const char* uniformName) const;
+
 	// Refreshes the uniform map
 	void RefreshUniformMap();
 

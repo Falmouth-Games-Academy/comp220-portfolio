@@ -149,7 +149,7 @@ void Renderer::DrawTriangles(int startVertexIndex, int numVerticesToDraw) {
 
 void Renderer::DrawTrianglesIndexed(int startIndex, int numIndicesToDraw) {
 	// Draw the triangles
-	glDrawElements(GL_TRIANGLES, numIndicesToDraw, GL_UNSIGNED_INT, nullptr);
+	glDrawElements(GL_TRIANGLES, numIndicesToDraw, GL_UNSIGNED_INT, &((int*)nullptr)[startIndex]);
 }
 
 GLuint Renderer::CreateBuffer() {
