@@ -37,6 +37,8 @@ void Graphicsplosion::Init() {
 	// Load the models
 	pigeonModel.Create("Assets/Models/Pigeon.fbx");
 	bunnyModel.Create("Assets/Models/Bunny.fbx");
+
+	printf("Loading map - this may take a while... (blame assimp)\n");
 	sceneModel.Create("Assets/Models/MainScene.fbx", true);
 
 	// Load the textures
@@ -86,10 +88,12 @@ void Graphicsplosion::Init() {
 
 	// Spawn the player
 	player.OnSpawn();
+	player.SetPosition(glm::vec3(21.0f, -1.0f, 55.0f));
 
 	// Spawn and initialise the pigeon and bunny actors
 	Actor* pigeon = SpawnActor<Actor>();
 
+	pigeon->SetPosition(glm::vec3(21.0f, 0.12f, 53.0f));
 	pigeon->SetTexture(&pigeonTexture);
 	pigeon->SetModel(&pigeonModel);
 	pigeon->SetShaderProgram(&defaultShaderProgram);
@@ -97,7 +101,7 @@ void Graphicsplosion::Init() {
 	Actor* bunny = SpawnActor<Actor>();
 
 	bunny->SetTexture(&bunnyTexture);
-	bunny->SetPosition(glm::vec3(10.0f, 0.0f, 0.0f));
+	pigeon->SetPosition(glm::vec3(31.0f, 0.12f, 53.0f));
 	bunny->SetScale(glm::vec3(0.15f, 0.15f, 0.15f));
 	bunny->SetShaderProgram(&defaultShaderProgram);
 	bunny->SetModel(&bunnyModel);
@@ -133,8 +137,6 @@ void Graphicsplosion::Update() {
 	// Update the player
 	player.Update(deltaTime);
 }
-
-glm::mat4 matShadowView;
 
 void Graphicsplosion::Render() {
 	RenderShadowPass();
@@ -211,10 +213,10 @@ void Graphicsplosion::RenderColourPass() {
 
 	// Draw the shadow map
 	glm::mat4 shadowMapDebug(
-		0.0f, 0.0f, 0.2f, 0.0f,
 		0.2f, 0.0f, 0.0f, 0.0f,
+		0.0f, 0.0f, 0.2f, 0.0f,
 		0.0f, 0.2f, 0.0f, 0.0f,
-		-10.0f, -6.0f, 2.5f, 1.0f
+		-10.0f, -6.0f, 55.0f, 1.0f
 	);
 
 	render.UseShaderProgram(debugShadowmapShader);
@@ -242,7 +244,18 @@ void Graphicsplosion::RenderShadowPass() {
 	const float shadowMapRange = 50.0f;
 	const float shadowDepthRange = 50.0f;
 	matShadowView = glm::ortho(-shadowMapRange, shadowMapRange, -shadowMapRange, shadowMapRange, -shadowDepthRange, shadowDepthRange) 
-				  * glm::lookAt(player.GetPosition(), player.GetPosition() + sunLight.GetDirection(), glm::vec3(0.0f, 0.0f, 1.0f));
+				  * glm::lookAt(player.GetPosition(), player.GetPosition() + /*player.GetForward()*/sunLight.GetDirection(), /*player.GetForward()*/glm::vec3(0.0f, 0.0f, 1.0f));
+
+	// Experiment: Use w division to reduce shadow precision towards the distance
+	/*glm::mat4 shadowPrecisionDivider = {
+		1.0f, 0.0f, 0.0f, 0.9f,
+		0.0f, 1.0f, 0.0f, 0.9f,
+		0.0f, 0.0f, 1.0f, 0.0f,
+		0.0f, 0.0f, 0.0f, 1.0f
+	};
+
+	matShadowView = shadowPrecisionDivider * matShadowView;*/
+
 	shadowShaderProgram.SetUniform("matViewProj", matShadowView);
 	
 	// Render every object with the shadow shader

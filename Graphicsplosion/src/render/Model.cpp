@@ -268,15 +268,17 @@ void Model::PoseBones(float time) {
 				node.scaleKeyframeIndex = 0.0f;
 
 				// Find keyframes that are closest to the current time
+				AnimNode::Keyframe* rotations = &node.rotation[0];
 				for (int i = 0; i < node.rotation.size() - 1; i++) {
-					if (node.rotation[i].time <= time && node.rotation[i + 1].time > time) {
-						node.rotationKeyframeIndex = i + (time - node.rotation[i].time) / (node.rotation[i + 1].time - node.rotation[i].time);
+					if (rotations[i].time <= time && rotations[i + 1].time > time) {
+						node.rotationKeyframeIndex = i + (time - rotations[i].time) / (rotations[i + 1].time - rotations[i].time);
 					}
 				}
 
+				AnimNode::Keyframe* translations = &node.translation[0];
 				for (int i = 0; i < node.translation.size() - 1; i++) {
-					if (node.translation[i].time <= time && node.translation[i + 1].time > time) {
-						node.translationKeyframeIndex = i + (time - node.translation[i].time) / (node.translation[i + 1].time - node.translation[i].time);
+					if (translations[i].time <= time && translations[i + 1].time > time) {
+						node.translationKeyframeIndex = i + (time - translations[i].time) / (translations[i + 1].time - translations[i].time);
 					}
 				}
 

@@ -77,7 +77,8 @@ void main()
 	viewDirection = normalize(cameraPosition - worldVertexPosition.xyz);
 
 	// Send shadow map position
-	fragShadowPosition = (matShadowView * worldVertexPosition).xyz;
+	vec4 fragShadowPosition4D = matShadowView * worldVertexPosition;
+	fragShadowPosition = fragShadowPosition4D.xyz / fragShadowPosition4D.w;
 
 	// Send the vertex position
 	gl_Position = matViewProj * worldVertexPosition;

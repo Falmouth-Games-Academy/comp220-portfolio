@@ -23,7 +23,10 @@ void Renderer::Init(Window& renderWindow) {
 	renderWindow.CreateGlContext();
 
 	// Do additional setup
-	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_DEPTH_TEST); // enable Z-buffer
+	//glEnable(GL_BLEND); // enable alpha blending
+	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
 	SDL_GL_SetSwapInterval(0); // disable vsync
 
 	// Setup GLEW
@@ -73,6 +76,14 @@ void Renderer::Shutdown() {
 }
 
 void Renderer::BeginRender(bool doClear, RenderPass renderPass) {
+	// Resize the viewport
+	if (renderPass == RenderPass::Main) {
+		glViewport(0, 0, viewportSize.x, viewportSize.y);
+	}
+	else {
+		glViewport(0, 0, 640, 480);
+	}
+
 	// Attach renderbuffer stuff....!?!!?11
 	glBindFramebuffer(GL_FRAMEBUFFER, frameBufferId);
 
@@ -115,9 +126,6 @@ void Renderer::EndRender(Window& renderWindow, RenderPass renderPass) {
 
 		glGenFramebuffers(1, &frameBufferId);
 		glBindFramebuffer(GL_FRAMEBUFFER, frameBufferId);
-
-		// Resize the viewport
-		glViewport(0, 0, viewportSize.x, viewportSize.y);
 	}
 
 	// Perform post-processing

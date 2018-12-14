@@ -44,6 +44,10 @@ public:
 	Vec2I GetSize() const;
 
 public:
+	// Setters
+	void SetTitle(const char* title);
+
+public:
 	// Whether the window is fullscreened
 	void SetFullscreen(bool isFullscreen);
 	bool IsFullscreen() const;

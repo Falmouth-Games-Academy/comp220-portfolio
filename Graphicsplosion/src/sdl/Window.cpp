@@ -43,6 +43,10 @@ Vec2I Window::GetSize() const {
 	return size;
 }
 
+void Window::SetTitle(const char* title) {
+	SDL_SetWindowTitle(sdlWindow, title);
+}
+
 void Window::SetFullscreen(bool isFullscreen) {
 	// Don't do anything if we were already in this state
 	if (this->isFullscreen == isFullscreen) {

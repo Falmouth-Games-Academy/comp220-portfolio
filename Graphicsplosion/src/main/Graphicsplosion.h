@@ -53,6 +53,9 @@ private:
 
 	// The light
 	Light sunLight;
+
+	// The shadow map matrix
+	glm::mat4 matShadowView;
 };
 
 extern Graphicsplosion game; // The entire game lies here

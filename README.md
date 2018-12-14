@@ -7,15 +7,19 @@ https://docs.google.com/document/d/1lxwIw97dXd98MP8qnqwXaFcf5OI3C4ArnbVfRzrBhM0/
 # Plan for next iteration
 * Due to scope, project will be scaled down and focus will be shifted toward rendering shadows.  
 * Some errors were generated with the bunny model. This seems to be an error with assimp not loading in hiearchal information for the head. Rather than investigate the issue, the pigeon will be used instead.  
-* Frame rate has dropped significantly since animations were added. This turns out to be because of the keyframe search occurring for each bone, each frame. This will be mitigated by using a map or similar data structure for the next iteration. Interestingly, this only seems to affect the Debug build.  
+* Implementation of the shadows  
+* Determine cause of the frame rate drop due to animations and mitigate this.
 
 ## Updated plan
 + Add shadows
-+ Fix the fullscreen
++ Fix fullscreen
 + Load in the scene
 + Load textures into the scene
-- Make shadow work beyond animated character area
-- Fix slow running time in Debug mode
++ Make shadow work beyond animated character area
+ + Move shadow with camera?
+ + Expand shadow area?
++ Fix slow running time in Debug mode
+
 
 ## Further develpoment
 - Ideal Target: You run around as the Bunny in a grassy sunny land and collect the things. Requirements:

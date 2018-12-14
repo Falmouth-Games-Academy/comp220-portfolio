@@ -9,6 +9,7 @@
 #include "glm/glm.hpp"
 #include "glm/gtx/transform.hpp"
 #include <iostream>
+#include <sstream>
 
 #include "helpers/types.h"
 
@@ -33,7 +34,11 @@ void Game::Run() {
 			currentFps = numFramesThisSecond;
 			numFramesThisSecond = 0;
 
-			printf("fps: %i\n", currentFps);
+			// Show FPS on the window title
+			std::ostringstream title;
+			title << "F: Fullscreen M: Release mouse FPS: " << currentFps;
+
+			window.SetTitle(title.str().c_str());
 		}
 
 		++numFramesThisSecond;
