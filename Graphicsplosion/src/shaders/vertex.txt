@@ -65,7 +65,7 @@ void main()
 
 	// Use directional light + ambient light
 	float lightFactor = clamp(1.0f - dot(animatedNormal.xyz, directionalLightDirection), 0.0f, 1.0f);
-	fragColour = vertexColour * ambientLightColour + (directionalLightColour * lightFactor);
+	fragColour = vertexColour * clamp(ambientLightColour + (directionalLightColour * lightFactor), 0.0f, 1.0f);
 
 	// Standard UVs
 	fragUv = vertexUv;

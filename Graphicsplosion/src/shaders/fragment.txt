@@ -1,6 +1,6 @@
 #version 330 core
 
-out vec3 color;
+out vec4 color;
 
 in vec3 fragColour;
 in vec2 fragUv;
@@ -18,22 +18,27 @@ uniform vec3 directionalLightDirection;
 void main()
 {
 	// Basic texturing with vertex colours
-	color = fragColour * texture(textureSampler, fragUv).xyz;
+	color = vec4(fragColour, 1.0f) * texture(textureSampler, fragUv).xyzw;
 
 	// Specular lighting
 	vec3 halfWay = normalize(directionalLightDirection + viewDirection);
 	float specularPower = 7.0f;
 	float nDoth = clamp(pow(dot(fragNormal, halfWay), specularPower), 0.0f, 1.0f);
 
-	color += vec3(0.8f, 0.8f, 0.8f) * nDoth;
+	color.xyz += vec3(0.8f, 0.8f, 0.8f) * nDoth;
 
 	if (isShadowEnabled == 1) {
 		// Add shadowing
-		float minBias = 0.05f, maxBias = 0.08f;
+		float minBias = 0.02f, maxBias = 0.04f;
 		float shadeBrightness = 0.5f;
 
 		if (lessThanEqual(fragShadowPosition.xy, vec2(1.0f)).xy == bvec2(true, true) && greaterThanEqual(fragShadowPosition.xy, vec2(0.0f)) == bvec2(true, true)) {
-			color *= mix(shadeBrightness, 1.0f, clamp((texture(shadowSampler, fragShadowPosition.xy).x - fragShadowPosition.z + minBias) / (maxBias - minBias), 0.0f, 1.0f));
+			color.xyz *= mix(shadeBrightness, 1.0f, clamp((texture(shadowSampler, fragShadowPosition.xy).x - fragShadowPosition.z + minBias) / (maxBias - minBias), 0.0f, 1.0f));
 		}
+	}
+
+	// Cull invisible pixels from the depth buffer
+	if (color.a <= 0.1f) {
+		discard;
 	}
 }

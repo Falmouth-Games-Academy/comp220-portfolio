@@ -13,6 +13,9 @@
 #include "glm/gtx/euler_angles.hpp"
 
 bool Model::Create(const char* filename, bool doPrecalculateInstances) {
+	/*if (doPrecalculateInstances) {
+		return false;
+	}*/
 	//doPrecalculateInstances = false;
 
 	// Load the scene from the file

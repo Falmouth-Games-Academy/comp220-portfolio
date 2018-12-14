@@ -10,14 +10,15 @@ https://docs.google.com/document/d/1lxwIw97dXd98MP8qnqwXaFcf5OI3C4ArnbVfRzrBhM0/
 * Frame rate has dropped significantly since animations were added. This turns out to be because of the keyframe search occurring for each bone, each frame. This will be mitigated by using a map or similar data structure for the next iteration. Interestingly, this only seems to affect the Debug build.  
 
 ## Updated plan
++ Add shadows
 + Fix the fullscreen
 + Load in the scene
-- Load textures into the scene
++ Load textures into the scene
+- Make shadow work beyond animated character area
+- Fix slow running time in Debug mode
 
+## Further develpoment
 - Ideal Target: You run around as the Bunny in a grassy sunny land and collect the things. Requirements:
- + Instanced mesh loading
- + Load the Scene
- - Load the scene textures
  - Create a Grass shader
  - Place the Grass
  - Add Sphere collision:
@@ -43,7 +44,6 @@ https://www.researchgate.net/publication/37444994_Human_Body_Deformations_Using_
 https://ieeexplore.ieee.org/document/5397589 - Compression techniques for future development. Explores the usage of existing video encoding tools for animation data  
 
 https://ieeexplore.ieee.org/document/6469773 - More advanced interpolation methods for a future iteration. Quadratic and cubic interpolation methods are interesting!  
-
 
 # Areas of interest
 * Real-time shadows

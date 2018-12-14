@@ -75,11 +75,11 @@ void Graphicsplosion::Init() {
 	const float groundPlaneSize = 20.0f;
 	static Vertex groundPlaneVertices[] = {
 		-groundPlaneSize, -groundPlaneSize, 0.0f, 0.09f, 0.7f, 0.75f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, 255, 0, 0, 0, 0.0f, 0.0f, 0.0f, 0.0f,
-		-groundPlaneSize,  groundPlaneSize, 0.0f, 0.09f, 0.7f, 0.75f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, 255, 0, 0, 0, 0.0f, 0.0f, 0.0f, 0.0f,
-		 groundPlaneSize,  groundPlaneSize, 0.0f, 0.09f, 0.7f, 0.75f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, 255, 0, 0, 0, 0.0f, 0.0f, 0.0f, 0.0f,
+		-groundPlaneSize,  groundPlaneSize, 0.0f, 0.09f, 0.7f, 0.75f, 0.0f, 0.0f, -1.0f, 0.0f, 1.0f, 255, 0, 0, 0, 0.0f, 0.0f, 0.0f, 0.0f,
+		 groundPlaneSize,  groundPlaneSize, 0.0f, 0.09f, 0.7f, 0.75f, 0.0f, 0.0f, -1.0f, 1.0f, 1.0f, 255, 0, 0, 0, 0.0f, 0.0f, 0.0f, 0.0f,
 		-groundPlaneSize, -groundPlaneSize, 0.0f, 0.09f, 0.7f, 0.75f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, 255, 0, 0, 0, 0.0f, 0.0f, 0.0f, 0.0f,
-		 groundPlaneSize,  groundPlaneSize, 0.0f, 0.09f, 0.7f, 0.75f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, 255, 0, 0, 0, 0.0f, 0.0f, 0.0f, 0.0f,
-		 groundPlaneSize, -groundPlaneSize, 0.0f, 0.09f, 0.7f, 0.75f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, 255, 0, 0, 0, 0.0f, 0.0f, 0.0f, 0.0f,
+		 groundPlaneSize,  groundPlaneSize, 0.0f, 0.09f, 0.7f, 0.75f, 0.0f, 0.0f, -1.0f, 1.0f, 1.0f, 255, 0, 0, 0, 0.0f, 0.0f, 0.0f, 0.0f,
+		 groundPlaneSize, -groundPlaneSize, 0.0f, 0.09f, 0.7f, 0.75f, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f, 255, 0, 0, 0, 0.0f, 0.0f, 0.0f, 0.0f,
 	};
 
 	groundPlane.Create(render, defaultVertexFormat, groundPlaneVertices, sizeof(groundPlaneVertices));
@@ -162,9 +162,11 @@ void Graphicsplosion::RenderColourPass() {
 	// Set up the camera!
 	const float playerHeight = 0.5f;
 	glm::vec3 playerEye = player.GetPosition() + player.GetUp() * playerHeight;
-	glm::mat4 matViewProj = glm::lookAtRH(playerEye, playerEye + player.GetForward(), player.GetUp());
-
-	matViewProj = glm::perspectiveFov(70.0f, (float)window.GetSize().x, (float)window.GetSize().y, 0.1f, 100.0f) * matViewProj;
+	glm::mat4 matView = glm::lookAtRH(playerEye, playerEye + player.GetForward(), player.GetUp());
+	glm::mat4 matProj = glm::infinitePerspectiveRH(70.0f, (float)window.GetSize().x / (float)window.GetSize().y, 0.5f);
+	glm::mat4 matOrtho = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f);
+	glm::mat4 matViewProj = matProj * matView;
+	glm::mat4 matMovement = glm::translate(glm::vec3(10.0f, 10.0f, 10.0f));
 
 	defaultShaderProgram.SetUniform("matViewProj", matViewProj);
 
@@ -179,10 +181,10 @@ void Graphicsplosion::RenderColourPass() {
 	defaultShaderProgram.SetUniform("matShadowView", shadowUvCorrection * matShadowView);
 
 	// Setup the lights!
-	const glm::vec3 directionalLightColour = glm::vec3(0.4f, 0.4f, 0.4f);
+	const glm::vec3 directionalLightColour = glm::vec3(1.0f, 1.0f, 1.0f);
 	const glm::vec3 cameraPosition = playerEye;
 
-	const glm::vec3 ambientLight(0.25f, 0.5f, 0.5f);
+	const glm::vec3 ambientLight(0.5f, 0.5f, 0.5f);
 
 	// Setup the lights!
 	defaultShaderProgram.SetUniform("textureSampler", 0);
@@ -198,13 +200,8 @@ void Graphicsplosion::RenderColourPass() {
 	}
 
 	// Draw the scene
-	Texture* test[35];
-	for (int i = 0; i < 35; i++) {
-		test[i] = sceneModelTextures[i];
-	}
-
 	defaultShaderProgram.SetUniform("matWorld", glm::identity<glm::mat4>());
-	sceneModel.Render(render, defaultShaderProgram, test);
+	sceneModel.Render(render, defaultShaderProgram, sceneModelTextures.size() > 0 ? &sceneModelTextures[0] : nullptr);
 
 	// Draw the ground
 	render.UseTexture(&groundTexture, &defaultShaderProgram);
@@ -214,9 +211,9 @@ void Graphicsplosion::RenderColourPass() {
 
 	// Draw the shadow map
 	glm::mat4 shadowMapDebug(
-		0.0f, 0.0f, 0.1f, 0.0f,
-		0.1f, 0.0f, 0.0f, 0.0f,
-		0.0f, 0.1f, 0.0f, 0.0f,
+		0.0f, 0.0f, 0.2f, 0.0f,
+		0.2f, 0.0f, 0.0f, 0.0f,
+		0.0f, 0.2f, 0.0f, 0.0f,
 		-10.0f, -6.0f, 2.5f, 1.0f
 	);
 
@@ -242,7 +239,10 @@ void Graphicsplosion::RenderShadowPass() {
 	render.UseShaderProgram(shadowShaderProgram);
 
 	// Setup the shadow render matrix
-	matShadowView = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, 0.0f, 50.0f) * glm::lookAt(sunLight.GetPosition(), sunLight.GetDirection(), glm::vec3(0.0f, 0.0f, 1.0f));
+	const float shadowMapRange = 50.0f;
+	const float shadowDepthRange = 50.0f;
+	matShadowView = glm::ortho(-shadowMapRange, shadowMapRange, -shadowMapRange, shadowMapRange, -shadowDepthRange, shadowDepthRange) 
+				  * glm::lookAt(player.GetPosition(), player.GetPosition() + sunLight.GetDirection(), glm::vec3(0.0f, 0.0f, 1.0f));
 	shadowShaderProgram.SetUniform("matViewProj", matShadowView);
 	
 	// Render every object with the shadow shader
@@ -251,8 +251,8 @@ void Graphicsplosion::RenderShadowPass() {
 	}
 
 	// Draw the scene
-	defaultShaderProgram.SetUniform("matWorld", glm::identity<glm::mat4>());
-	//sceneModel.Render(render);
+	shadowShaderProgram.SetUniform("matWorld", glm::identity<glm::mat4>());
+	sceneModel.Render(render, shadowShaderProgram);
 
 	// Draw the ground
 	render.UseVertexBuffer(&groundPlane);
