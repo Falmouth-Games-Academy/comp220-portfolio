@@ -116,6 +116,9 @@ public:
 	}
 
 public:
+	// Finds a keyframe index time index from a time and previous keyframe
+	float FindKeyframe(const std::vector<AnimNode::Keyframe>& keyframeList, float currentKeyframe, float time);
+
 	// Poses the model's bones according to animationTime
 	void PoseBones(float animationTime);
 

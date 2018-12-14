@@ -244,17 +244,17 @@ void Graphicsplosion::RenderShadowPass() {
 	const float shadowMapRange = 50.0f;
 	const float shadowDepthRange = 50.0f;
 	matShadowView = glm::ortho(-shadowMapRange, shadowMapRange, -shadowMapRange, shadowMapRange, -shadowDepthRange, shadowDepthRange) 
-				  * glm::lookAt(player.GetPosition(), player.GetPosition() + /*player.GetForward()*/sunLight.GetDirection(), /*player.GetForward()*/glm::vec3(0.0f, 0.0f, 1.0f));
+				  * glm::lookAt(player.GetPosition(), player.GetPosition() + /*player.GetForward()*/sunLight.GetDirection(), player.GetForward() - sunLight.GetDirection() * glm::dot(player.GetForward(), sunLight.GetDirection()));
 
 	// Experiment: Use w division to reduce shadow precision towards the distance
-	/*glm::mat4 shadowPrecisionDivider = {
-		1.0f, 0.0f, 0.0f, 0.9f,
-		0.0f, 1.0f, 0.0f, 0.9f,
+	glm::mat4 shadowPrecisionDivider = {
+		1.0f, 0.0f, 0.0f, 0.0f,
+		0.0f, 1.0f, 0.0f, 2.0f,
 		0.0f, 0.0f, 1.0f, 0.0f,
 		0.0f, 0.0f, 0.0f, 1.0f
 	};
 
-	matShadowView = shadowPrecisionDivider * matShadowView;*/
+	matShadowView = shadowPrecisionDivider * matShadowView;
 
 	shadowShaderProgram.SetUniform("matViewProj", matShadowView);
 	

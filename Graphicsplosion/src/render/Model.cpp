@@ -259,6 +259,32 @@ void Model::Destroy() {
 	indices = nullptr;
 }
 
+float Model::FindKeyframe(const std::vector<AnimNode::Keyframe>& keyframeList, float currentKeyframe, float time) {
+	// Find the keyframes surrounding 'time'
+	int startIndex = currentKeyframe, numIndices = keyframeList.size();
+	int direction = 1;
+	const AnimNode::Keyframe* keyframes = keyframeList.data(); // array conversion for faster debugging
+
+	for (int i = startIndex; i < numIndices - 1 && i >= 0; i += direction) {
+		if (keyframes[i].time <= time) {
+			direction = 1;
+
+			if (keyframes[i + 1].time > time) {
+				return i + (time - keyframes[i].time) / (keyframes[i + 1].time - keyframes[i].time);
+			}
+		} else if (keyframes[i].time >= time) {
+			direction = -1;
+		}
+	}
+
+	// No precise keyframe found. Clamp the frame at the max or min frame index
+	if (keyframeList.size() > 0 && keyframeList[keyframeList.size() - 1].time < time) {
+		return keyframeList.size() - 1;
+	} else {
+		return 0.0f;
+	}
+}
+
 void Model::PoseBones(float time) {
 	for (Anim& anim : animations) {
 		for (AnimNode& node : anim.nodes) {
@@ -268,28 +294,8 @@ void Model::PoseBones(float time) {
 				node.scaleKeyframeIndex = 0.0f;
 
 				// Find keyframes that are closest to the current time
-				AnimNode::Keyframe* rotations = &node.rotation[0];
-				for (int i = 0; i < node.rotation.size() - 1; i++) {
-					if (rotations[i].time <= time && rotations[i + 1].time > time) {
-						node.rotationKeyframeIndex = i + (time - rotations[i].time) / (rotations[i + 1].time - rotations[i].time);
-					}
-				}
-
-				AnimNode::Keyframe* translations = &node.translation[0];
-				for (int i = 0; i < node.translation.size() - 1; i++) {
-					if (translations[i].time <= time && translations[i + 1].time > time) {
-						node.translationKeyframeIndex = i + (time - translations[i].time) / (translations[i + 1].time - translations[i].time);
-					}
-				}
-
-				// Clamp bone rotations to the last frame if we're beyond that
-				if (node.rotation.size() > 0 && node.rotation[node.rotation.size() - 1].time < time) {
-					node.rotationKeyframeIndex = node.rotation.size() - 1;
-				}
-
-				if (node.translation.size() > 0 && node.translation[node.translation.size() - 1].time < time) {
-					node.translationKeyframeIndex = node.translation.size() - 1;
-				}
+				node.rotationKeyframeIndex = FindKeyframe(node.rotation, node.rotationKeyframeIndex, time);
+				node.translationKeyframeIndex = FindKeyframe(node.translation, node.translationKeyframeIndex, time);
 			}
 		}
 	}
