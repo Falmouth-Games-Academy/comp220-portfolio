@@ -10,25 +10,33 @@ in vec3 viewDirection;
 
 uniform sampler2D textureSampler;
 uniform sampler2D shadowSampler;
+uniform sampler2D normalSampler;
 
 uniform int isShadowEnabled;
+uniform int isNormalMapEnabled;
 
 uniform vec3 directionalLightDirection;
 
 void main()
 {
-	// Basic texturing with vertex colours
+	// Do basic diffuse texturing with vertex colours
 	color = vec4(fragColour, 1.0f) * texture(textureSampler, fragUv).xyzw;
 	
-	// Specular lighting
+	// Apply normal map if it's enabled
+	vec3 currentFragNormal = fragNormal;
+	if (isNormalMapEnabled == 1) {
+		currentFragNormal = texture(normalSampler, fragUv).xyz * 2.0f - 1.0f;
+	}
+	
+	// Add specular lighting
 	vec3 halfWay = normalize(directionalLightDirection - viewDirection);
 	float specularPower = 7.0f;
-	float nDoth = pow(clamp(-dot(fragNormal, halfWay), 0.0f, 1.0f), specularPower);
+	float nDoth = pow(clamp(-dot(currentFragNormal, halfWay), 0.0f, 1.0f), specularPower);
 
 	color.xyz += vec3(0.8f, 0.8f, 0.8f) * nDoth;
-
+	
+	// Add shadowing
 	if (isShadowEnabled == 1) {
-		// Add shadowing
 		float minBias = 0.02f, maxBias = 0.04f;
 		float shadeBrightness = 0.5f;
 

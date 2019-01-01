@@ -65,10 +65,12 @@ class Model {
 public:
 	Model() : vertices(nullptr), numVertices(0), indices(nullptr), numIndices(0) {}
 
+	// Creates the model from a model file
 	Model(const char* filename) {
 		Create(filename);
 	}
 
+	// Cleans up the model
 	~Model() {
 		Destroy();
 	}
@@ -81,7 +83,7 @@ public:
 	void Destroy();
 
 public:
-	// Self-explanatory getters and setters. Urgh C# has opened my eyes... C++, there MUST be a better way!?
+	// Geometry getters and setters
 	const Vertex* GetVertices() const {
 		return vertices;
 	}
@@ -98,6 +100,7 @@ public:
 		return numIndices;
 	}
 
+public:
 	// Returns a vector containing the file paths of every texture in this model
 	const std::vector<std::string> GetTextureNames() const {
 		return textureNames;
@@ -127,7 +130,7 @@ public:
 
 public:
 	// Renders the model with the given renderer
-	// 'textures' is an optional parameter for models with multiple textures. Any of these can be nullptr meaning the texture is not available.
+	// 'textures' is an optional parameter for models with multiple textures. Any of these can be nullptr, meaning the texture is not available.
 	void Render(Renderer& renderer, const ShaderProgram& shaderProgram, const Texture* const* textures = nullptr);
 
 private:
@@ -148,7 +151,7 @@ private:
 	// File names of the textures in this model
 	std::vector<std::string> textureNames;
 
-	// Declares a section of the vertex buffer representing a new mesh with potentially new textures etc
+	// Mesh sections. These are areas of the vertex buffer with different meshes. Used for models with multiple textures.
 	struct MeshSection {
 		int startIndex;
 		int numIndices;

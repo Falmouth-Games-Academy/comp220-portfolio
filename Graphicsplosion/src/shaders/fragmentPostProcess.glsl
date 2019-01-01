@@ -4,7 +4,6 @@ out vec3 color;
 in vec2 uv;
 
 uniform sampler2D colorSampler;
-uniform sampler2D shadowSampler;
 
 uniform float time;
 

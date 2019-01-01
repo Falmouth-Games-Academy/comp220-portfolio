@@ -309,6 +309,7 @@ void Model::CalculateBoneMatrices(glm::mat4 finalBoneMatrices[32]) {
 
 	// Calculate the local space of each bone
 	for (Anim& anim : animations) {
+		// Create the current bone's bone-to-world matrix
 		for (AnimNode& node : anim.nodes) {
 			if (node.target) {
 				int matrixIndex = node.target->index;
@@ -320,15 +321,13 @@ void Model::CalculateBoneMatrices(glm::mat4 finalBoneMatrices[32]) {
 				// .. but only if they exist
 				if (node.rotationKeyframeIndex + 1 < node.rotation.size()) {
 					rotation = glm::lerp(node.rotation[(int)node.rotationKeyframeIndex].quat, node.rotation[(int)node.rotationKeyframeIndex + 1].quat, node.rotationKeyframeIndex - (int)node.rotationKeyframeIndex);
-				}
-				else {
+				} else {
 					rotation = glm::identity<glm::quat>();
 				}
 
 				if (node.translationKeyframeIndex + 1 < node.translation.size()) {
 					translation = glm::lerp(node.translation[(int)node.translationKeyframeIndex].vec, node.translation[(int)node.translationKeyframeIndex + 1].vec, node.translationKeyframeIndex - (int)node.translationKeyframeIndex);
-				}
-				else {
+				} else {
 					translation = glm::vec3(0.0f, 0.0f, 0.0f);
 				}
 
@@ -340,8 +339,10 @@ void Model::CalculateBoneMatrices(glm::mat4 finalBoneMatrices[32]) {
 		}
 	}
 
+	// Multiply every bone's matrix along its parent chain
 	for (int i = 0; i < 32; i++) {
 		if (bonePointers[i]) {
+			// Iterate along the bone parents whilst multiplying the matrix each step
 			const Bone* currentBone = bonePointers[i]->parent;
 
 			finalBoneMatrices[i] = rootBoneMatrices[i];
@@ -351,6 +352,8 @@ void Model::CalculateBoneMatrices(glm::mat4 finalBoneMatrices[32]) {
 				currentBone = currentBone->parent;
 			}
 
+			// Finally, multiply by the bind pose matrix (the inverse of the original bone-to-world matrix in the bind pose)
+			// This means vertices are transformed to their original bone space, then back to current bone space in the world
 			finalBoneMatrices[i] = finalBoneMatrices[i] * bonePointers[i]->bindPose;
 		}
 	}
@@ -379,14 +382,14 @@ void Model::Render(Renderer& renderer, const ShaderProgram& shaderProgram, const
 	// Send them to the shader
 	shaderProgram.SetUniforms("boneTransforms[0]", finalBoneMatrices, 32);
 
-	// Render the triangles
+	// Begin model render
 	renderer.UseShaderProgram(shaderProgram);
 
 	if (!textures) {
-		// Render the model as a whole
+		// Render the model as a single mesh
 		renderer.DrawTrianglesIndexed(0, numIndices);
 	} else {
-		// Model has multiple textures - render each model individually
+		// Render each mesh individually (model may have multiple textures)
 		for (MeshSection& section : meshSections) {
 			renderer.UseTexture(textures[section.textureIndex], &shaderProgram);
 			renderer.DrawTrianglesIndexed(section.startIndex, section.numIndices);

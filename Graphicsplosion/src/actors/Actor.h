@@ -7,7 +7,7 @@
 // An object or character with a position in space and regular updates
 class Actor {
 public:
-	Actor(const glm::vec3& spawnPosition = glm::vec3(0.0f, 0.0f, 0.0f)) : model(nullptr), shader(nullptr) {
+	Actor(const glm::vec3& spawnPosition = glm::vec3(0.0f, 0.0f, 0.0f)) : model(nullptr), shader(nullptr), texture(nullptr), normalMapTexture(nullptr) {
 		SetPosition(spawnPosition);
 		SetRotation(glm::identity<glm::quat>());
 		SetScale(glm::vec3(1.0f, 1.0f, 1.0f));
@@ -74,6 +74,7 @@ public:
 		return transform;
 	}
 
+public:
 	// Sets the model to be used by this actor when rendering
 	void SetModel(class Model* model_) {
 		this->model = model_;
@@ -82,6 +83,11 @@ public:
 	// Sets the texture to be used by this actor when rendering. Set to nullptr for no texture.
 	void SetTexture(class Texture* texture_) {
 		this->texture = texture_;
+	}
+
+	// Sets the normal map to be used by this actor when rendering. Set to nullptr for no normal mapping.
+	void SetNormalMap(class Texture* normal_) {
+		this->normalMapTexture = normal_;
 	}
 
 	// Sets the shader program to be used by this actor when rendering
@@ -103,6 +109,9 @@ protected:
 
 	// Pointer to the texture we'll use for rendering, or nullptr if none applicable
 	class Texture* texture;
+
+	// Pointer to the normal map texture we'll use for rendering, or nullptr if N/A
+	class Texture* normalMapTexture;
 
 	// Pointer to the shader we'll use for rendering
 	// matWorld will be used to position the model

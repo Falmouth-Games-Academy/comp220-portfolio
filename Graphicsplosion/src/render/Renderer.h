@@ -58,10 +58,10 @@ public:
 	GLResource LoadShaderFromSourceFile(const char* filename, GLenum glShaderType);
 
 public:
-	// Sets the vertex buffer to be rendered in a draw call. If nullptr, the buffer is unbound
+	// Sets the vertex buffer to be rendered in the following draw calls. If nullptr, the buffer is unbound
 	void UseVertexBuffer(const class VertexBuffer* vertexBuffer);
 
-	// Sets the index buffer to be rendered in a draw call. If nullptr, the buffer is unbound
+	// Sets the index buffer to be rendered in the following draw calls. If nullptr, the buffer is unbound
 	void UseIndexBuffer(const class IndexBuffer* indexBuffer);
 
 public:
@@ -81,6 +81,10 @@ private:
 	// Current size of the viewport in pixels
 	Vec2I viewportSize;
 
+	// Size of the shadow map
+	static const int shadowMapDefaultResolution = 1024;
+	Vec2I shadowMapSize;
+
 	// Render target textures
 	static const int numRenderTargets = 2;
 	Texture renderTextures[numRenderTargets];
@@ -88,7 +92,6 @@ private:
 	// Framebuffers
 	GLuint frameBufferId;
 	GLuint renderBufferId;
-	GLuint shadowRenderBufferId;
 
 	// Post-processor
 	ShaderProgram postProcessShader;

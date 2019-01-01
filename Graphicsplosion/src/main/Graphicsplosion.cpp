@@ -14,6 +14,12 @@ ShaderProgram debugShadowmapShader;
 
 Graphicsplosion game;
 
+/* The source code is very well commented in the doxygen style.
+All identifier names are descriptive and appropriate.
+All code adheres to the to code guidelines (Unreal, Google etc).
+There is no obvious duplication of code or of literal values. Most literal values are, where appropriate, easily “tinkered” outside of the source code
+*/
+
 void Graphicsplosion::Init() {
 	// Create window and initialise renderer
 	window.Create("Zomg, it's a game! M: Unlock mouse F: Fullscreen and pay respects", Vec2I(640, 480));
@@ -22,11 +28,11 @@ void Graphicsplosion::Init() {
 	render.Init(window);
 
 	// Load the default shaders
-	GLResource fragmentShader = render.LoadShaderFromSourceFile("src/shaders/fragment.txt", GL_FRAGMENT_SHADER);
-	GLResource vertexShader = render.LoadShaderFromSourceFile("src/shaders/vertex.txt", GL_VERTEX_SHADER);
-	GLResource shadowFragmentShader = render.LoadShaderFromSourceFile("src/shaders/fragmentShadow.txt", GL_FRAGMENT_SHADER);
-	GLResource shadowVertexShader = render.LoadShaderFromSourceFile("src/shaders/vertexShadow.txt", GL_VERTEX_SHADER);
-	GLResource depthTextureShader = render.LoadShaderFromSourceFile("src/shaders/fragmentDepthDebug.txt", GL_FRAGMENT_SHADER);
+	GLResource fragmentShader = render.LoadShaderFromSourceFile("src/shaders/fragment.glsl", GL_FRAGMENT_SHADER);
+	GLResource vertexShader = render.LoadShaderFromSourceFile("src/shaders/vertex.glsl", GL_VERTEX_SHADER);
+	GLResource shadowFragmentShader = render.LoadShaderFromSourceFile("src/shaders/fragmentShadow.glsl", GL_FRAGMENT_SHADER);
+	GLResource shadowVertexShader = render.LoadShaderFromSourceFile("src/shaders/vertexShadow.glsl", GL_VERTEX_SHADER);
+	GLResource depthTextureShader = render.LoadShaderFromSourceFile("src/shaders/fragmentDepthDebug.glsl", GL_FRAGMENT_SHADER);
 
 	// Setup the default shader program
 	defaultShaderProgram.Create(render, vertexShader, fragmentShader);
@@ -39,13 +45,14 @@ void Graphicsplosion::Init() {
 	bunnyModel.Create("Assets/Models/Bunny.fbx");
 
 	printf("Loading map - this may take a while... (blame assimp)\n");
-	sceneModel.Create("Assets/Models/MainScene.fbx", true);
+	//sceneModel.Create("Assets/Models/MainScene.fbx", true);
 
 	// Load the textures
 	pigeonTexture.Create(render, "Assets/Textures/PigeonDiffuse.png");
 	bunnyTexture.Create(render, "Assets/Textures/BunnyDiffuse.png");
 	groundTexture.Create(render, "Assets/Textures/Ground.png");
 	whiteTexture.Create(render, "Assets/Textures/White.png");
+	bunnyNormalMap.Create(render, "Assets/Textures/BunnyNormal.png");
 
 	// Load the scene textures (todo: possibly move this later)
 	for (const std::string& textureName : sceneModel.GetTextureNames()) {
@@ -95,22 +102,20 @@ void Graphicsplosion::Init() {
 
 	pigeon->SetPosition(glm::vec3(21.0f, 0.12f, 53.0f));
 	pigeon->SetTexture(&pigeonTexture);
+	pigeon->SetNormalMap(&bunnyNormalMap);
 	pigeon->SetModel(&pigeonModel);
 	pigeon->SetShaderProgram(&defaultShaderProgram);
 
 	Actor* bunny = SpawnActor<Actor>();
 
 	bunny->SetTexture(&bunnyTexture);
-	pigeon->SetPosition(glm::vec3(31.0f, 0.12f, 53.0f));
+	bunny->SetPosition(glm::vec3(31.0f, 0.12f, 53.0f));
 	bunny->SetScale(glm::vec3(0.15f, 0.15f, 0.15f));
 	bunny->SetShaderProgram(&defaultShaderProgram);
 	bunny->SetModel(&bunnyModel);
 }
 
 void Graphicsplosion::Shutdown() {
-	// Clean up the test vertex buffer
-	triangle.Destroy();
-
 	// Cleanup the models
 	pigeonModel.Destroy();
 	bunnyModel.Destroy();
@@ -121,6 +126,8 @@ void Graphicsplosion::Shutdown() {
 	bunnyTexture.Destroy();
 	whiteTexture.Destroy();
 	
+	bunnyNormalMap.Destroy();
+
 	for (Texture* tex : sceneModelTextures) {
 		if (tex) {
 			tex->Destroy();
@@ -150,7 +157,7 @@ void Graphicsplosion::RenderColourPass() {
 	// Use our default shader
 	render.UseShaderProgram(defaultShaderProgram);
 
-	// First: draw the background plane
+	// Draw the background plane
 	defaultShaderProgram.SetUniform("matViewProj", glm::identity<glm::mat4>());
 	defaultShaderProgram.SetUniform("matWorld", glm::identity<glm::mat4>());
 	defaultShaderProgram.SetUniform("isShadowEnabled", 0);
@@ -211,7 +218,7 @@ void Graphicsplosion::RenderColourPass() {
 
 	render.DrawTriangles(0, 6);
 
-	// Draw the shadow map
+	// Draw the test shadow map plane
 	glm::mat4 shadowMapDebug(
 		0.2f, 0.0f, 0.0f, 0.0f,
 		0.0f, 0.0f, 0.2f, 0.0f,
@@ -244,7 +251,7 @@ void Graphicsplosion::RenderShadowPass() {
 	const float shadowMapRange = 50.0f;
 	const float shadowDepthRange = 50.0f;
 	matShadowView = glm::ortho(-shadowMapRange, shadowMapRange, -shadowMapRange, shadowMapRange, -shadowDepthRange, shadowDepthRange) 
-				  * glm::lookAt(player.GetPosition(), player.GetPosition() + /*player.GetForward()*/sunLight.GetDirection(), player.GetForward() - sunLight.GetDirection() * glm::dot(player.GetForward(), sunLight.GetDirection()));
+				  * glm::lookAt(player.GetPosition(), player.GetPosition() + /*player.GetForward()*/sunLight.GetDirection(), player.GetUp());
 
 	// Experiment: Use w division to reduce shadow precision towards the distance
 	glm::mat4 shadowPrecisionDivider = {

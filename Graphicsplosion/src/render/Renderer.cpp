@@ -35,11 +35,12 @@ void Renderer::Init(Window& renderWindow) {
 
 	// Init variables
 	viewportSize = renderWindow.GetSize();
+	shadowMapSize = Vec2I(shadowMapDefaultResolution, shadowMapDefaultResolution);
 	frontBufferResolution = viewportSize;
 
-	// Init render textures
-	renderTextures[0].Create(*this, viewportSize.x, viewportSize.y);
-	renderTextures[1].CreateAsDepth(*this, viewportSize.x, viewportSize.y);
+	// Create the render textures
+	renderTextures[0].Create(*this, viewportSize.x, viewportSize.y);        // Main renderer
+	renderTextures[1].CreateAsDepth(*this, viewportSize.x, viewportSize.y); // Shadow map
 
 	// Create the depth buffers
 	glGenRenderbuffers(1, &renderBufferId);
@@ -67,20 +68,31 @@ void Renderer::Init(Window& renderWindow) {
 		glm::vec2(-1.0f, -1.0f), glm::vec2(1.0f, 1.0f), glm::vec2(1.0f, -1.0f)
 	};
 
-	postProcessShader.Create(*this, LoadShaderFromSourceFile("src/shaders/vertexPassthrough.txt", GL_VERTEX_SHADER), LoadShaderFromSourceFile("src/shaders/fragmentPostProcess.txt", GL_FRAGMENT_SHADER));
+	postProcessShader.Create(*this, LoadShaderFromSourceFile("src/shaders/vertexPassthrough.glsl", GL_VERTEX_SHADER), LoadShaderFromSourceFile("src/shaders/fragmentPostProcess.glsl", GL_FRAGMENT_SHADER));
 	postProcessBuffer.Create(*this, VertexFormat(&PostProcessVertex::position), postProcessorPlane, sizeof (postProcessorPlane));
 }
 
 void Renderer::Shutdown() {
-	return;
+	// Destroy resources
+	// Destory render textures
+	for (int i = 0; i < numRenderTargets; i++) {
+		renderTextures[i].Destroy();
+	}
+
+	// Destroy postprocessor
+	postProcessShader.Destroy();
+	postProcessBuffer.Destroy();
+
+	// Destroy frame buffers
+	glDeleteRenderbuffers(1, &renderBufferId);
+	glDeleteRenderbuffers(1, &frameBufferId);
 }
 
 void Renderer::BeginRender(bool doClear, RenderPass renderPass) {
 	// Resize the viewport
 	if (renderPass == RenderPass::Main) {
 		glViewport(0, 0, viewportSize.x, viewportSize.y);
-	}
-	else {
+	} else if (renderPass == RenderPass::Shadow) {
 		glViewport(0, 0, 640, 480);
 	}
 
@@ -138,9 +150,6 @@ void Renderer::EndRender(Window& renderWindow, RenderPass renderPass) {
 		UseShaderProgram(postProcessShader);
 		UseVertexBuffer(&postProcessBuffer);
 		UseTexture(&renderTextures[0], &postProcessShader, "colorSampler");
-		UseTexture(&renderTextures[1], &postProcessShader, "shadowSampler");
-
-		//postProcessShader.SetUniform("time", (float)Time::GetTime());
 
 		// Draw it!
 		DrawTriangles(0, 6);
@@ -213,7 +222,9 @@ void Renderer::UseTexture(const Texture* texture, const ShaderProgram* shaderPro
 		}
 	} else {
 		// Otherwise bind a blank texture
+		glActiveTexture(GL_TEXTURE0 + textureUnit);
 		glBindTexture(GL_TEXTURE_2D, 0);
+		glBindSampler(textureUnit, 0);
 	}
 }
 

@@ -163,11 +163,11 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
-    <Text Include="src\shaders\fragmentDepthDebug.txt" />
-    <Text Include="src\shaders\fragmentPostProcess.txt" />
-    <Text Include="src\shaders\fragmentShadow.txt" />
-    <Text Include="src\shaders\vertexPassthrough.txt" />
-    <Text Include="src\shaders\vertexShadow.txt" />
+    <Text Include="src\shaders\fragmentDepthDebug.glsl" />
+    <Text Include="src\shaders\fragmentPostProcess.glsl" />
+    <Text Include="src\shaders\fragmentShadow.glsl" />
+    <Text Include="src\shaders\vertexPassthrough.glsl" />
+    <Text Include="src\shaders\vertexShadow.glsl" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\actors\Actor.h" />

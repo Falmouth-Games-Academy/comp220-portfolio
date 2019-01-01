@@ -19,7 +19,11 @@ private:
 	void Update() override;
 	void Render() override;
 
+private:
+	// Renders the world to the shadow map
 	void RenderShadowPass();
+
+	// Renders the world to the screen
 	void RenderColourPass();
 
 private:
@@ -31,19 +35,19 @@ private:
 	ShaderProgram shadowShaderProgram;
 	VertexFormat defaultVertexFormat;
 
-	// The triangle to render
-	VertexBuffer triangle;
-
 	// The background plane for a sky effect
 	VertexBuffer backPlane;
 	VertexBuffer groundPlane;
 
-	// Things to render
+	// Texture assets to render
 	Texture groundTexture;
 	Texture pigeonTexture;
-	Texture bunnyTexture;
 	Texture whiteTexture;
 
+	Texture bunnyTexture;
+	Texture bunnyNormalMap;
+
+	// Model assets to render
 	Model pigeonModel;
 	Model bunnyModel;
 	Model sceneModel;
@@ -51,10 +55,10 @@ private:
 	// The textures for the scene model (todo: possibly move)
 	std::vector<Texture*> sceneModelTextures;
 
-	// The light
+	// The world light
 	Light sunLight;
 
-	// The shadow map matrix
+	// The shadow map matrix, used to transform to shadow map space
 	glm::mat4 matShadowView;
 };
 
