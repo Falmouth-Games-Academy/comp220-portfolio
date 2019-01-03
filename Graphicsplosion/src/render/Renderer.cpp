@@ -40,7 +40,7 @@ void Renderer::Init(Window& renderWindow) {
 
 	// Create the render textures
 	renderTextures[0].Create(*this, viewportSize.x, viewportSize.y);        // Main renderer
-	renderTextures[1].CreateAsDepth(*this, viewportSize.x, viewportSize.y); // Shadow map
+	renderTextures[1].CreateAsDepth(*this, shadowMapSize.x, shadowMapSize.y); // Shadow map
 
 	// Create the depth buffers
 	glGenRenderbuffers(1, &renderBufferId);
@@ -93,7 +93,7 @@ void Renderer::BeginRender(bool doClear, RenderPass renderPass) {
 	if (renderPass == RenderPass::Main) {
 		glViewport(0, 0, viewportSize.x, viewportSize.y);
 	} else if (renderPass == RenderPass::Shadow) {
-		glViewport(0, 0, 640, 480);
+		glViewport(0, 0, shadowMapSize.x, shadowMapSize.y);
 	}
 
 	// Attach renderbuffer stuff....!?!!?11

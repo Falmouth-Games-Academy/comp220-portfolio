@@ -45,7 +45,7 @@ void Graphicsplosion::Init() {
 	bunnyModel.Create("Assets/Models/Bunny.fbx");
 
 	printf("Loading map - this may take a while... (blame assimp)\n");
-	//sceneModel.Create("Assets/Models/MainScene.fbx", true);
+	sceneModel.Create("Assets/Models/MainScene.fbx", true);
 
 	// Load the textures
 	pigeonTexture.Create(render, "Assets/Textures/PigeonDiffuse.png");
@@ -71,11 +71,11 @@ void Graphicsplosion::Init() {
 	// Create the background plane
 	static Vertex backPlaneVertices[] = {
 		-1.0f, -1.0f, 0.9999f, 0.20f, 0.20f, 0.75f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, 255, 0, 0, 0, 0.0f, 0.0f, 0.0f, 0.0f,
-		-1.0f,  1.0f, 0.9999f, 0.00f, 0.64f, 0.91f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, 255, 0, 0, 0, 0.0f, 0.0f, 0.0f, 0.0f,
-		 1.0f,  1.0f, 0.9999f, 0.00f, 0.64f, 0.91f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, 255, 0, 0, 0, 0.0f, 0.0f, 0.0f, 0.0f,
+		-1.0f,  1.0f, 0.9999f, 0.00f, 0.64f, 0.91f, 0.0f, 0.0f, -1.0f, 0.0f, 1.0f, 255, 0, 0, 0, 0.0f, 0.0f, 0.0f, 0.0f,
+		 1.0f,  1.0f, 0.9999f, 0.00f, 0.64f, 0.91f, 0.0f, 0.0f, -1.0f, 1.0f, 1.0f, 255, 0, 0, 0, 0.0f, 0.0f, 0.0f, 0.0f,
 		-1.0f, -1.0f, 0.9999f, 0.20f, 0.20f, 0.75f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, 255, 0, 0, 0, 0.0f, 0.0f, 0.0f, 0.0f,
-		 1.0f,  1.0f, 0.9999f, 0.00f, 0.64f, 0.91f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, 255, 0, 0, 0, 0.0f, 0.0f, 0.0f, 0.0f,
-		 1.0f, -1.0f, 0.9999f, 0.20f, 0.20f, 0.75f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, 255, 0, 0, 0, 0.0f, 0.0f, 0.0f, 0.0f,
+		 1.0f,  1.0f, 0.9999f, 0.00f, 0.64f, 0.91f, 0.0f, 0.0f, -1.0f, 1.0f, 1.0f, 255, 0, 0, 0, 0.0f, 0.0f, 0.0f, 0.0f,
+		 1.0f, -1.0f, 0.9999f, 0.20f, 0.20f, 0.75f, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f, 255, 0, 0, 0, 0.0f, 0.0f, 0.0f, 0.0f,
 	};
 
 	backPlane.Create(render, defaultVertexFormat, backPlaneVertices, sizeof(backPlaneVertices));
@@ -172,14 +172,13 @@ void Graphicsplosion::RenderColourPass() {
 	const float playerHeight = 0.5f;
 	glm::vec3 playerEye = player.GetPosition() + player.GetUp() * playerHeight;
 	glm::mat4 matView = glm::lookAtRH(playerEye, playerEye + player.GetForward(), player.GetUp());
-	glm::mat4 matProj = glm::infinitePerspectiveRH(70.0f, (float)window.GetSize().x / (float)window.GetSize().y, 0.5f);
-	glm::mat4 matOrtho = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f);
+	glm::mat4 matProj = glm::infinitePerspectiveRH(glm::radians(85.0f), (float)window.GetSize().x / (float)window.GetSize().y, 0.5f);
 	glm::mat4 matViewProj = matProj * matView;
 	glm::mat4 matMovement = glm::translate(glm::vec3(10.0f, 10.0f, 10.0f));
 
 	defaultShaderProgram.SetUniform("matViewProj", matViewProj);
 
-	// Setup the shadow map
+	// Setup the shadow map matrix at converted coordinates (UV space is between 0.0/1.0, not -1.0/1.0)
 	glm::mat4 shadowUvCorrection(
 		0.5f, 0.0f, 0.0f, 0.0f,
 		0.0f, 0.5f, 0.0f, 0.0f,
@@ -203,7 +202,7 @@ void Graphicsplosion::RenderColourPass() {
 	defaultShaderProgram.SetUniform("cameraPosition", cameraPosition);
 	defaultShaderProgram.SetUniform("isShadowEnabled", 1);
 
-	// Render every object
+	// Draw every object
 	for (Actor* actor : actors) {
 		actor->Render(&render);
 	}
@@ -218,21 +217,24 @@ void Graphicsplosion::RenderColourPass() {
 
 	render.DrawTriangles(0, 6);
 
-	// Draw the test shadow map plane
+	// Draw the test shadow map plane in front of the camera
+	static const Rect2F shadowMapDimensions(0.8f, 0.8f, 0.4f, 0.4f);
+
+	// Use matrix magic to put it on the screen
 	glm::mat4 shadowMapDebug(
-		0.2f, 0.0f, 0.0f, 0.0f,
-		0.0f, 0.0f, 0.2f, 0.0f,
-		0.0f, 0.2f, 0.0f, 0.0f,
-		-10.0f, -6.0f, 55.0f, 1.0f
+		shadowMapDimensions.width,                       0.0f, 0.0f, 0.0f,
+		                     0.0f, shadowMapDimensions.height, 0.0f, 0.0f,
+		                     0.0f,                       0.0f, 0.0f, 0.0f,
+		    shadowMapDimensions.x,      shadowMapDimensions.y, 0.0f, 1.0f
 	);
 
 	render.UseShaderProgram(debugShadowmapShader);
 
 	debugShadowmapShader.SetUniform("matWorld", shadowMapDebug);
-	debugShadowmapShader.SetUniform("matViewProj", matViewProj);
+	debugShadowmapShader.SetUniform("matViewProj", glm::identity<glm::mat4>());
 
 	render.UseTexture(render.GetShadowMap(), &debugShadowmapShader);
-	render.UseVertexBuffer(&groundPlane);
+	render.UseVertexBuffer(&backPlane);
 
 	render.DrawTriangles(0, 6);
 
@@ -247,22 +249,29 @@ void Graphicsplosion::RenderShadowPass() {
 	// Use our default shader
 	render.UseShaderProgram(shadowShaderProgram);
 
-	// Setup the shadow render matrix
-	const float shadowMapRange = 50.0f;
+	// Setup the shadow map
+	const float shadowMapRange = 20.0f;
 	const float shadowDepthRange = 50.0f;
-	matShadowView = glm::ortho(-shadowMapRange, shadowMapRange, -shadowMapRange, shadowMapRange, -shadowDepthRange, shadowDepthRange) 
-				  * glm::lookAt(player.GetPosition(), player.GetPosition() + /*player.GetForward()*/sunLight.GetDirection(), player.GetUp());
 
-	// Experiment: Use w division to reduce shadow precision towards the distance
+	// Setup shadow map axes and coordinates
+	glm::vec3 shadowMapX = glm::cross(player.GetForward(), sunLight.GetDirection()), shadowMapY = -glm::cross(shadowMapX, sunLight.GetDirection()), shadowMapZ = sunLight.GetDirection();
+	glm::vec3 shadowMapO = player.GetPosition() + shadowMapY * shadowMapRange * 0.5f; // make the base of the shadow map roughly the camera position
+
+	// Generate shadow map matrix
+	matShadowView = glm::lookAt(shadowMapO, shadowMapO + shadowMapZ, shadowMapY);
+	matShadowView = glm::ortho(-shadowMapRange, shadowMapRange, -shadowMapRange, shadowMapRange, -shadowDepthRange, shadowDepthRange) * matShadowView;
+
+	// Experiment: Use a w-division trick to reduce shadow precision towards the distance, increasing the maximum distance slightly
 	glm::mat4 shadowPrecisionDivider = {
 		1.0f, 0.0f, 0.0f, 0.0f,
-		0.0f, 1.0f, 0.0f, 2.0f,
+		0.0f, 1.0f, 0.0f, 0.5f, // (1.0f + 0.5f) = 1.5x less precision at the distance, (1.0f - 0.5f) = 2x more precision at the bottom of the map
 		0.0f, 0.0f, 1.0f, 0.0f,
 		0.0f, 0.0f, 0.0f, 1.0f
 	};
 
 	matShadowView = shadowPrecisionDivider * matShadowView;
 
+	// Shadow map is ready!
 	shadowShaderProgram.SetUniform("matViewProj", matShadowView);
 	
 	// Render every object with the shadow shader

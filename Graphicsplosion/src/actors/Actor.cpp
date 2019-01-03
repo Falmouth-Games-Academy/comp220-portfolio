@@ -27,7 +27,7 @@ void Actor::Render(class Renderer* renderer, const ShaderProgram* shaderOverride
 		shader->SetUniform("matWorld", GetTransform());
 
 		// Set the animation frame
-		float time = Time::GetTime() - ((int)Time::GetTime() / 3 * 3);
+		float time = Time::GetTime() - ((long long int)Time::GetTime() / 3 * 3);
 
 		model->PoseBones(time);
 

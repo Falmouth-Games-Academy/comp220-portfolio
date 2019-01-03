@@ -80,6 +80,13 @@ typedef Vec2Base<int> Vec2I;
 // Rectangle base class with optional variable type for the dimensions
 template<typename DimensionType>
 class Rect2Base {
+public:
+	Rect2Base() = default;
+	Rect2Base(DimensionType x_, DimensionType y_, DimensionType width_, DimensionType height_) : x(x_), y(y_), width(width_), height(height_) {}
+
 	DimensionType x, y;
 	DimensionType width, height;
 };
+
+// Rectangle with float components
+typedef Rect2Base<float> Rect2F;

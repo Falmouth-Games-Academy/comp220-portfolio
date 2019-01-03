@@ -5,54 +5,8 @@
 
 class Input {
 public:
-	static void Update() {
-		// Update keystates
-		for (int key = 0; key < numKeyStates; ++key) {
-			// Check if a key has been pressed since the last frame
-			if ((keyStates[key] ^ previousKeyStates[key]) & (keyStates[key] & KEYSTATE_DOWN)) {
-				keyStates[key] |= KEYSTATE_PRESSED;
-			} else if (keyStates[key] & KEYSTATE_PRESSED) {
-				keyStates[key] &= ~KEYSTATE_PRESSED;
-			}
-
-			// Check if a key has been released since the last frame
-			if ((keyStates[key] ^ previousKeyStates[key]) & (previousKeyStates[key] & KEYSTATE_DOWN)) {
-				keyStates[key] |= KEYSTATE_RELEASED;
-			} else if (keyStates[key] & KEYSTATE_RELEASED) {
-				keyStates[key] &= ~KEYSTATE_RELEASED;
-			}
-		}
-
-		// Copy the current keystates to the previous keystates
-		memcpy(previousKeyStates, keyStates, sizeof(keyStates));
-
-		// Update movement axes
-		horizontalAxis = Math::ClampDeadzone(joyAxes[0], joystickDeadzone);
-		verticalAxis = Math::ClampDeadzone(-joyAxes[1], joystickDeadzone);
-		eyeHorizontalAxis = Math::ClampDeadzone(joyAxes[3], joystickDeadzone);
-		eyeVerticalAxis = Math::ClampDeadzone(-joyAxes[4], joystickDeadzone);
-
-		if (IsKeyDown(SDL_SCANCODE_W)) {
-			verticalAxis += 1.0f;
-		}
-
-		if (IsKeyDown(SDL_SCANCODE_S)) {
-			verticalAxis -= 1.0f;
-		}
-
-		if (IsKeyDown(SDL_SCANCODE_D)) {
-			horizontalAxis += 1.0f;
-		}
-
-		if (IsKeyDown(SDL_SCANCODE_A)) {
-			horizontalAxis -= 1.0f;
-		}
-
-		horizontalAxis = Math::ClampNormal(horizontalAxis);
-		verticalAxis = Math::ClampNormal(verticalAxis);
-		eyeHorizontalAxis = Math::ClampNormal(eyeHorizontalAxis);
-		eyeVerticalAxis = Math::ClampNormal(eyeVerticalAxis);
-	}
+	// Updates user inputs and key state lists
+	static void Update();
 
 public:
 	// Scancode type (currently just big enough to hold an SDL_scancode)
@@ -111,6 +65,11 @@ public:
 		return eyeVerticalAxis;
 	}
 
+	// Returns whether the speed boost button is held
+	static bool IsBoostDown() {
+		return isBoostDown;
+	}
+
 	// Returns the mouse offset since the last frame in pixels
 	static const Vec2I& GetMouseMotion() {
 		return sdl.GetMouseMotion();
@@ -141,6 +100,8 @@ private:
 
 	static float eyeHorizontalAxis;
 	static float eyeVerticalAxis;
+
+	static bool isBoostDown;
 
 private:
 	static const float joystickDeadzone;
