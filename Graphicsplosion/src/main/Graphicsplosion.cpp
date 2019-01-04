@@ -146,7 +146,10 @@ void Graphicsplosion::Update() {
 }
 
 void Graphicsplosion::Render() {
+	// Render the shadows to the shadow map
 	RenderShadowPass();
+
+	// Render the actual scenery
 	RenderColourPass();
 }
 
