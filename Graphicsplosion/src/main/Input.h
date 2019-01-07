@@ -18,16 +18,18 @@ public:
 	}
 
 public:
+	// Returns whether a key is held down
 	static bool IsKeyDown(scancode key) {
 		return keyStates[key] & KEYSTATE_DOWN;
 	}
 
+	// Returns whether a key has been pressed in this frame
 	static bool IsKeyPressed(scancode key) {
 		return keyStates[key] & KEYSTATE_PRESSED;
 	}
 
 public:
-	// Simulates a keypress
+	// Simulates a keystate
 	static void SimulateKeyDown(scancode key) {
 		keyStates[key] |= KEYSTATE_DOWN;
 	}
@@ -95,14 +97,17 @@ private:
 	static float joyAxes[numJoyAxes];
 
 private:
+	// Axes
 	static float horizontalAxis;
 	static float verticalAxis;
 
 	static float eyeHorizontalAxis;
 	static float eyeVerticalAxis;
 
+	// Boost key (for player running)
 	static bool isBoostDown;
 
 private:
+	// A value between 0 and 1 wherein the joystick input is ignored
 	static const float joystickDeadzone;
 };

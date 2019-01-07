@@ -19,7 +19,10 @@ enum class RenderPass {
 // 3D renderer wrapper for OpenGL (by default)
 class Renderer {
 public:
+	// Constructs but does not initialise the renderer
 	Renderer() = default;
+
+	// Constructs and initialises the renderer with a window
 	Renderer(class Window& renderWindow) {
 		Init(renderWindow);
 	}
@@ -55,7 +58,12 @@ public:
 	// Uses the supplied shader program in the next draw call
 	void UseShaderProgram(const class ShaderProgram& program);
 
+public:
+	// Loads and returns a compiled shader from a source file
 	GLResource LoadShaderFromSourceFile(const char* filename, GLenum glShaderType);
+
+	// Destroys a shader
+	void DestroyShader(GLResource shader);
 
 public:
 	// Sets the vertex buffer to be rendered in the following draw calls. If nullptr, the buffer is unbound
@@ -72,6 +80,7 @@ public:
 	class Texture* GetShadowMap();
 
 public:
+	// Returns the pixel resolution of the front buffer
 	const Vec2I GetFrontBufferResolution() { return frontBufferResolution; }
 
 private:

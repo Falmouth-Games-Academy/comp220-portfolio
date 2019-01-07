@@ -7,6 +7,7 @@
 // An object or character with a position in space and regular updates
 class Actor {
 public:
+	// Constructs an actor at the given position
 	Actor(const glm::vec3& spawnPosition = glm::vec3(0.0f, 0.0f, 0.0f)) : model(nullptr), shader(nullptr), texture(nullptr), normalMapTexture(nullptr) {
 		SetPosition(spawnPosition);
 		SetRotation(glm::identity<glm::quat>());

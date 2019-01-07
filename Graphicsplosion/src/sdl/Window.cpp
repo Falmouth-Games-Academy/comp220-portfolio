@@ -32,10 +32,6 @@ void* Window::CreateGlContext() {
 	return (sdlGlContext = SDL_GL_CreateContext(sdlWindow));
 }
 
-void* Window::GetGlContext() {
-	return sdlGlContext;
-}
-
 Vec2I Window::GetSize() const {
 	// Return the window size suppiled by SDL_GetWindowSize
 	Vec2I size;

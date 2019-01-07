@@ -21,7 +21,8 @@ void Actor::Render(class Renderer* renderer, const ShaderProgram* shaderOverride
 		renderer->UseTexture(texture, shader, "textureSampler", 3);
 		renderer->UseTexture(normalMapTexture, shader, "normalSampler", 2);
 
-		shader->SetUniform("isNormalMapEnabled", normalMapTexture != nullptr ? 1 : 0);
+		// Use normal mapping (disabled due to time constraints)
+		//shader->SetUniform("isNormalMapEnabled", normalMapTexture != nullptr ? 1 : 0);
 
 		// Set transform
 		shader->SetUniform("matWorld", GetTransform());

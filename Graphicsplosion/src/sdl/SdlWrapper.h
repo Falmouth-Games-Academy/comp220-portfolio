@@ -21,6 +21,7 @@ public:
 	// Converts a key to a scancode
 	SDL_Scancode KeyNameToCode(const char* keyName);
 
+	// Returns the relative mouse motion, in pixels, since the last UpdateEvents call
 	const Vec2I& GetMouseMotion() const;
 
 private:

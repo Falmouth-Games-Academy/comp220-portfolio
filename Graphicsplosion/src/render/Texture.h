@@ -3,6 +3,7 @@
 
 class Texture {
 public:
+	// Constructs an empty texture
 	Texture() : textureName(0) {}
 
 	// Constructs and creates a texture from a file
@@ -16,7 +17,7 @@ public:
 	}
 
 	~Texture() {
-		// Destroy the texture (todo: might break if destructed after GL)
+		// Destroy the texture
 		Destroy();
 	}
 
@@ -42,5 +43,6 @@ public:
 	bool IsLoaded() const { return textureName != 0; }
 
 private:
+	// Name of the GL texture resource
 	GLuint textureName;
 };

@@ -13,11 +13,6 @@
 #include "glm/gtx/euler_angles.hpp"
 
 bool Model::Create(const char* filename, bool doPrecalculateInstances) {
-	/*if (doPrecalculateInstances) {
-		return false;
-	}*/
-	//doPrecalculateInstances = false;
-
 	// Load the scene from the file
 	Assimp::Importer importer;
 	const aiScene* scene = importer.ReadFile(filename, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_GenSmoothNormals | aiProcess_GenUVCoords | aiProcess_CalcTangentSpace | (doPrecalculateInstances ? aiProcess_PreTransformVertices : 0));
@@ -252,6 +247,12 @@ bool Model::Create(const char* filename, bool doPrecalculateInstances) {
 }
 
 void Model::Destroy() {
+	// Cleanup and nullify resources
+	bones.clear();
+	animations.clear();
+	textureNames.clear();
+	meshSections.clear();
+
 	delete[] vertices;
 	delete[] indices;
 
@@ -267,13 +268,14 @@ float Model::FindKeyframe(const std::vector<AnimNode::Keyframe>& keyframeList, f
 
 	for (int i = startIndex; i < numIndices - 1 && i >= 0; i += direction) {
 		if (keyframes[i].time <= time) {
-			direction = 1;
+			direction = 1; // time is too low, check i+1 next time
 
 			if (keyframes[i + 1].time > time) {
+				// Return a blended index based on the current time respective to the keyframe times
 				return i + (time - keyframes[i].time) / (keyframes[i + 1].time - keyframes[i].time);
 			}
 		} else if (keyframes[i].time >= time) {
-			direction = -1;
+			direction = -1; // time is too high, check i-1 next time
 		}
 	}
 
@@ -289,8 +291,8 @@ void Model::PoseBones(float time) {
 	for (Anim& anim : animations) {
 		for (AnimNode& node : anim.nodes) {
 			if (node.target) {
-				node.translationKeyframeIndex = 0.0f;
-				node.rotationKeyframeIndex = 0.0f;
+				//node.translationKeyframeIndex = 0.0f;
+				//node.rotationKeyframeIndex = 0.0f;
 				node.scaleKeyframeIndex = 0.0f;
 
 				// Find keyframes that are closest to the current time

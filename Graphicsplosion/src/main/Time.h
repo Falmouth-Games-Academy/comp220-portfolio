@@ -1,7 +1,7 @@
 #pragma once
 class Time {
 public:
-	// Returns the time since startup
+	// Returns the time since app startup, in seconds
 	static double GetTime();
 
 private:

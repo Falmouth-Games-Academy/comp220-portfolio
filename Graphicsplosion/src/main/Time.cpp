@@ -9,6 +9,7 @@ unsigned __int64 Time::timeAtStartup;
 unsigned __int64 Time::performanceFrequency;
 
 double Time::GetTime() {
+	// Initialise the timer if necessary
 	if (!hasInitialised) {
 		LARGE_INTEGER performanceCount;
 

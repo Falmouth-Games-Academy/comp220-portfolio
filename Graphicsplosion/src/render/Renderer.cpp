@@ -295,6 +295,11 @@ GLResource Renderer::LoadShaderFromSourceFile(const char* filename, GLenum glSha
 	return (GLResource)result;
 }
 
+void Renderer::DestroyShader(GLResource shader) {
+	// Good bye, shader! We'll miss you!
+	glDeleteShader(shader);
+}
+
 void GenericBuffer::Create(Renderer& renderer, const void* initialData, int initialDataSize) {
 	// Initialise with a new buffer
 	bufferName = renderer.CreateBuffer();

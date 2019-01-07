@@ -8,6 +8,7 @@
 #include "glm/gtc/quaternion.hpp"
 #include "glm/gtx/quaternion.hpp"
 
+// Animation node container (contains keyframes for this node)
 struct AnimNode {
 	// The target bone's name and pointer
 	std::string targetName;
@@ -34,11 +35,13 @@ struct AnimNode {
 	float scaleKeyframeIndex;
 };
 
+// Animation (contains nodes filled with keyframes)
 struct Anim {
 	std::vector<AnimNode> nodes;
 };
 
 
+// Bone (contains transform info for part of the model)
 struct Bone {
 	// The index of this bone relative to the model
 	int index;
@@ -63,6 +66,7 @@ struct Bone {
 
 class Model {
 public:
+	// Construct an empty model
 	Model() : vertices(nullptr), numVertices(0), indices(nullptr), numIndices(0) {}
 
 	// Creates the model from a model file

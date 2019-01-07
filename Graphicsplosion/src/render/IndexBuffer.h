@@ -4,9 +4,10 @@
 // Index buffer
 class IndexBuffer : public GenericBuffer {
 public:
+	// Creates an empty index buffer (use SetData)
 	IndexBuffer() = default;
 
-	// Creates a buffer from an optional initial vertex array
+	// Creates a buffer using an optional initial vertex array
 	IndexBuffer(Renderer& renderer, const void* initialData = nullptr, int initialDataSize = 0) {
 		Create(renderer, initialData, initialDataSize);
 	}

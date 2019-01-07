@@ -40,6 +40,7 @@ public:
 		return newActor;
 	}
 
+	// Destroys the specified actor and removes from the scene
 	void DestroyActor(Actor* actor) {
 		// Find and remove the actor in the actor list
 		for (int i = 0; i < actors.size(); i++) {

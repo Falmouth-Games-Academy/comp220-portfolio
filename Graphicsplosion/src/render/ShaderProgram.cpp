@@ -54,6 +54,7 @@ bool ShaderProgram::Link() {
 	return isLoaded;
 }
 
+// SetUniform functions simply sets a uniform after finding its location
 void ShaderProgram::SetUniform(const char* uniformName, const glm::mat4& value) const {
 	int location = GetUniformLocation(uniformName);
 

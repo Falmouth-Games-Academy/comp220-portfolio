@@ -39,12 +39,13 @@ void Input::Update() {
 	// Copy the current keystates to the previous keystates
 	memcpy(previousKeyStates, keyStates, sizeof(keyStates));
 
-	// Update movement axes
+	// Update movement axes (joystick)
 	horizontalAxis = Math::ClampDeadzone(joyAxes[0], joystickDeadzone);
 	verticalAxis = Math::ClampDeadzone(-joyAxes[1], joystickDeadzone);
 	eyeHorizontalAxis = Math::ClampDeadzone(joyAxes[3], joystickDeadzone);
 	eyeVerticalAxis = Math::ClampDeadzone(-joyAxes[4], joystickDeadzone);
 
+	// or use key inputs for movement axes
 	if (IsKeyDown(SDL_SCANCODE_W)) {
 		verticalAxis += 1.0f;
 	}
@@ -61,12 +62,14 @@ void Input::Update() {
 		horizontalAxis -= 1.0f;
 	}
 
+	// Update boost key
 	if (IsKeyDown(SDL_SCANCODE_LSHIFT)) {
 		isBoostDown = true;
 	} else {
 		isBoostDown = false;
 	}
 
+	// Constrain the axes to -1, 1
 	horizontalAxis = Math::ClampNormal(horizontalAxis);
 	verticalAxis = Math::ClampNormal(verticalAxis);
 	eyeHorizontalAxis = Math::ClampNormal(eyeHorizontalAxis);

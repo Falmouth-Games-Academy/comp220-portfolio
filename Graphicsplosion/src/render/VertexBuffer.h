@@ -4,6 +4,7 @@
 // Vertex buffer
 class VertexBuffer : public GenericBuffer {
 public:
+	// Constructs an empty vertex buffer
 	VertexBuffer() : vaoName(0) {};
 
 	// Creates a buffer from an optional initial vertex array

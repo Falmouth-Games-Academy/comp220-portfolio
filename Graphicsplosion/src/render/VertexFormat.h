@@ -5,7 +5,7 @@
 
 #include <vector>
 
-// Default vertex type
+// Default vertex type struct
 struct Vertex {
 	union {
 		struct { float x, y, z; };
@@ -39,6 +39,9 @@ struct PostProcessVertex {
 // Custom vertex format used when creating vertex buffers
 class VertexFormat {
 public:
+	VertexFormat() : vertexSize(0) {};
+
+public:
 	struct VertexAttribute {
 		GLenum type;  // The GL type of variable. This supports GLM vectors
 		int offset;   // The offset of the variable in the struct
@@ -48,8 +51,6 @@ public:
 		// Pointer to the previous vertex attribute
 		VertexAttribute* previous;
 	};
-
-	VertexFormat() : vertexSize(0) {};
 
 public:
 	// Creates the vertex format from a list of struct member variables. Each var is treated assigned the consecutive location index.
@@ -119,6 +120,9 @@ private:
 };
 
 template<typename VertexType, typename VarType, typename ...types> inline void VertexFormat::CreateFromStructVars(VarType VertexType::* attribute, types... arguments) {
+	// Clear the attribute list
+	attributeList.clear();
+
 	// Set the vertex size
 	vertexSize = sizeof (VertexType);
 

@@ -11,8 +11,6 @@
 #include <iostream>
 #include <sstream>
 
-#include "helpers/types.h"
-
 void Game::Run() {
 	// Startup the game
 	Init();
@@ -36,7 +34,7 @@ void Game::Run() {
 
 			// Show FPS on the window title
 			std::ostringstream title;
-			title << "F: Fullscreen M: Release mouse FPS: " << currentFps;
+			title << "F: Fullscreen M: Release mouse H: Toggle shadow map FPS: " << currentFps;
 
 			window.SetTitle(title.str().c_str());
 		}

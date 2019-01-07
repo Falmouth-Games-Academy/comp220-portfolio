@@ -34,7 +34,9 @@ public:
 
 public:
 	// Getters
-	void* GetGlContext();
+	void* GetGlContext() {
+		return sdlGlContext;
+	}
 	
 	struct SDL_Window* GetSdlWindow() {
 		return sdlWindow;

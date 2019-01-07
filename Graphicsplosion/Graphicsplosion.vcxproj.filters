@@ -71,9 +71,6 @@
     <ClInclude Include="src\actors\Player.h">
       <Filter>src\actors</Filter>
     </ClInclude>
-    <ClInclude Include="src\helpers\types.h">
-      <Filter>src\helpers</Filter>
-    </ClInclude>
     <ClInclude Include="src\main\Game.h">
       <Filter>src\main</Filter>
     </ClInclude>
@@ -99,20 +96,20 @@
       <Filter>src</Filter>
     </ClInclude>
     <ClInclude Include="src\render\VertexFormat.h" />
-    <ClInclude Include="src\render\Light.h" />
     <ClInclude Include="src\render\ShaderProgram.h" />
     <ClInclude Include="src\render\RenderResource.h" />
     <ClInclude Include="src\render\GenericBuffer.h" />
     <ClInclude Include="src\render\VertexBuffer.h" />
     <ClInclude Include="src\render\IndexBuffer.h" />
     <ClInclude Include="src\render\Texture.h" />
+    <ClInclude Include="src\render\DirectionalLight.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
-    <Text Include="src\shaders\fragmentDepthDebug.glsl" />
     <Text Include="src\shaders\fragmentPostProcess.glsl" />
     <Text Include="src\shaders\fragmentShadow.glsl" />
     <Text Include="src\shaders\vertexPassthrough.glsl" />
     <Text Include="src\shaders\vertexShadow.glsl" />
+    <Text Include="src\shaders\fragmentDepthDisplay.glsl" />
   </ItemGroup>
 </Project>
