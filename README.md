@@ -4,6 +4,8 @@ GitHub URL: http://github.com/LXShades/comp220-portfolio
 # Overview
 Explore the Critical Critters map with specular lighting, shadows and animations on display!  
 
+**Must be compiled in x86 mode!**  
+
 # Controls
 Mouse - Look  
 WASD - Move Camera  
