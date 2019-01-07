@@ -1,7 +1,19 @@
 # Comp220  
-# Journal of Debugging, Pain and Suffering
-See my painful experience learning that sending arrays to the vertex shader is no simple process:  
+GitHub URL: http://github.com/LXShades/comp220-portfolio  
 
+# Overview
+Explore the Critical Critters map with specular lighting, shadows and animations on display!  
+
+# Controls
+Mouse - Look  
+WASD - Move Camera  
+Shift (hold) - Move Camera, Faster This Time  
+F: Toggle fullscreen  
+H: Toggle shadow map debug display  
+M: Unlock/lock mouse to window  
+
+# Journal of Debugging, Pain and Suffering
+See my painful experiences in debugging:  
 https://docs.google.com/document/d/1lxwIw97dXd98MP8qnqwXaFcf5OI3C4ArnbVfRzrBhM0/edit?usp=sharing
 
 # Plan for next iteration
@@ -19,16 +31,6 @@ https://docs.google.com/document/d/1lxwIw97dXd98MP8qnqwXaFcf5OI3C4ArnbVfRzrBhM0/
  + Move shadow with camera?
  + Expand shadow area?
 + Fix slow running time in Debug mode
-
-
-## Further develpoment
-- Ideal Target: You run around as the Bunny in a grassy sunny land and collect the things. Requirements:
- - Create a Grass shader
- - Place the Grass
- - Add Sphere collision:
-  - Add Collision Mesh object
-  - Add Sphere vs Polygon collision
-    - Collider::Versus<Type>
 
 # Resources
 **Bone animation**  
