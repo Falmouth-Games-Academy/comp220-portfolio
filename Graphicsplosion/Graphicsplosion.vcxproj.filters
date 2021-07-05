@@ -1,0 +1,115 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="src\actors">
+      <UniqueIdentifier>{660609c0-6e8e-42bc-92d2-8a891e57b292}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src">
+      <UniqueIdentifier>{1b15b9a8-7291-40d8-a433-05f6031828ad}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\main">
+      <UniqueIdentifier>{be773174-e504-43b7-9e0e-a970215685fd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\render">
+      <UniqueIdentifier>{35d516af-3f94-4f03-98c2-5a61c1d47a8b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\sdl">
+      <UniqueIdentifier>{e8e27997-9946-4577-9131-0e03beaa26df}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\helpers">
+      <UniqueIdentifier>{f9a327e2-a215-465a-bc2f-89505de069c6}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\actors\Player.cpp">
+      <Filter>src\actors</Filter>
+    </ClCompile>
+    <ClCompile Include="src\main\Game.cpp">
+      <Filter>src\main</Filter>
+    </ClCompile>
+    <ClCompile Include="src\main\Graphicsplosion.cpp">
+      <Filter>src\main</Filter>
+    </ClCompile>
+    <ClCompile Include="src\main\Input.cpp">
+      <Filter>src\main</Filter>
+    </ClCompile>
+    <ClCompile Include="src\main\main.cpp">
+      <Filter>src\main</Filter>
+    </ClCompile>
+    <ClCompile Include="src\main\Time.cpp">
+      <Filter>src\main</Filter>
+    </ClCompile>
+    <ClCompile Include="src\render\Model.cpp">
+      <Filter>src\render</Filter>
+    </ClCompile>
+    <ClCompile Include="src\render\Renderer.cpp">
+      <Filter>src\render</Filter>
+    </ClCompile>
+    <ClCompile Include="src\sdl\SdlWrapper.cpp">
+      <Filter>src\sdl</Filter>
+    </ClCompile>
+    <ClCompile Include="src\sdl\Window.cpp">
+      <Filter>src\sdl</Filter>
+    </ClCompile>
+    <ClCompile Include="src\stdafx.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\actors\Actor.cpp" />
+    <ClCompile Include="src\render\Texture.cpp" />
+    <ClCompile Include="src\render\ShaderProgram.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\sdl\Window.h">
+      <Filter>src\sdl</Filter>
+    </ClInclude>
+    <ClInclude Include="src\helpers\math.h">
+      <Filter>src\helpers</Filter>
+    </ClInclude>
+    <ClInclude Include="src\actors\Actor.h">
+      <Filter>src\actors</Filter>
+    </ClInclude>
+    <ClInclude Include="src\actors\Player.h">
+      <Filter>src\actors</Filter>
+    </ClInclude>
+    <ClInclude Include="src\main\Game.h">
+      <Filter>src\main</Filter>
+    </ClInclude>
+    <ClInclude Include="src\main\Graphicsplosion.h">
+      <Filter>src\main</Filter>
+    </ClInclude>
+    <ClInclude Include="src\main\Input.h">
+      <Filter>src\main</Filter>
+    </ClInclude>
+    <ClInclude Include="src\main\Time.h">
+      <Filter>src\main</Filter>
+    </ClInclude>
+    <ClInclude Include="src\render\Model.h">
+      <Filter>src\render</Filter>
+    </ClInclude>
+    <ClInclude Include="src\render\Renderer.h">
+      <Filter>src\render</Filter>
+    </ClInclude>
+    <ClInclude Include="src\sdl\SdlWrapper.h">
+      <Filter>src\sdl</Filter>
+    </ClInclude>
+    <ClInclude Include="src\stdafx.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\render\VertexFormat.h" />
+    <ClInclude Include="src\render\ShaderProgram.h" />
+    <ClInclude Include="src\render\RenderResource.h" />
+    <ClInclude Include="src\render\GenericBuffer.h" />
+    <ClInclude Include="src\render\VertexBuffer.h" />
+    <ClInclude Include="src\render\IndexBuffer.h" />
+    <ClInclude Include="src\render\Texture.h" />
+    <ClInclude Include="src\render\DirectionalLight.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="ReadMe.txt" />
+    <Text Include="src\shaders\fragmentPostProcess.glsl" />
+    <Text Include="src\shaders\fragmentShadow.glsl" />
+    <Text Include="src\shaders\vertexPassthrough.glsl" />
+    <Text Include="src\shaders\vertexShadow.glsl" />
+    <Text Include="src\shaders\fragmentDepthDisplay.glsl" />
+  </ItemGroup>
+</Project>
